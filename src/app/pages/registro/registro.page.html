@@ -1,7 +1,10 @@
 <ion-header class="ion-no-border registro-header">
  <ion-toolbar>
   <ion-buttons slot="start">
-   <ion-back-button defaultHref="/login" text="Volver"></ion-back-button>
+   <ion-button fill="clear" (click)="volverLogin()">
+    <ion-icon name="arrow-back-outline" slot="start"></ion-icon>
+    Volver
+   </ion-button>
   </ion-buttons>
  </ion-toolbar>
 </ion-header>
@@ -84,7 +87,7 @@
   </ion-button>
 
   <div class="registro-login">
-   <p>¿Ya tienes una cuenta? <a routerLink="/login">Inicia sesión</a></p>
+   <p>¿Ya tienes una cuenta? <a (click)="volverLogin()">Inicia sesión</a></p>
   </div>
 
  </div>
