@@ -1,4 +1,7 @@
 export const environment = {
-  production: true,
-  //apiUrl: 'https://veedores.onrender.com/api/'
+  production: false,
+  //hosting de producción
+   apiUrl: 'https://veedores.onrender.com/api/',
+   socketUrl: 'https://veedores.onrender.com'
+
 };
