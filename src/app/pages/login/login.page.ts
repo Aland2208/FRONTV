@@ -3,7 +3,6 @@ import {CommonModule} from '@angular/common';
 import {FormsModule} from '@angular/forms';
 import {Router,RouterLink} from '@angular/router';
 import {Auth} from './../../servicios/auth';
-
 import {
  IonContent,
  IonItem,
@@ -42,12 +41,9 @@ export class LoginPage implements OnInit{
   private toastCtrl:ToastController
  ){}
 
- ngOnInit(){
-  this.Auth.cerrarSesion();
- }
+ ngOnInit(){}
 
  iniciarSesion(){
-  // Evita ejecutar el login varias veces
   if(this.cargando) return;
 
   if(!this.correo.trim()||!this.password){
@@ -77,7 +73,9 @@ export class LoginPage implements OnInit{
     this.password='';
 
     this.mostrarMensaje(`¡Bienvenido ${nombre}!`,'success');
-    this.router.navigate(['/home']);
+
+    // Reemplaza Login por Home en el historial
+    this.router.navigate(['/home'],{replaceUrl:true});
    },
 
    error:(err)=>{
