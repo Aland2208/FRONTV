@@ -87,35 +87,42 @@ export class Auth {
         nombre: string,
         idRol: number
     ): void {
-        localStorage.setItem('veedor_token', token);
-        localStorage.setItem('veedor_id', idUsuario.toString());
-        localStorage.setItem('veedor_nombre', nombre);
-        localStorage.setItem('veedor_rol', idRol.toString());
+        sessionStorage.setItem('veedor_token', token);
+        sessionStorage.setItem('veedor_id', idUsuario.toString());
+        sessionStorage.setItem('veedor_nombre', nombre);
+        sessionStorage.setItem('veedor_rol', idRol.toString());
     }
 
     obtenerToken(): string | null {
-        return localStorage.getItem('veedor_token');
+        return sessionStorage.getItem('veedor_token');
     }
 
     obtenerIdUsuario(): number | null {
-        const id = localStorage.getItem('veedor_id');
+        const id = sessionStorage.getItem('veedor_id');
         return id ? Number(id) : null;
     }
 
     obtenerNombre(): string | null {
-        return localStorage.getItem('veedor_nombre');
+        return sessionStorage.getItem('veedor_nombre');
     }
 
     obtenerRol(): number | null {
-        const rol = localStorage.getItem('veedor_rol');
+        const rol = sessionStorage.getItem('veedor_rol');
         return rol ? Number(rol) : null;
     }
 
     actualizarNombre(nombre: string): void {
-        localStorage.setItem('veedor_nombre', nombre);
+        sessionStorage.setItem('veedor_nombre', nombre);
     }
 
     cerrarSesion(): void {
+        // Sesión actual
+        sessionStorage.removeItem('veedor_token');
+        sessionStorage.removeItem('veedor_id');
+        sessionStorage.removeItem('veedor_nombre');
+        sessionStorage.removeItem('veedor_rol');
+
+        // Limpia sesiones antiguas que quedaron en localStorage
         localStorage.removeItem('veedor_token');
         localStorage.removeItem('veedor_id');
         localStorage.removeItem('veedor_nombre');
