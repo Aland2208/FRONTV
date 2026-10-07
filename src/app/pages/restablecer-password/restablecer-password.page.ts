@@ -34,6 +34,8 @@ export class RestablecerPasswordPage implements OnInit {
   nuevaPassword: string = '';
   confirmarPassword: string = '';
   cargando: boolean = false;
+  validandoToken: boolean = true;
+  tokenValido: boolean = false;
 
   constructor(
     private route: ActivatedRoute,
@@ -43,20 +45,42 @@ export class RestablecerPasswordPage implements OnInit {
   ) { }
 
   ngOnInit() {
-    this.route.queryParams.subscribe(params => {
-      this.token = params['token'];
+    this.token = this.route.snapshot.queryParamMap.get('token') || '';
 
-      if (!this.token) {
+    if (!this.token) {
+      this.regresarLogin();
+      return;
+    }
+
+    this.validarToken();
+  }
+
+  validarToken() {
+    this.validandoToken = true;
+
+    this.authService.validarTokenRecuperacion(this.token).subscribe({
+      next: () => {
+        this.tokenValido = true;
+        this.validandoToken = false;
+      },
+
+      error: () => {
+        this.tokenValido = false;
+        this.validandoToken = false;
+
         this.mostrarMensaje(
-          'Enlace inválido. Vuelve a solicitar el correo.',
-          'danger'
+          'Este enlace expiró o ya fue utilizado.',
+          'warning'
         );
-        this.router.navigate(['/login']);
+
+        this.regresarLogin();
       }
     });
   }
 
   cambiarPassword() {
+    if (this.cargando || !this.tokenValido) return;
+
     if (!this.nuevaPassword || !this.confirmarPassword) {
       this.mostrarMensaje('Completa ambos campos.', 'warning');
       return;
@@ -87,28 +111,36 @@ export class RestablecerPasswordPage implements OnInit {
       next: () => {
         this.cargando = false;
 
-        // Limpiar formulario
         this.nuevaPassword = '';
         this.confirmarPassword = '';
+
+        sessionStorage.setItem('bloquear_retroceso_login', 'true');
 
         this.mostrarMensaje(
           '¡Contraseña actualizada con éxito!',
           'success'
         );
 
-        this.router.navigate(['/login']);
+        this.router.navigate(['/login'], { replaceUrl: true });
       },
+
       error: (err) => {
         this.cargando = false;
 
         this.mostrarMensaje(
-          err.error?.mensaje ||
-          'El enlace caducó o es inválido.',
+          err.error?.mensaje || 'El enlace caducó o es inválido.',
           'danger'
         );
       }
     });
   }
+
+  regresarLogin() {
+    this.router.navigate(['/login'], {
+      replaceUrl: true
+    });
+  }
+
   async mostrarMensaje(mensaje: string, color: string) {
     const toast = await this.toastCtrl.create({
       message: mensaje,

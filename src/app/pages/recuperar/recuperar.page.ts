@@ -1,64 +1,122 @@
-import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
-import { Auth } from './../../servicios/auth';
-
-// Importaciones Standalone
-import { 
-  IonContent, IonHeader, IonTitle, IonToolbar, 
-  IonCard, IonCardContent, IonItem, IonLabel, 
-  IonInput, IonButton, IonSpinner, IonButtons, 
-  IonBackButton, ToastController,IonIcon
+import {Component,OnInit,OnDestroy} from '@angular/core';
+import {CommonModule,Location} from '@angular/common';
+import {FormsModule} from '@angular/forms';
+import {Router} from '@angular/router';
+import {Auth} from './../../servicios/auth';
+import {
+ IonContent,IonHeader,IonToolbar,IonItem,IonInput,IonButton,
+ IonSpinner,IonButtons,ToastController,IonIcon
 } from '@ionic/angular/standalone';
 
 @Component({
-  selector: 'app-recuperar',
-  templateUrl: './recuperar.page.html',
-  styleUrls: ['./recuperar.page.scss'],
-  standalone: true,
-  imports: [
-    IonContent, IonHeader, IonTitle, IonToolbar, 
-    IonCard, IonCardContent, IonItem, IonLabel, 
-    IonInput, IonButton, IonSpinner, IonButtons, 
-    IonBackButton, CommonModule, FormsModule,IonIcon
-  ]
+ selector:'app-recuperar',
+ templateUrl:'./recuperar.page.html',
+ styleUrls:['./recuperar.page.scss'],
+ standalone:true,
+ imports:[
+  IonContent,IonHeader,IonToolbar,IonItem,IonInput,IonButton,
+  IonSpinner,IonButtons,CommonModule,FormsModule,IonIcon
+ ]
 })
-export class RecuperarPage implements OnInit {
-  correo: string = '';
-  cargando: boolean = false;
-  correoEnviado: boolean = false;
+export class RecuperarPage implements OnInit,OnDestroy{
+ correo:string='';
+ correoDestino:string='';
+ cargando:boolean=false;
+ correoEnviado:boolean=false;
 
-  constructor(
-    private authService: Auth,
-    private toastCtrl: ToastController
-  ) { }
+ private bloquearHistorial=false;
 
-  ngOnInit() { }
+ private manejarPopState=()=>{
+  if(this.bloquearHistorial){
+   history.pushState({recuperacion:true},'',this.router.url);
+  }
+ };
 
-  enviarCorreo() {
-    if (!this.correo) {
-      this.mostrarMensaje('Ingresa el correo asociado a tu cuenta.', 'warning');
-      return;
-    }
+ constructor(
+  private authService:Auth,
+  private toastCtrl:ToastController,
+  private router:Router,
+  private location:Location
+ ){}
 
-    this.cargando = true;
-    this.authService.solicitarRecuperacion(this.correo).subscribe({
-      next: (res) => {
-        this.cargando = false;
-        this.correoEnviado = true; 
-        this.mostrarMensaje('Te hemos enviado un correo con instrucciones.', 'success');
-      },
-      error: (err) => {
-        this.cargando = false;
-        this.mostrarMensaje(err.error?.mensaje || 'Error al solicitar recuperación', 'danger');
-      }
-    });
+ ngOnInit(){
+  window.addEventListener('popstate',this.manejarPopState);
+ }
+
+ ngOnDestroy(){
+  window.removeEventListener('popstate',this.manejarPopState);
+ }
+
+ volverLogin(){
+  if(this.correoEnviado) return;
+
+  window.location.replace('/login');
+ }
+
+ enviarCorreo(){
+  if(!this.correo.trim()){
+   this.mostrarMensaje(
+    'Ingresa el correo asociado a tu cuenta.',
+    'warning'
+   );
+   return;
   }
 
-  async mostrarMensaje(mensaje: string, color: string) {
-    const toast = await this.toastCtrl.create({
-      message: mensaje, duration: 3000, color: color, position: 'bottom'
-    });
-    toast.present();
-  }
+  if(this.cargando) return;
+
+  this.cargando=true;
+
+  this.authService.solicitarRecuperacion(this.correo.trim()).subscribe({
+   next:()=>{
+    this.cargando=false;
+
+    this.correoDestino=this.correo.trim();
+    this.correo='';
+    this.correoEnviado=true;
+
+    this.activarBloqueoHistorial();
+
+    this.mostrarMensaje(
+     'Te hemos enviado un correo con instrucciones.',
+     'success'
+    );
+   },
+
+   error:(err)=>{
+    this.cargando=false;
+
+    this.mostrarMensaje(
+     err.error?.mensaje||'Error al solicitar recuperación',
+     'danger'
+    );
+   }
+  });
+ }
+
+ private activarBloqueoHistorial(){
+  this.bloquearHistorial=true;
+
+  history.replaceState(
+   {recuperacion:true},
+   '',
+   this.router.url
+  );
+
+  history.pushState(
+   {recuperacion:true},
+   '',
+   this.router.url
+  );
+ }
+
+ async mostrarMensaje(mensaje:string,color:string){
+  const toast=await this.toastCtrl.create({
+   message:mensaje,
+   duration:3000,
+   color,
+   position:'bottom'
+  });
+
+  await toast.present();
+ }
 }

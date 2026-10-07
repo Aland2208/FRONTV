@@ -108,7 +108,9 @@ import {
 
   listOutline,
   imagesOutline,
-  imageOutline
+  imageOutline,
+
+  checkmarkOutline
 } from 'ionicons/icons';
 
 addIcons({
@@ -213,7 +215,8 @@ addIcons({
 
   'list-outline': listOutline,
   'images-outline': imagesOutline,
-  'image-outline': imageOutline
+  'image-outline': imageOutline,
+  "checkmark-outline" : checkmarkOutline
 });
 
 bootstrapApplication(AppComponent, {

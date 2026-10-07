@@ -1,86 +1,79 @@
 <ion-header class="ion-no-border recuperar-header">
-  <ion-toolbar>
-    <ion-buttons slot="start">
-      <ion-back-button defaultHref="/login" text="Volver"></ion-back-button>
-    </ion-buttons>
-  </ion-toolbar>
+ <ion-toolbar>
+  <ion-buttons slot="start" *ngIf="!correoEnviado">
+   <ion-button fill="clear" (click)="volverLogin()">
+    <ion-icon name="arrow-back-outline" slot="start"></ion-icon>
+    Volver
+   </ion-button>
+  </ion-buttons>
+ </ion-toolbar>
 </ion-header>
 
 <ion-content class="recuperar-content">
-  <div class="recuperar-wrap">
+ <div class="recuperar-wrap">
 
-    <div class="recuperar-hero">
-      <span class="recuperar-eyebrow">Seguridad de la cuenta</span>
+  <div class="recuperar-hero">
+   <span class="recuperar-eyebrow">Seguridad de la cuenta</span>
 
-      <div class="recuperar-icon">
-        <ion-icon name="key-outline"></ion-icon>
-      </div>
+   <div class="recuperar-icon">
+    <ion-icon name="key-outline"></ion-icon>
+   </div>
 
-      <h1>Recuperar Contraseña</h1>
+   <h1>Recuperar Contraseña</h1>
 
-      <p *ngIf="!correoEnviado">
-        Ingresa tu correo para recibir un enlace de recuperación.
-      </p>
+   <p *ngIf="!correoEnviado">
+    Ingresa tu correo para recibir un enlace de recuperación.
+   </p>
+  </div>
+
+  <div *ngIf="!correoEnviado">
+
+   <div class="recuperar-card">
+    <div class="field">
+     <label class="field__label">Correo electrónico</label>
+
+     <ion-item lines="none" class="field__box">
+      <ion-input
+       type="email"
+       [(ngModel)]="correo"
+       placeholder="ejemplo@correo.com"
+       autocomplete="email">
+      </ion-input>
+     </ion-item>
     </div>
+   </div>
 
-    <!-- FORMULARIO -->
-    <div *ngIf="!correoEnviado">
+   <ion-button
+    expand="block"
+    shape="round"
+    class="btn-recuperar"
+    (click)="enviarCorreo()"
+    [disabled]="cargando">
 
-      <div class="recuperar-card">
-        <div class="field">
-          <label class="field__label">
-            Correo electrónico
-          </label>
+    <span *ngIf="!cargando">Enviar correo</span>
+    <ion-spinner *ngIf="cargando" name="crescent"></ion-spinner>
 
-          <ion-item lines="none" class="field__box">
-            <ion-input
-              type="email"
-              [(ngModel)]="correo"
-              placeholder="ejemplo@correo.com"
-              autocomplete="email">
-            </ion-input>
-          </ion-item>
-        </div>
-      </div>
+   </ion-button>
+  </div>
 
-      <ion-button
-        expand="block"
-        shape="round"
-        class="btn-recuperar"
-        (click)="enviarCorreo()"
-        [disabled]="cargando">
+  <div *ngIf="correoEnviado" class="exito-card">
 
-        <span *ngIf="!cargando">
-          Enviar correo
-        </span>
+   <div class="exito-icon">
+    <ion-icon name="checkmark-outline"></ion-icon>
+   </div>
 
-        <ion-spinner
-          *ngIf="cargando"
-          name="crescent">
-        </ion-spinner>
+   <h3>¡Revisa tu bandeja de entrada!</h3>
 
-      </ion-button>
-    </div>
+   <p>
+    Hemos enviado un enlace seguro al correo
+    <strong>{{correoDestino}}</strong>.
+   </p>
 
-    <!-- CORREO ENVIADO -->
-    <div *ngIf="correoEnviado" class="exito-card">
-
-      <div class="exito-icon">
-        <ion-icon name="checkmark-outline"></ion-icon>
-      </div>
-
-      <h3>¡Revisa tu bandeja de entrada!</h3>
-
-      <p>
-        Hemos enviado un enlace seguro al correo
-        <strong>{{ correo }}</strong>.
-      </p>
-
-      <span>
-        Si no lo ves, revisa la carpeta de Spam.
-      </span>
-
-    </div>
+   <span>
+    Si no lo ves, revisa la carpeta de Spam.
+   </span>
 
   </div>
+
+ </div>
 </ion-content>

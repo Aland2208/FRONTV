@@ -1,16 +1,11 @@
-import {Component,OnInit} from '@angular/core';
+import {Component,OnInit,OnDestroy} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {FormsModule} from '@angular/forms';
-import {Router,RouterLink} from '@angular/router';
+import {Router} from '@angular/router';
 import {Auth} from './../../servicios/auth';
 import {
- IonContent,
- IonItem,
- IonInput,
- IonButton,
- IonSpinner,
- ToastController,
- IonIcon
+ IonContent,IonItem,IonInput,IonButton,IonSpinner,
+ ToastController,IonIcon
 } from '@ionic/angular/standalone';
 
 @Component({
@@ -19,21 +14,25 @@ import {
  styleUrls:['./login.page.scss'],
  standalone:true,
  imports:[
-  IonContent,
-  IonItem,
-  IonInput,
-  IonButton,
-  IonSpinner,
-  IonIcon,
-  CommonModule,
-  FormsModule,
-  RouterLink
+  IonContent,IonItem,IonInput,IonButton,IonSpinner,
+  IonIcon,CommonModule,FormsModule
  ]
 })
-export class LoginPage implements OnInit{
+export class LoginPage implements OnInit,OnDestroy{
  correo:string='';
  password:string='';
  cargando:boolean=false;
+ private bloquearRetroceso=false;
+
+ private onPopState=()=>{
+  if(!this.bloquearRetroceso) return;
+
+  history.pushState(
+   {vigiaLogin:true},
+   '',
+   '/login'
+  );
+ };
 
  constructor(
   private Auth:Auth,
@@ -41,13 +40,49 @@ export class LoginPage implements OnInit{
   private toastCtrl:ToastController
  ){}
 
- ngOnInit(){}
+ ngOnInit(){
+  if(sessionStorage.getItem('bloquear_retroceso_login')==='true'){
+   this.bloquearRetroceso=true;
+
+   sessionStorage.removeItem('bloquear_retroceso_login');
+
+   history.pushState(
+    {vigiaLogin:true},
+    '',
+    '/login'
+   );
+
+   window.addEventListener('popstate',this.onPopState);
+  }
+ }
+
+ ngOnDestroy(){
+  window.removeEventListener('popstate',this.onPopState);
+ }
+
+ irRegistro(){
+  this.desactivarBloqueo();
+  this.router.navigate(['/registro']);
+ }
+
+ irRecuperar(){
+  this.desactivarBloqueo();
+  this.router.navigate(['/recuperar']);
+ }
+
+ private desactivarBloqueo(){
+  this.bloquearRetroceso=false;
+  window.removeEventListener('popstate',this.onPopState);
+ }
 
  iniciarSesion(){
   if(this.cargando) return;
 
   if(!this.correo.trim()||!this.password){
-   this.mostrarMensaje('Ingresa tu correo y contraseña.','warning');
+   this.mostrarMensaje(
+    'Ingresa tu correo y contraseña.',
+    'warning'
+   );
    return;
   }
 
@@ -72,9 +107,13 @@ export class LoginPage implements OnInit{
     this.correo='';
     this.password='';
 
-    this.mostrarMensaje(`¡Bienvenido ${nombre}!`,'success');
+    this.desactivarBloqueo();
 
-    // Reemplaza Login por Home en el historial
+    this.mostrarMensaje(
+     `¡Bienvenido ${nombre}!`,
+     'success'
+    );
+
     this.router.navigate(['/home'],{replaceUrl:true});
    },
 
