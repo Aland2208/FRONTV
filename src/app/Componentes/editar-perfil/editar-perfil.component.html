@@ -1,0 +1,144 @@
+<div class="perfil-page">
+
+  <!-- ENCABEZADO -->
+  <div class="perfil-header">
+    <div>
+      <span class="etiqueta">MI CUENTA</span>
+      <h1>Editar información</h1>
+      <p>Actualiza la información asociada a tu cuenta.</p>
+    </div>
+  </div>
+
+  <!-- CARGANDO -->
+  <div class="estado-carga" *ngIf="cargando">
+    <ion-spinner name="crescent"></ion-spinner>
+    <span>Cargando información...</span>
+  </div>
+
+  <!-- FORMULARIO -->
+  <div class="perfil-card" *ngIf="!cargando">
+
+    <!-- CABECERA DEL PERFIL -->
+    <div class="usuario-resumen">
+      <div class="avatar">
+        <ion-icon name="person-outline"></ion-icon>
+      </div>
+
+      <div>
+        <span>INFORMACIÓN PERSONAL</span>
+        <h2>{{ nombre }} {{ apellido }}</h2>
+        <p>{{ correo }}</p>
+      </div>
+    </div>
+
+    <!-- MENSAJE DE ERROR -->
+    <div class="mensaje mensaje-error" *ngIf="error">
+      <ion-icon name="alert-circle-outline"></ion-icon>
+      <span>{{ error }}</span>
+    </div>
+
+    <!-- MENSAJE DE ÉXITO -->
+    <div class="mensaje mensaje-exito" *ngIf="mensajeExito">
+      <ion-icon name="checkmark-circle-outline"></ion-icon>
+      <span>{{ mensajeExito }}</span>
+    </div>
+
+    <form (ngSubmit)="guardarCambios()">
+
+      <div class="form-grid">
+
+        <!-- NOMBRE -->
+        <div class="campo">
+          <label for="nombre">
+            Nombre
+            <span>*</span>
+          </label>
+
+          <div class="input-contenedor">
+            <ion-icon name="person-outline"></ion-icon>
+
+            <input
+              id="nombre"
+              type="text"
+              name="nombre"
+              [(ngModel)]="nombre"
+              maxlength="100"
+              autocomplete="given-name"
+              placeholder="Ingrese su nombre">
+          </div>
+        </div>
+
+        <!-- APELLIDO -->
+        <div class="campo">
+          <label for="apellido">
+            Apellido
+            <span>*</span>
+          </label>
+
+          <div class="input-contenedor">
+            <ion-icon name="person-outline"></ion-icon>
+
+            <input
+              id="apellido"
+              type="text"
+              name="apellido"
+              [(ngModel)]="apellido"
+              maxlength="100"
+              autocomplete="family-name"
+              placeholder="Ingrese su apellido">
+          </div>
+        </div>
+
+      </div>
+
+      <!-- CORREO -->
+      <div class="campo">
+        <label for="correo">
+          Correo electrónico
+          <span>*</span>
+        </label>
+
+        <div class="input-contenedor">
+          <ion-icon name="mail-outline"></ion-icon>
+
+          <input
+            id="correo"
+            type="email"
+            name="correo"
+            [(ngModel)]="correo"
+            maxlength="150"
+            autocomplete="email"
+            placeholder="correo@ejemplo.com">
+        </div>
+
+        <small>
+          Este correo está asociado a tu cuenta.
+        </small>
+      </div>
+
+      <!-- BOTÓN -->
+      <div class="acciones">
+        <button
+          class="btn-guardar"
+          type="submit"
+          [disabled]="guardando">
+
+          <ion-spinner
+            *ngIf="guardando"
+            name="crescent">
+          </ion-spinner>
+
+          <ion-icon
+            *ngIf="!guardando"
+            name="save-outline">
+          </ion-icon>
+
+          {{ guardando ? 'Guardando...' : 'Guardar cambios' }}
+        </button>
+      </div>
+
+    </form>
+
+  </div>
+
+</div>

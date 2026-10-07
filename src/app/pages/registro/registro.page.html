@@ -1,0 +1,91 @@
+<ion-header class="ion-no-border registro-header">
+ <ion-toolbar>
+  <ion-buttons slot="start">
+   <ion-back-button defaultHref="/login" text="Volver"></ion-back-button>
+  </ion-buttons>
+ </ion-toolbar>
+</ion-header>
+
+<ion-content class="registro-content">
+ <div class="registro-wrap">
+
+  <div class="registro-hero">
+   <span class="registro-eyebrow">Sistema VIGÍA</span>
+   <div class="registro-icon">
+    <ion-icon name="person-add-outline"></ion-icon>
+   </div>
+   <h1>Crear Cuenta</h1>
+   <p>Únete al sistema de Observador de Pesca</p>
+  </div>
+
+  <div class="registro-card">
+
+   <div class="field">
+    <label class="field__label">Nombre</label>
+    <ion-item lines="none" class="field__box">
+     <ion-input type="text" [(ngModel)]="usuario.nombre" placeholder="Ej. Juan" autocomplete="given-name"></ion-input>
+    </ion-item>
+   </div>
+
+   <div class="field">
+    <label class="field__label">Apellido</label>
+    <ion-item lines="none" class="field__box">
+     <ion-input type="text" [(ngModel)]="usuario.apellido" placeholder="Ej. Pérez" autocomplete="family-name"></ion-input>
+    </ion-item>
+   </div>
+
+   <div class="field">
+    <label class="field__label">Correo electrónico</label>
+    <ion-item lines="none" class="field__box">
+     <ion-input type="email" [(ngModel)]="usuario.correo" placeholder="ejemplo@correo.com" autocomplete="email"></ion-input>
+    </ion-item>
+   </div>
+
+   <div class="field">
+    <label class="field__label">Contraseña</label>
+    <ion-item lines="none" class="field__box">
+     <ion-input type="password" [(ngModel)]="usuario.password" placeholder="Ingresa tu contraseña" autocomplete="new-password"></ion-input>
+    </ion-item>
+   </div>
+
+   <div class="field">
+    <label class="field__label">Tipo de cuenta</label>
+
+    <div class="roles">
+     <button type="button" class="rol-card" [class.rol-activo]="usuario.id_rol===2" (click)="seleccionarRol(2)">
+      <div class="rol-icon">
+       <ion-icon name="binoculars-outline"></ion-icon>
+      </div>
+      <div class="rol-info">
+       <strong>Observador</strong>
+       <span>Registra capturas y reportes de pesca.</span>
+      </div>
+      <ion-icon class="rol-check" [name]="usuario.id_rol===2?'checkmark-circle':'ellipse-outline'"></ion-icon>
+     </button>
+
+     <button type="button" class="rol-card" [class.rol-activo]="usuario.id_rol===1" (click)="seleccionarRol(1)">
+      <div class="rol-icon">
+       <ion-icon name="shield-checkmark-outline"></ion-icon>
+      </div>
+      <div class="rol-info">
+       <strong>Administrador</strong>
+       <span>Gestiona observadores y supervisa información.</span>
+      </div>
+      <ion-icon class="rol-check" [name]="usuario.id_rol===1?'checkmark-circle':'ellipse-outline'"></ion-icon>
+     </button>
+    </div>
+   </div>
+
+  </div>
+
+  <ion-button expand="block" shape="round" class="btn-registro" (click)="registrar()" [disabled]="cargando">
+   <span *ngIf="!cargando">Registrarse</span>
+   <ion-spinner *ngIf="cargando" name="crescent"></ion-spinner>
+  </ion-button>
+
+  <div class="registro-login">
+   <p>¿Ya tienes una cuenta? <a routerLink="/login">Inicia sesión</a></p>
+  </div>
+
+ </div>
+</ion-content>

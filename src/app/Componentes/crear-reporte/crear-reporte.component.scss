@@ -1,0 +1,1536 @@
+:host {
+    --abyss: #0a1f33;
+    --abyss-light: #123354;
+
+    --teal: #12969e;
+    --teal-glow: #4fd1c5;
+
+    --coral: #ff6b4a;
+
+    --foam: #f2f7fa;
+
+    --surface: #ffffff;
+
+    --ink: #1b2b3a;
+
+    --slate: #5a6b7a;
+
+    --success: #1fae7c;
+
+    --danger: #e5484d;
+
+    --warning-bg: #fff4e5;
+    --warning-text: #8a5300;
+
+    font-family:
+        'IBM Plex Sans',
+        -apple-system,
+        sans-serif;
+}
+
+
+/* ==========================================
+   CONTENEDOR
+========================================== */
+
+.crear-reporte-container {
+    width: 100%;
+    max-width: 1100px;
+
+    margin: 0 auto;
+
+    padding: 24px;
+
+    box-sizing: border-box;
+}
+
+
+/* ==========================================
+   HEADER
+========================================== */
+
+.reporte-header {
+    margin-bottom: 20px;
+}
+
+
+.eyebrow {
+    display: block;
+
+    color: var(--teal);
+
+    font-size: 12px;
+    font-weight: 700;
+
+    text-transform: uppercase;
+
+    letter-spacing: 1.4px;
+
+    margin-bottom: 5px;
+}
+
+
+.reporte-header h1 {
+    color: var(--abyss);
+
+    font-size: 28px;
+
+    margin: 0;
+}
+
+
+.reporte-header p {
+    color: var(--slate);
+
+    margin: 6px 0 0;
+}
+
+
+/* ==========================================
+   USUARIO
+========================================== */
+
+.usuario-card {
+    display: flex;
+
+    align-items: center;
+
+    gap: 12px;
+
+    background: var(--surface);
+
+    border-radius: 16px;
+
+    padding: 14px 16px;
+
+    margin-bottom: 20px;
+
+    box-shadow:
+        0 5px 18px rgba(10, 31, 51, 0.07);
+}
+
+
+.usuario-icon {
+    width: 42px;
+    height: 42px;
+
+    flex-shrink: 0;
+
+    border-radius: 12px;
+
+    background:
+        rgba(18, 150, 158, 0.10);
+
+    color: var(--teal);
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    font-size: 22px;
+}
+
+
+.usuario-label {
+    display: block;
+
+    color: var(--slate);
+
+    font-size: 12px;
+
+    margin-bottom: 2px;
+}
+
+
+.usuario-card strong {
+    color: var(--abyss);
+}
+
+
+/* ==========================================
+   RESUMEN GENERAL
+========================================== */
+
+.resumen-grid {
+    display: grid;
+
+    grid-template-columns:
+        repeat(3, 1fr);
+
+    gap: 14px;
+
+    margin-bottom: 24px;
+}
+
+
+.resumen-card {
+    background: var(--surface);
+
+    border-radius: 16px;
+
+    padding: 18px;
+
+    box-shadow:
+        0 5px 18px rgba(10, 31, 51, 0.07);
+}
+
+
+.resumen-label {
+    display: block;
+
+    color: var(--slate);
+
+    font-size: 12px;
+
+    margin-bottom: 7px;
+}
+
+
+.resumen-value {
+    color: var(--abyss);
+
+    font-size: 25px;
+}
+
+
+.resumen-value small {
+    font-size: 13px;
+
+    color: var(--slate);
+}
+
+
+/* ==========================================
+   LISTA PRINCIPAL
+========================================== */
+
+.lista-reportes {
+    background: var(--surface);
+
+    border-radius: 18px;
+
+    padding: 20px;
+
+    box-shadow:
+        0 5px 20px rgba(10, 31, 51, 0.08);
+}
+
+
+.lista-header {
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+
+    gap: 15px;
+
+    margin-bottom: 18px;
+}
+
+
+.lista-header h2 {
+    color: var(--abyss);
+
+    margin: 0;
+
+    font-size: 20px;
+}
+
+
+.cantidad-chip {
+    min-width: 34px;
+    height: 34px;
+
+    padding: 0 10px;
+
+    border-radius: 17px;
+
+    background: var(--abyss);
+
+    color: white;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    font-weight: 700;
+}
+
+
+/* ==========================================
+   GRUPO POR ESPECIE
+========================================== */
+
+.grupo-especie {
+    padding: 24px 0 30px;
+
+    border-bottom:
+        1px solid #e1e9ed;
+}
+
+
+.grupo-especie:first-of-type {
+    padding-top: 10px;
+}
+
+
+.grupo-especie:last-child {
+    border-bottom: none;
+
+    padding-bottom: 5px;
+}
+
+
+/* ==========================================
+   CABECERA DE ESPECIE
+========================================== */
+
+.especie-header {
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    gap: 18px;
+
+    margin-bottom: 16px;
+}
+
+
+.especie-info {
+    min-width: 0;
+}
+
+
+.registro-id {
+    color: var(--teal);
+
+    font-size: 11px;
+
+    font-weight: 700;
+
+    text-transform: uppercase;
+
+    letter-spacing: 0.5px;
+}
+
+
+.especie-info h3 {
+    margin: 4px 0 2px;
+
+    color: var(--abyss);
+
+    font-size: 21px;
+
+    line-height: 1.2;
+}
+
+
+.nombre-cientifico {
+    color: var(--slate);
+
+    font-size: 12px;
+
+    font-style: italic;
+
+    margin: 0;
+}
+
+
+.capturas-chip {
+    min-width: 76px;
+
+    padding: 9px 13px;
+
+    box-sizing: border-box;
+
+    border-radius: 12px;
+
+    background:
+        rgba(18, 150, 158, 0.10);
+
+    color: var(--teal);
+
+    text-align: center;
+
+    font-size: 18px;
+
+    font-weight: 700;
+
+    flex-shrink: 0;
+}
+
+
+.capturas-chip span {
+    display: block;
+
+    margin-top: 1px;
+
+    font-size: 9px;
+
+    font-weight: 600;
+
+    text-transform: uppercase;
+}
+
+
+/* ==========================================
+   EVIDENCIAS FOTOGRÁFICAS
+========================================== */
+
+.evidencias-header {
+    display: flex;
+
+    align-items: flex-end;
+
+    justify-content: space-between;
+
+    gap: 15px;
+
+    margin-bottom: 10px;
+}
+
+
+.evidencias-header > div {
+    min-width: 0;
+}
+
+
+.evidencias-header strong {
+    display: block;
+
+    color: var(--abyss);
+
+    font-size: 13px;
+
+    font-weight: 700;
+}
+
+
+.evidencias-header > div > span {
+    display: block;
+
+    margin-top: 3px;
+
+    color: var(--slate);
+
+    font-size: 10px;
+
+    line-height: 1.4;
+}
+
+
+.evidencias-cantidad {
+    flex-shrink: 0;
+
+    color: var(--slate);
+
+    font-size: 10px;
+
+    font-weight: 600;
+}
+
+
+/* ==========================================
+   COLLAGE DE FOTOGRAFÍAS
+========================================== */
+
+.collage-capturas {
+    display: grid;
+
+    grid-template-columns:
+        repeat(auto-fill, minmax(125px, 1fr));
+
+    gap: 8px;
+
+    margin-bottom: 18px;
+}
+
+
+/* ==========================================
+   ELEMENTO DEL COLLAGE
+========================================== */
+
+.collage-item {
+    position: relative;
+
+    width: 100%;
+
+    height: 100px;
+
+    overflow: hidden;
+
+    border:
+        1px solid #dfe7eb;
+
+    border-radius: 10px;
+
+    background: var(--foam);
+
+    box-sizing: border-box;
+}
+
+
+/* ==========================================
+   IMAGEN DEL COLLAGE
+========================================== */
+
+.collage-item img {
+    width: 100%;
+    height: 100%;
+
+    display: block;
+
+    object-fit: cover;
+
+    transition:
+        transform 0.25s ease;
+}
+
+
+.collage-item:hover img {
+    transform: scale(1.04);
+}
+
+
+/* ==========================================
+   ID DE CAPTURA SOBRE LA FOTO
+========================================== */
+
+.collage-id {
+    position: absolute;
+
+    left: 6px;
+    bottom: 6px;
+
+    z-index: 2;
+
+    padding: 3px 7px;
+
+    border-radius: 6px;
+
+    background:
+        rgba(10, 31, 51, 0.84);
+
+    color: #ffffff;
+
+    font-size: 9px;
+
+    font-weight: 700;
+
+    line-height: 1.2;
+
+    backdrop-filter: blur(3px);
+
+    -webkit-backdrop-filter: blur(3px);
+}
+
+
+/* ==========================================
+   CONFIANZA SOBRE LA FOTO
+========================================== */
+
+.collage-confianza {
+    position: absolute;
+
+    right: 6px;
+    bottom: 6px;
+
+    z-index: 2;
+
+    padding: 3px 7px;
+
+    border-radius: 6px;
+
+    background:
+        rgba(18, 150, 158, 0.90);
+
+    color: #ffffff;
+
+    font-size: 9px;
+
+    font-weight: 700;
+
+    line-height: 1.2;
+
+    backdrop-filter: blur(3px);
+
+    -webkit-backdrop-filter: blur(3px);
+}
+
+
+/* ==========================================
+   CAPTURA SIN IMAGEN
+========================================== */
+
+.collage-sin-imagen {
+    width: 100%;
+    height: 100%;
+
+    display: flex;
+
+    flex-direction: column;
+
+    align-items: center;
+
+    justify-content: center;
+
+    gap: 4px;
+
+    background: var(--foam);
+
+    color: var(--slate);
+}
+
+
+.collage-sin-imagen ion-icon {
+    font-size: 25px;
+
+    color: #8797a4;
+}
+
+
+.collage-sin-imagen span {
+    font-size: 9px;
+
+    font-weight: 600;
+}
+
+
+/* ==========================================
+   RESUMEN DE LA ESPECIE
+========================================== */
+
+.resumen-especie {
+    display: grid;
+
+    grid-template-columns:
+        repeat(3, 1fr);
+
+    gap: 10px;
+
+    margin-bottom: 16px;
+}
+
+
+.dato {
+    padding: 10px 12px;
+
+    border-radius: 9px;
+
+    background: var(--foam);
+}
+
+
+.dato span {
+    display: block;
+
+    color: var(--slate);
+
+    font-size: 11px;
+
+    margin-bottom: 3px;
+}
+
+
+.dato strong {
+    color: var(--ink);
+
+    font-size: 14px;
+}
+
+
+/* ==========================================
+   DETALLE DE CAPTURAS
+========================================== */
+
+.detalle-capturas {
+    overflow: hidden;
+
+    margin-bottom: 16px;
+
+    border:
+        1px solid #e2eaee;
+
+    border-radius: 12px;
+
+    background: white;
+}
+
+
+.detalle-header {
+    padding: 13px 15px;
+
+    border-bottom:
+        1px solid #e2eaee;
+}
+
+
+.detalle-header strong {
+    display: block;
+
+    color: var(--abyss);
+
+    font-size: 13px;
+}
+
+
+.detalle-header span {
+    display: block;
+
+    margin-top: 2px;
+
+    color: var(--slate);
+
+    font-size: 10px;
+}
+
+
+/* ==========================================
+   FILAS DE CAPTURAS
+========================================== */
+
+.captura-fila {
+    display: grid;
+
+    grid-template-columns:
+        1fr 1fr 1fr 1fr;
+
+    gap: 10px;
+
+    align-items: center;
+
+    padding: 10px 15px;
+
+    border-bottom:
+        1px solid #edf1f3;
+
+    color: var(--ink);
+
+    font-size: 12px;
+}
+
+
+.captura-fila:last-child {
+    border-bottom: none;
+}
+
+
+.captura-cabecera {
+    background: var(--foam);
+
+    color: var(--slate);
+
+    font-size: 10px;
+
+    font-weight: 700;
+
+    text-transform: uppercase;
+}
+
+
+.captura-id {
+    color: var(--teal);
+
+    font-weight: 700;
+}
+
+
+/* ==========================================
+   CONFIGURACIÓN DEL REPORTE
+========================================== */
+
+.configuracion-reporte {
+    margin-top: 2px;
+
+    padding: 18px;
+
+    border:
+        1px solid #e3eaee;
+
+    border-radius: 14px;
+
+    background: #fbfdfe;
+}
+
+
+.configuracion-titulo {
+    display: flex;
+
+    align-items: center;
+
+    gap: 10px;
+
+    margin-bottom: 18px;
+}
+
+
+.configuracion-titulo > ion-icon {
+    width: 40px;
+    height: 40px;
+
+    flex-shrink: 0;
+
+    padding: 9px;
+
+    box-sizing: border-box;
+
+    border-radius: 10px;
+
+    background:
+        rgba(18, 150, 158, 0.10);
+
+    color: var(--teal);
+}
+
+
+.configuracion-titulo strong {
+    display: block;
+
+    color: var(--abyss);
+
+    font-size: 14px;
+}
+
+
+.configuracion-titulo span {
+    display: block;
+
+    margin-top: 3px;
+
+    color: var(--slate);
+
+    font-size: 11px;
+
+    line-height: 1.4;
+}
+
+
+/* ==========================================
+   CAMPOS DEL REPORTE
+========================================== */
+
+.campo-reporte {
+    margin-bottom: 14px;
+}
+
+
+.campo-reporte label {
+    display: block;
+
+    margin-bottom: 7px;
+
+    color: var(--ink);
+
+    font-size: 12px;
+
+    font-weight: 600;
+}
+
+
+.campo-reporte select,
+.campo-reporte input {
+    width: 100%;
+
+    min-height: 43px;
+
+    box-sizing: border-box;
+
+    padding: 10px 12px;
+
+    border:
+        1px solid #d7e1e7;
+
+    border-radius: 10px;
+
+    background: var(--surface);
+
+    color: var(--ink);
+
+    font-family: inherit;
+
+    font-size: 13px;
+
+    outline: none;
+
+    transition:
+        border-color 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+
+.campo-reporte select {
+    cursor: pointer;
+}
+
+
+.campo-reporte input::placeholder {
+    color: #98a6b2;
+}
+
+
+.campo-reporte select:focus,
+.campo-reporte input:focus {
+    border-color: var(--teal);
+
+    box-shadow:
+        0 0 0 3px rgba(18, 150, 158, 0.10);
+}
+
+
+/* ==========================================
+   ESTADO PDF / CSV
+========================================== */
+
+.archivos-reporte {
+    display: grid;
+
+    grid-template-columns:
+        repeat(2, 1fr);
+
+    gap: 12px;
+
+    margin-top: 18px;
+}
+
+
+.archivo-estado {
+    min-height: 66px;
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 11px;
+
+    padding: 12px 14px;
+
+    box-sizing: border-box;
+
+    border:
+        1px solid #dfe7eb;
+
+    border-radius: 11px;
+
+    background: var(--foam);
+
+    transition:
+        background 0.2s ease,
+        border-color 0.2s ease;
+}
+
+
+.archivo-estado ion-icon {
+    flex-shrink: 0;
+
+    font-size: 24px;
+
+    color: var(--slate);
+}
+
+
+.archivo-estado strong {
+    display: block;
+
+    color: var(--abyss);
+
+    font-size: 12px;
+}
+
+
+.archivo-estado span {
+    display: block;
+
+    margin-top: 3px;
+
+    color: var(--slate);
+
+    font-size: 10px;
+}
+
+
+/* ==========================================
+   ARCHIVO GENERADO
+========================================== */
+
+.archivo-estado.archivo-generado {
+    background:
+        rgba(31, 174, 124, 0.08);
+
+    border-color:
+        rgba(31, 174, 124, 0.30);
+}
+
+
+.archivo-estado.archivo-generado ion-icon {
+    color: var(--success);
+}
+
+
+.archivo-estado.archivo-generado strong {
+    color: #147653;
+}
+
+
+.archivo-estado.archivo-generado span {
+    color: var(--success);
+
+    font-weight: 600;
+}
+
+
+/* ==========================================
+   BOTONES PDF / CSV
+========================================== */
+
+.botones-archivos {
+    display: grid;
+
+    grid-template-columns:
+        repeat(2, 1fr);
+
+    gap: 12px;
+
+    margin-top: 12px;
+}
+
+
+.btn-archivo {
+    width: 100%;
+
+    min-height: 44px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    gap: 8px;
+
+    padding: 10px 14px;
+
+    border:
+        1px solid var(--teal);
+
+    border-radius: 10px;
+
+    background: var(--surface);
+
+    color: var(--teal);
+
+    font-family: inherit;
+
+    font-size: 12px;
+
+    font-weight: 700;
+
+    cursor: pointer;
+
+    transition:
+        background 0.2s ease,
+        color 0.2s ease,
+        transform 0.1s ease;
+}
+
+
+.btn-archivo ion-icon {
+    font-size: 18px;
+}
+
+
+.btn-archivo ion-spinner {
+    width: 17px;
+    height: 17px;
+
+    color: var(--teal);
+}
+
+
+.btn-archivo:hover:not(:disabled) {
+    background:
+        rgba(18, 150, 158, 0.07);
+}
+
+
+.btn-archivo:active:not(:disabled) {
+    transform: translateY(1px);
+}
+
+
+.btn-archivo:disabled {
+    opacity: 0.55;
+
+    cursor: not-allowed;
+}
+
+
+/* ==========================================
+   ARCHIVOS COMPLETOS
+========================================== */
+
+.archivos-completos {
+    display: flex;
+
+    align-items: center;
+
+    gap: 8px;
+
+    margin-top: 14px;
+
+    padding: 10px 12px;
+
+    border:
+        1px solid rgba(31, 174, 124, 0.25);
+
+    border-radius: 10px;
+
+    background:
+        rgba(31, 174, 124, 0.08);
+
+    color: #147653;
+
+    font-size: 11px;
+
+    font-weight: 600;
+}
+
+
+.archivos-completos ion-icon {
+    flex-shrink: 0;
+
+    font-size: 19px;
+
+    color: var(--success);
+}
+
+
+/* ==========================================
+   BOTÓN ENVIAR
+========================================== */
+
+.btn-enviar {
+    width: 100%;
+
+    min-height: 46px;
+
+    margin-top: 14px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    gap: 8px;
+
+    padding: 11px 16px;
+
+    border: none;
+
+    border-radius: 10px;
+
+    background: var(--coral);
+
+    color: #ffffff;
+
+    font-family: inherit;
+
+    font-size: 13px;
+
+    font-weight: 700;
+
+    cursor: pointer;
+
+    box-shadow:
+        0 5px 12px rgba(255, 107, 74, 0.20);
+
+    transition:
+        opacity 0.2s ease,
+        transform 0.1s ease,
+        box-shadow 0.2s ease;
+}
+
+
+.btn-enviar ion-icon {
+    font-size: 18px;
+}
+
+
+.btn-enviar ion-spinner {
+    width: 17px;
+    height: 17px;
+
+    color: white;
+}
+
+
+.btn-enviar:hover:not(:disabled) {
+    box-shadow:
+        0 7px 16px rgba(255, 107, 74, 0.28);
+}
+
+
+.btn-enviar:active:not(:disabled) {
+    transform: translateY(1px);
+}
+
+
+.btn-enviar:disabled {
+    background: #b7c1c7;
+
+    color: #ffffff;
+
+    box-shadow: none;
+
+    opacity: 0.75;
+
+    cursor: not-allowed;
+}
+
+
+/* ==========================================
+   MENSAJE PARA HABILITAR ENVÍO
+========================================== */
+
+.mensaje-envio {
+    margin: 8px 0 0;
+
+    text-align: center;
+
+    color: var(--slate);
+
+    font-size: 10px;
+
+    line-height: 1.4;
+}
+
+
+/* ==========================================
+   ESTADOS GENERALES
+========================================== */
+
+.estado-container,
+.sin-registros {
+    background: var(--surface);
+
+    border-radius: 18px;
+
+    padding: 40px 20px;
+
+    text-align: center;
+
+    color: var(--slate);
+
+    box-shadow:
+        0 5px 18px rgba(10, 31, 51, 0.05);
+}
+
+
+.estado-container ion-icon,
+.sin-registros ion-icon {
+    font-size: 40px;
+
+    color: var(--teal);
+}
+
+
+.estado-container ion-spinner {
+    width: 32px;
+    height: 32px;
+
+    color: var(--teal);
+}
+
+
+.estado-container h3,
+.sin-registros h2 {
+    margin: 12px 0 5px;
+
+    color: var(--abyss);
+}
+
+
+.estado-container p,
+.sin-registros p {
+    margin: 6px auto 0;
+
+    max-width: 450px;
+
+    font-size: 13px;
+
+    line-height: 1.5;
+}
+
+
+.estado-error ion-icon {
+    color: var(--danger);
+}
+
+
+/* ==========================================
+   RESPONSIVE - TABLET
+========================================== */
+
+@media (max-width: 700px) {
+
+    .crear-reporte-container {
+        padding: 14px;
+    }
+
+
+    .reporte-header h1 {
+        font-size: 24px;
+    }
+
+
+    /* ======================================
+       RESUMEN GENERAL
+    ====================================== */
+
+    .resumen-grid {
+        grid-template-columns: 1fr;
+    }
+
+
+    /* ======================================
+       CABECERA ESPECIE
+    ====================================== */
+
+    .especie-header {
+        align-items: flex-start;
+    }
+
+
+    .especie-info h3 {
+        font-size: 19px;
+    }
+
+
+    /* ======================================
+       COLLAGE
+    ====================================== */
+
+    .collage-capturas {
+        grid-template-columns:
+            repeat(auto-fill, minmax(105px, 1fr));
+
+        gap: 7px;
+    }
+
+
+    .collage-item {
+        height: 88px;
+    }
+
+
+    /* ======================================
+       RESUMEN DE ESPECIE
+    ====================================== */
+
+    .resumen-especie {
+        grid-template-columns: 1fr;
+    }
+
+
+    /* ======================================
+       CONFIGURACIÓN
+    ====================================== */
+
+    .configuracion-reporte {
+        padding: 15px;
+    }
+
+
+    /* ======================================
+       ARCHIVOS
+    ====================================== */
+
+    .archivos-reporte {
+        grid-template-columns: 1fr;
+    }
+
+
+    .botones-archivos {
+        grid-template-columns: 1fr;
+    }
+
+}
+
+
+/* ==========================================
+   RESPONSIVE - MÓVIL
+========================================== */
+
+@media (max-width: 480px) {
+
+    .crear-reporte-container {
+        padding: 10px;
+    }
+
+
+    .lista-reportes {
+        padding: 14px;
+    }
+
+
+    /* ======================================
+       HEADER LISTA
+    ====================================== */
+
+    .lista-header {
+        align-items: flex-start;
+    }
+
+
+    /* ======================================
+       CABECERA ESPECIE
+    ====================================== */
+
+    .especie-header {
+        gap: 10px;
+    }
+
+
+    .especie-info h3 {
+        font-size: 17px;
+    }
+
+
+    .capturas-chip {
+        min-width: 65px;
+
+        padding: 8px 10px;
+
+        font-size: 16px;
+    }
+
+
+    /* ======================================
+       EVIDENCIAS
+    ====================================== */
+
+    .evidencias-header {
+        align-items: flex-start;
+
+        flex-direction: column;
+
+        gap: 5px;
+    }
+
+
+    /* ======================================
+       COLLAGE MÓVIL
+    ====================================== */
+
+    .collage-capturas {
+        grid-template-columns:
+            repeat(3, 1fr);
+
+        gap: 5px;
+    }
+
+
+    .collage-item {
+        height: 76px;
+
+        border-radius: 8px;
+    }
+
+
+    .collage-id {
+        left: 4px;
+        bottom: 4px;
+
+        padding: 2px 5px;
+
+        font-size: 8px;
+    }
+
+
+    .collage-confianza {
+        right: 4px;
+        bottom: 4px;
+
+        padding: 2px 5px;
+
+        font-size: 8px;
+    }
+
+
+    /* ======================================
+       TABLA DE CAPTURAS
+    ====================================== */
+
+    .captura-fila {
+        grid-template-columns:
+            1fr 1fr;
+
+        row-gap: 7px;
+
+        padding: 10px 12px;
+    }
+
+
+    .captura-cabecera {
+        display: none;
+    }
+
+
+    /* ======================================
+       CONFIGURACIÓN
+    ====================================== */
+
+    .configuracion-reporte {
+        padding: 13px;
+    }
+
+
+    .configuracion-titulo {
+        align-items: flex-start;
+    }
+
+
+    /* Evita zoom automático en iPhone */
+
+    .campo-reporte select,
+    .campo-reporte input {
+        font-size: 16px;
+    }
+
+}
+
+
+/* ==========================================
+   PANTALLAS MUY PEQUEÑAS
+========================================== */
+
+@media (max-width: 360px) {
+
+    .collage-capturas {
+        grid-template-columns:
+            repeat(2, 1fr);
+    }
+
+
+    .collage-item {
+        height: 82px;
+    }
+
+
+    .especie-header {
+        flex-direction: column;
+    }
+
+
+    .capturas-chip {
+        width: fit-content;
+    }
+
+}

@@ -1,0 +1,116 @@
+    @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap');
+
+:host{
+ --abyss:#0a1f33;
+ --abyss-light:#123354;
+ --teal:#12969e;
+ --teal-glow:#4fd1c5;
+ --foam:#f2f7fa;
+ --surface:#ffffff;
+ --ink:#1b2b3a;
+ --slate:#5a6b7a;
+ font-family:'IBM Plex Sans',sans-serif;
+}
+
+/* MENÚ */
+ion-menu{
+ --width:280px;
+ --max-width:280px;
+}
+
+ion-menu::part(container){
+ background:var(--surface);
+ box-shadow:8px 0 30px rgba(10,31,51,.18);
+}
+
+/* HEADER */
+ion-header{
+ box-shadow:none;
+}
+
+ion-toolbar{
+ --min-height:64px;
+ --background:var(--abyss);
+ --color:#ffffff;
+ --border-width:0;
+}
+
+ion-title{
+ color:#ffffff;
+ font-family:'IBM Plex Mono',monospace;
+ font-size:16px;
+ font-weight:600;
+}
+
+/* CONTENIDO */
+ion-content{
+ --background:var(--surface);
+}
+
+ion-list{
+ padding:12px 9px;
+ background:transparent;
+}
+
+/* OPCIONES */
+ion-item{
+ --min-height:52px;
+ --padding-start:12px;
+ --padding-end:10px;
+ --inner-padding-end:4px;
+ --background:transparent;
+ --background-hover:var(--foam);
+ --color:var(--abyss);
+ --border-radius:9px;
+ margin-bottom:4px;
+ border-radius:9px;
+ font-family:'IBM Plex Sans',sans-serif;
+ transition:.2s ease;
+}
+
+ion-item:hover{
+ --background:var(--foam);
+}
+
+/* ICONOS */
+ion-item ion-icon{
+ margin-right:12px;
+ padding:8px;
+ border-radius:8px;
+ background:rgba(18,150,158,.09);
+ color:var(--teal);
+ font-size:18px;
+}
+
+/* TEXTO */
+ion-label{
+ color:var(--abyss) !important;
+ font-size:12px !important;
+ font-weight:600;
+}
+
+/* HOVER */
+ion-item:hover ion-icon{
+ background:rgba(18,150,158,.15);
+ color:var(--teal);
+}
+
+ion-item:hover ion-label{
+ color:var(--teal) !important;
+}
+
+/* RESPONSIVE */
+@media(max-width:400px){
+ ion-menu{
+  --width:260px;
+  --max-width:260px;
+ }
+
+ ion-toolbar{
+  --min-height:58px;
+ }
+
+ ion-item{
+  --min-height:50px;
+ }
+}

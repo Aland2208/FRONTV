@@ -1,20 +1,127 @@
-<ion-header [translucent]="true">
-  <ion-toolbar>
+<!-- ========================================= -->
+<!-- MENÚS -->
+<!-- ========================================= -->
+
+<app-menu (cambiarVista)="cambiarVista($event)">
+</app-menu>
+
+<app-menu-usuario (cambiarVista)="cambiarVista($event)">
+</app-menu-usuario>
+
+<!-- ========================================= -->
+<!-- HEADER FIJO -->
+<!-- ========================================= -->
+
+<ion-header>
+  <ion-toolbar class="app-toolbar">
+
+    <!-- MENÚ IZQUIERDO -->
+    <ion-buttons slot="start">
+      <ion-menu-button menu="menuPrincipal">
+      </ion-menu-button>
+    </ion-buttons>
+
+    <!-- TÍTULO -->
     <ion-title>
-      Blank
+      <span class="app-title">
+        Observador de Pesca
+      </span>
+
+      <span class="app-subtitle">
+        Registro de campo
+      </span>
     </ion-title>
+
+    <!-- MENÚ DERECHO -->
+    <ion-buttons slot="end">
+      <ion-menu-button menu="menuUsuario">
+        <ion-icon name="person-circle-outline">
+        </ion-icon>
+      </ion-menu-button>
+    </ion-buttons>
+
   </ion-toolbar>
 </ion-header>
 
-<ion-content [fullscreen]="true">
-  <ion-header collapse="condense">
-    <ion-toolbar>
-      <ion-title size="large">Blank</ion-title>
-    </ion-toolbar>
-  </ion-header>
+<!-- ========================================= -->
+<!-- CONTENIDO DINÁMICO -->
+<!-- ========================================= -->
 
-  <div id="container">
-    <strong>Ready to create an app?</strong>
-    <p>Start with Ionic <a target="_blank" rel="noopener noreferrer" href="https://ionicframework.com/docs/components">UI Components</a></p>
-  </div>
+<ion-content id="principal" class="app-content">
+
+  <ng-container [ngSwitch]="vistaActual">
+
+    <!-- ===================================== -->
+    <!-- VISTAS GENERALES -->
+    <!-- ===================================== -->
+
+    <!-- INICIO -->
+    <app-inicio *ngSwitchCase="'inicio'">
+    </app-inicio>
+
+    <!-- ===================================== -->
+    <!-- VISTAS DEL VEEDOR -->
+    <!-- ===================================== -->
+
+    <!-- VISTA DE CÁMARA -->
+    <app-camara *ngSwitchCase="'camara'">
+    </app-camara>
+
+    <!-- CREAR REPORTE -->
+    <app-crear-reporte *ngSwitchCase="'crear-reporte'">
+    </app-crear-reporte>
+
+    <!-- MIS REPORTES -->
+    <app-mis-reportes *ngSwitchCase="'mis-reportes'">
+    </app-mis-reportes>
+
+    <!-- DASHBOARD DEL VEEDOR -->
+    <app-dashboard-veedor *ngSwitchCase="'dashboard'">
+    </app-dashboard-veedor>
+
+    <!-- ===================================== -->
+    <!-- VISTAS DEL ADMINISTRADOR -->
+    <!-- ===================================== -->
+
+    <!-- USUARIOS -->
+    <app-usuarios-admin *ngSwitchCase="'usuarios'">
+    </app-usuarios-admin>
+
+    <!-- REPORTES DEL DÍA -->
+    <app-reportes-admin *ngSwitchCase="'reportes-admin'">
+    </app-reportes-admin>
+
+    <!-- HISTORIAL DE VEEDORES -->
+    <app-historial-veedores *ngSwitchCase="'historial-veedores'">
+    </app-historial-veedores>
+
+    <!-- DASHBOARD GENERAL -->
+    <app-dashboard-general *ngSwitchCase="'dashboard-general'">
+    </app-dashboard-general>
+
+    <!-- ===================================== -->
+    <!-- VISTAS DE PERFIL -->
+    <!-- ===================================== -->
+
+    <!-- EDITAR PERFIL -->
+    <app-editar-perfil *ngSwitchCase="'editar-perfil'">
+    </app-editar-perfil>
+
+    <!-- CAMBIAR CONTRASEÑA -->
+    <app-cambiar-password *ngSwitchCase="'cambiar-password'">
+    </app-cambiar-password>
+
+    <!-- VINCULAR ADMINISTRADOR -->
+    <app-vincular-administrador *ngSwitchCase="'vincular-administrador'">
+    </app-vincular-administrador>
+
+    <!-- ===================================== -->
+    <!-- POR DEFECTO -->
+    <!-- ===================================== -->
+
+    <app-inicio *ngSwitchDefault>
+    </app-inicio>
+
+  </ng-container>
+
 </ion-content>

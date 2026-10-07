@@ -3,8 +3,13 @@
 // The list of file replacements can be found in `angular.json`.
 
 export const environment = {
-  production: false
+  production: false,
+  //hosting de producción
+   apiUrl: 'https://veedores.onrender.com/api/',
+   socketUrl: 'https://veedores.onrender.com'
+
 };
+/* http://localhost:3000/api/       'https://veedores.onrender.com/api/'
 
 /*
  * For easier debugging in development mode, you can import the following file

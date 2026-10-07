@@ -1,0 +1,290 @@
+:host {
+  --abyss:#0a1f33;
+  --abyss-light:#123354;
+  --teal:#12969e;
+  --teal-glow:#4fd1c5;
+  --foam:#f2f7fa;
+  --surface:#fff;
+  --ink:#1b2b3a;
+  --slate:#5a6b7a;
+  --success:#1fae7c;
+  --danger:#e5484d;
+  font-family:'IBM Plex Sans',sans-serif;
+}
+
+.perfil-page {
+  max-width:850px;
+  margin:0 auto;
+  padding:24px;
+  color:var(--ink);
+}
+
+.perfil-header {
+  margin-bottom:20px;
+}
+
+.etiqueta {
+  color:var(--teal);
+  font-size:10px;
+  font-weight:700;
+  letter-spacing:1.4px;
+}
+
+.perfil-header h1 {
+  margin:5px 0;
+  color:var(--abyss);
+  font-size:30px;
+}
+
+.perfil-header p {
+  margin:0;
+  color:var(--slate);
+  font-size:13px;
+}
+
+.estado-carga {
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:10px;
+  min-height:250px;
+  color:var(--slate);
+  font-size:12px;
+}
+
+.estado-carga ion-spinner {
+  color:var(--teal);
+}
+
+.perfil-card {
+  overflow:hidden;
+  border:1px solid #dfe7eb;
+  border-radius:16px;
+  background:var(--surface);
+  box-shadow:0 6px 22px rgba(10,31,51,.06);
+}
+
+.usuario-resumen {
+  display:flex;
+  align-items:center;
+  gap:14px;
+  padding:20px;
+  border-bottom:1px solid #e6ecef;
+  background:linear-gradient(135deg,#f4fafb,#fff);
+}
+
+.avatar {
+  flex-shrink:0;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  width:54px;
+  height:54px;
+  border-radius:50%;
+  background:var(--abyss);
+  color:var(--teal-glow);
+}
+
+.avatar ion-icon {
+  font-size:28px;
+}
+
+.usuario-resumen > div:last-child {
+  min-width:0;
+}
+
+.usuario-resumen span {
+  display:block;
+  margin-bottom:3px;
+  color:var(--teal);
+  font-size:8px;
+  font-weight:700;
+  letter-spacing:1px;
+}
+
+.usuario-resumen h2 {
+  margin:0;
+  color:var(--abyss);
+  font-size:17px;
+}
+
+.usuario-resumen p {
+  margin:3px 0 0;
+  color:var(--slate);
+  font-size:10px;
+}
+
+.mensaje {
+  display:flex;
+  align-items:center;
+  gap:8px;
+  margin:16px 20px 0;
+  padding:11px 12px;
+  border-radius:9px;
+  font-size:11px;
+}
+
+.mensaje ion-icon {
+  flex-shrink:0;
+  font-size:18px;
+}
+
+.mensaje-error {
+  background:#fff0f0;
+  color:var(--danger);
+}
+
+.mensaje-exito {
+  background:#ecfaf5;
+  color:var(--success);
+}
+
+form {
+  padding:20px;
+}
+
+.form-grid {
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:14px;
+}
+
+.campo {
+  margin-bottom:16px;
+}
+
+.campo label {
+  display:block;
+  margin-bottom:6px;
+  color:var(--abyss);
+  font-size:11px;
+  font-weight:600;
+}
+
+.campo label span {
+  color:var(--danger);
+}
+
+.input-contenedor {
+  display:flex;
+  align-items:center;
+  min-height:44px;
+  overflow:hidden;
+  border:1px solid #d6e0e5;
+  border-radius:9px;
+  background:#fff;
+  transition:.2s ease;
+}
+
+.input-contenedor:focus-within {
+  border-color:var(--teal);
+  box-shadow:0 0 0 3px rgba(18,150,158,.08);
+}
+
+.input-contenedor ion-icon {
+  flex-shrink:0;
+  margin-left:13px;
+  color:var(--teal);
+  font-size:18px;
+}
+
+.input-contenedor input {
+  width:100%;
+  min-width:0;
+  height:42px;
+  padding:0 12px;
+  border:0;
+  outline:0;
+  background:transparent;
+  color:var(--ink);
+  font-family:inherit;
+  font-size:12px;
+}
+
+.input-contenedor input::placeholder {
+  color:#a5b0b8;
+}
+
+.campo small {
+  display:block;
+  margin-top:5px;
+  color:#8997a2;
+  font-size:9px;
+}
+
+.acciones {
+  display:flex;
+  justify-content:flex-end;
+  padding-top:5px;
+  border-top:1px solid #edf1f3;
+}
+
+.btn-guardar {
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:7px;
+  min-width:150px;
+  min-height:42px;
+  margin-top:16px;
+  padding:0 16px;
+  border:0;
+  border-radius:9px;
+  background:var(--teal);
+  color:#fff;
+  font-size:11px;
+  font-weight:600;
+  cursor:pointer;
+  transition:.2s ease;
+}
+
+.btn-guardar:hover {
+  background:#0f838a;
+}
+
+.btn-guardar:disabled {
+  opacity:.6;
+  cursor:not-allowed;
+}
+
+.btn-guardar ion-icon {
+  font-size:17px;
+}
+
+.btn-guardar ion-spinner {
+  width:16px;
+  height:16px;
+  color:#fff;
+}
+
+@media(max-width:650px) {
+  .perfil-page {
+    padding:15px;
+  }
+
+  .perfil-header h1 {
+    font-size:24px;
+  }
+
+  .form-grid {
+    grid-template-columns:1fr;
+    gap:0;
+  }
+
+  .usuario-resumen {
+    padding:16px;
+  }
+
+  form {
+    padding:16px;
+  }
+
+  .acciones {
+    display:block;
+  }
+
+  .btn-guardar {
+    width:100%;
+  }
+}

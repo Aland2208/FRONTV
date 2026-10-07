@@ -1,0 +1,299 @@
+<div class="dashboard">
+
+  <!-- ENCABEZADO -->
+  <div class="dashboard-header">
+    <div>
+      <span class="etiqueta">RESUMEN DIARIO</span>
+      <h1>Dashboard del día</h1>
+      <p>Resumen estadístico de las capturas registradas durante la jornada actual.</p>
+    </div>
+
+    <button class="btn-actualizar" type="button" [disabled]="cargando" (click)="cargarDashboard()">
+      <ion-icon name="refresh-outline"></ion-icon>
+      Actualizar
+    </button>
+  </div>
+
+  <!-- ERROR -->
+  <div class="mensaje-error" *ngIf="error">
+    <ion-icon name="alert-circle-outline"></ion-icon>
+    <span>{{ error }}</span>
+  </div>
+
+  <!-- CARGANDO -->
+  <div class="estado-carga" *ngIf="cargando">
+    <ion-spinner name="crescent"></ion-spinner>
+    <span>Actualizando dashboard...</span>
+  </div>
+
+  <!-- CONTENIDO -->
+  <ng-container *ngIf="!cargando && !error">
+
+    <!-- ==========================================
+         INDICADORES PRINCIPALES
+    =========================================== -->
+    <div class="estadisticas-dashboard">
+
+      <div class="stat-card">
+        <div class="stat-icon">
+          <ion-icon name="fish-outline"></ion-icon>
+        </div>
+        <div class="stat-contenido">
+          <span>Total de capturas</span>
+          <strong>{{ resumen.total_capturas }}</strong>
+          <small>Registradas hoy</small>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon">
+          <ion-icon name="scale-outline"></ion-icon>
+        </div>
+        <div class="stat-contenido">
+          <span>Peso total</span>
+          <strong>{{ formatearPeso(resumen.peso_total) }}</strong>
+          <small>Peso acumulado</small>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon">
+          <ion-icon name="layers-outline"></ion-icon>
+        </div>
+        <div class="stat-contenido">
+          <span>Especies</span>
+          <strong>{{ resumen.total_especies }}</strong>
+          <small>Identificadas hoy</small>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon">
+          <ion-icon name="analytics-outline"></ion-icon>
+        </div>
+        <div class="stat-contenido">
+          <span>Confianza promedio</span>
+          <strong>{{ resumen.confianza_promedio | number:'1.1-2' }}%</strong>
+          <small>Detección del modelo</small>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ==========================================
+         SIN INFORMACIÓN
+    =========================================== -->
+    <div class="sin-datos" *ngIf="especies.length === 0">
+      <ion-icon name="stats-chart-outline"></ion-icon>
+      <h3>Sin información para mostrar</h3>
+      <p>Todavía no existen capturas registradas durante la jornada actual.</p>
+    </div>
+
+    <!-- ==========================================
+         GRÁFICOS
+    =========================================== -->
+    <ng-container *ngIf="especies.length > 0">
+
+      <!-- PRIMERA FILA -->
+      <div class="graficos-grid">
+
+        <!-- DISTRIBUCIÓN DE ESPECIES -->
+        <div class="grafico-card">
+          <div class="grafico-header">
+            <div>
+              <span class="etiqueta">DISTRIBUCIÓN</span>
+              <h2>Capturas por especie</h2>
+              <p>Participación de cada especie en las capturas del día.</p>
+            </div>
+
+            <div class="grafico-icon">
+              <ion-icon name="pie-chart-outline"></ion-icon>
+            </div>
+          </div>
+
+          <div class="grafico-dona-contenido">
+
+            <div class="grafico-dona">
+              <canvas #graficoEspecies></canvas>
+
+              <div class="centro-dona">
+                <strong>{{ resumen.total_capturas }}</strong>
+                <span>capturas</span>
+              </div>
+            </div>
+
+            <div class="leyenda-especies">
+              <div class="leyenda-item" *ngFor="let especie of especies; let i = index">
+                <div class="leyenda-nombre">
+                  <span class="leyenda-color color-{{ i }}"></span>
+                  <div>
+                    <strong>{{ especie.nombre_comun }}</strong>
+                    <small>{{ especie.nombre_cientifico }}</small>
+                  </div>
+                </div>
+
+                <div class="leyenda-valor">
+                  <strong>{{ obtenerPorcentaje(especie.total_capturas) | number:'1.1-1' }}%</strong>
+                  <span>
+                    {{ especie.total_capturas }}
+                    {{ especie.total_capturas === 1 ? 'captura' : 'capturas' }}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- PESO POR ESPECIE -->
+        <div class="grafico-card">
+          <div class="grafico-header">
+            <div>
+              <span class="etiqueta">PESO ACUMULADO</span>
+              <h2>Peso por especie</h2>
+              <p>Comparación del peso total registrado por cada especie.</p>
+            </div>
+
+            <div class="grafico-icon">
+              <ion-icon name="bar-chart-outline"></ion-icon>
+            </div>
+          </div>
+
+          <div class="grafico-canvas grafico-barras">
+            <canvas #graficoPeso></canvas>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ==========================================
+           ACTIVIDAD DURANTE LA JORNADA
+      =========================================== -->
+      <div class="grafico-card grafico-actividad-card">
+
+        <div class="grafico-header">
+          <div>
+            <span class="etiqueta">ACTIVIDAD DIARIA</span>
+            <h2>Capturas durante la jornada</h2>
+            <p>Evolución de la cantidad de capturas registradas por hora.</p>
+          </div>
+
+          <div class="grafico-icon">
+            <ion-icon name="trending-up-outline"></ion-icon>
+          </div>
+        </div>
+
+        <div class="grafico-canvas grafico-linea" *ngIf="actividad.length > 0">
+          <canvas #graficoActividad></canvas>
+        </div>
+
+        <div class="sin-actividad" *ngIf="actividad.length === 0">
+          <ion-icon name="time-outline"></ion-icon>
+          <span>No existe actividad registrada durante la jornada.</span>
+        </div>
+
+      </div>
+
+      <!-- ==========================================
+           RESUMEN ESTADÍSTICO POR ESPECIE
+      =========================================== -->
+      <div class="panel-resumen">
+
+        <div class="panel-header">
+          <div>
+            <span class="etiqueta">DETALLE ESTADÍSTICO</span>
+            <h2>Resumen por especie</h2>
+            <p>Información acumulada de las especies identificadas durante el día.</p>
+          </div>
+
+          <span class="total-especies">
+            {{ resumen.total_especies }}
+            {{ resumen.total_especies === 1 ? 'especie' : 'especies' }}
+          </span>
+        </div>
+
+        <!-- TABLA -->
+        <div class="tabla-contenedor">
+          <table class="tabla-especies">
+
+            <thead>
+              <tr>
+                <th>Especie</th>
+                <th>Capturas</th>
+                <th>Distribución</th>
+                <th>Peso acumulado</th>
+                <th>Confianza promedio</th>
+              </tr>
+            </thead>
+
+            <tbody>
+              <tr *ngFor="let especie of especies">
+
+                <td>
+                  <div class="especie-tabla">
+                    <div class="especie-icono">
+                      <ion-icon name="fish-outline"></ion-icon>
+                    </div>
+
+                    <div>
+                      <strong>{{ especie.nombre_comun }}</strong>
+                      <span>{{ especie.nombre_cientifico }}</span>
+                    </div>
+                  </div>
+                </td>
+
+                <td>
+                  <strong class="dato-destacado">
+                    {{ especie.total_capturas }}
+                  </strong>
+                </td>
+
+                <td>
+                  <div class="distribucion-celda">
+                    <div class="barra-progreso">
+                      <div
+                        class="barra-progreso-valor"
+                        [style.width.%]="obtenerPorcentaje(especie.total_capturas)">
+                      </div>
+                    </div>
+
+                    <span>
+                      {{ obtenerPorcentaje(especie.total_capturas) | number:'1.1-1' }}%
+                    </span>
+                  </div>
+                </td>
+
+                <td>
+                  <strong>
+                    {{ formatearPeso(especie.peso_total) }}
+                  </strong>
+                </td>
+
+                <td>
+                  <div class="confianza">
+                    <strong>
+                      {{ especie.confianza_promedio | number:'1.1-2' }}%
+                    </strong>
+
+                    <div class="barra-confianza">
+                      <div
+                        class="barra-confianza-valor"
+                        [style.width.%]="especie.confianza_promedio">
+                      </div>
+                    </div>
+                  </div>
+                </td>
+
+              </tr>
+            </tbody>
+
+          </table>
+        </div>
+
+      </div>
+
+    </ng-container>
+
+  </ng-container>
+
+</div>

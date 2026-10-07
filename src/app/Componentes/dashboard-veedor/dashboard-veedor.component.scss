@@ -1,0 +1,718 @@
+:host {
+  --abyss:#0a1f33;
+  --abyss-light:#123354;
+  --teal:#12969e;
+  --teal-glow:#4fd1c5;
+  --coral:#ff6b4a;
+  --foam:#f2f7fa;
+  --surface:#ffffff;
+  --ink:#1b2b3a;
+  --slate:#5a6b7a;
+  --success:#1fae7c;
+  --danger:#e5484d;
+  font-family:'IBM Plex Sans',sans-serif;
+}
+
+/* CONTENEDOR */
+.dashboard {
+  max-width:1200px;
+  margin:0 auto;
+  padding:24px;
+  color:var(--ink);
+}
+
+/* ENCABEZADO */
+.dashboard-header {
+  display:flex;
+  align-items:flex-end;
+  justify-content:space-between;
+  gap:20px;
+  margin-bottom:22px;
+}
+
+.etiqueta {
+  display:block;
+  color:var(--teal);
+  font-size:10px;
+  font-weight:700;
+  letter-spacing:1.4px;
+}
+
+.dashboard-header h1 {
+  margin:5px 0;
+  color:var(--abyss);
+  font-size:30px;
+  font-weight:700;
+}
+
+.dashboard-header p {
+  margin:0;
+  color:var(--slate);
+  font-size:13px;
+}
+
+.btn-actualizar {
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:7px;
+  min-height:40px;
+  padding:0 15px;
+  border:0;
+  border-radius:9px;
+  background:var(--abyss);
+  color:white;
+  font-weight:600;
+  cursor:pointer;
+  transition:.2s ease;
+}
+
+.btn-actualizar ion-icon { font-size:18px; }
+.btn-actualizar:hover { background:var(--abyss-light); }
+.btn-actualizar:disabled { opacity:.5; cursor:not-allowed; }
+
+/* ERROR / CARGA */
+.mensaje-error {
+  display:flex;
+  align-items:center;
+  gap:8px;
+  padding:13px;
+  margin-bottom:15px;
+  border-radius:10px;
+  background:#fff0f0;
+  color:var(--danger);
+  font-size:13px;
+}
+
+.estado-carga {
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:10px;
+  min-height:300px;
+  color:var(--slate);
+  font-size:13px;
+}
+
+.estado-carga ion-spinner { color:var(--teal); }
+
+/* TARJETAS ESTADÍSTICAS */
+.estadisticas-dashboard {
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:12px;
+  margin-bottom:18px;
+}
+
+.stat-card {
+  position:relative;
+  display:flex;
+  align-items:center;
+  gap:13px;
+  min-width:0;
+  padding:17px;
+  overflow:hidden;
+  border:1px solid #dfe7eb;
+  border-radius:14px;
+  background:var(--surface);
+  box-shadow:0 5px 18px rgba(10,31,51,.05);
+  transition:transform .2s ease,box-shadow .2s ease;
+}
+
+.stat-card::after {
+  content:'';
+  position:absolute;
+  right:0;
+  bottom:0;
+  left:0;
+  height:3px;
+  background:var(--teal);
+}
+
+.stat-card:hover {
+  transform:translateY(-2px);
+  box-shadow:0 9px 25px rgba(10,31,51,.09);
+}
+
+.stat-icon {
+  flex-shrink:0;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  width:46px;
+  height:46px;
+  border-radius:11px;
+  background:rgba(18,150,158,.10);
+  color:var(--teal);
+}
+
+.stat-icon ion-icon { font-size:23px; }
+.stat-contenido { min-width:0; }
+
+.stat-contenido span,
+.stat-contenido small { display:block; }
+
+.stat-contenido span {
+  margin-bottom:3px;
+  color:var(--slate);
+  font-size:10px;
+  font-weight:600;
+}
+
+.stat-contenido strong {
+  display:block;
+  overflow:hidden;
+  color:var(--abyss);
+  font-size:21px;
+  font-weight:700;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+
+.stat-contenido small {
+  margin-top:2px;
+  color:#8997a2;
+  font-size:9px;
+}
+
+/* SIN DATOS */
+.sin-datos {
+  padding:65px 20px;
+  border:1px solid #dfe7eb;
+  border-radius:15px;
+  background:var(--surface);
+  text-align:center;
+  color:var(--slate);
+}
+
+.sin-datos ion-icon {
+  font-size:46px;
+  color:var(--teal);
+}
+
+.sin-datos h3 {
+  margin:10px 0 5px;
+  color:var(--abyss);
+  font-size:17px;
+}
+
+.sin-datos p {
+  margin:0;
+  font-size:12px;
+}
+
+/* GRID DE GRÁFICOS */
+.graficos-grid {
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:14px;
+  margin-bottom:14px;
+}
+
+.grafico-card {
+  min-width:0;
+  padding:18px;
+  border:1px solid #dfe7eb;
+  border-radius:15px;
+  background:var(--surface);
+  box-shadow:0 5px 18px rgba(10,31,51,.05);
+}
+
+.grafico-header {
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:15px;
+  padding-bottom:13px;
+  margin-bottom:15px;
+  border-bottom:1px solid #edf1f3;
+}
+
+.grafico-header h2 {
+  margin:4px 0 3px;
+  color:var(--abyss);
+  font-size:17px;
+  font-weight:700;
+}
+
+.grafico-header p {
+  margin:0;
+  color:var(--slate);
+  font-size:10px;
+  line-height:1.4;
+}
+
+.grafico-icon {
+  flex-shrink:0;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  width:38px;
+  height:38px;
+  border-radius:9px;
+  background:var(--foam);
+  color:var(--teal);
+}
+
+.grafico-icon ion-icon { font-size:20px; }
+
+/* DONA */
+.grafico-dona-contenido {
+  display:grid;
+  grid-template-columns:220px 1fr;
+  align-items:center;
+  gap:18px;
+  min-height:275px;
+}
+
+.grafico-dona {
+  position:relative;
+  width:210px;
+  height:210px;
+  margin:0 auto;
+}
+
+.grafico-dona canvas {
+  display:block;
+  width:100% !important;
+  height:100% !important;
+}
+
+/* CENTRO EXACTO DE LA DONA */
+.centro-dona {
+  position:absolute;
+  top:50%;
+  left:50%;
+  z-index:2;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  width:80px;
+  height:60px;
+  margin:0;
+  padding:0;
+  transform:translate(-50%,-50%);
+  pointer-events:none;
+  text-align:center;
+  line-height:1;
+}
+
+.centro-dona strong {
+  display:block;
+  margin:0;
+  padding:0;
+  color:var(--abyss);
+  font-size:25px;
+  font-weight:700;
+  line-height:1;
+}
+
+.centro-dona span {
+  display:block;
+  margin:4px 0 0;
+  padding:0;
+  color:var(--slate);
+  font-size:8px;
+  font-weight:600;
+  line-height:1;
+  text-transform:uppercase;
+  letter-spacing:.5px;
+}
+
+/* LEYENDA DE LA DONA */
+.leyenda-especies {
+  display:flex;
+  flex-direction:column;
+  gap:7px;
+  min-width:0;
+}
+
+.leyenda-item {
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  padding:9px 10px;
+  border-radius:8px;
+  background:var(--foam);
+}
+
+.leyenda-nombre {
+  display:flex;
+  align-items:center;
+  gap:8px;
+  min-width:0;
+}
+
+.leyenda-color {
+  flex-shrink:0;
+  width:9px;
+  height:9px;
+  border-radius:50%;
+  background:var(--teal);
+}
+
+.leyenda-color.color-0 { background:#12969e; }
+.leyenda-color.color-1 { background:#0a1f33; }
+.leyenda-color.color-2 { background:#ff6b4a; }
+.leyenda-color.color-3 { background:#4fd1c5; }
+.leyenda-color.color-4 { background:#5a6b7a; }
+.leyenda-color.color-5 { background:#1fae7c; }
+
+.leyenda-nombre div { min-width:0; }
+
+.leyenda-nombre strong,
+.leyenda-nombre small {
+  display:block;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+
+.leyenda-nombre strong {
+  color:var(--abyss);
+  font-size:11px;
+}
+
+.leyenda-nombre small {
+  margin-top:2px;
+  color:var(--slate);
+  font-size:8px;
+  font-style:italic;
+}
+
+.leyenda-valor {
+  flex-shrink:0;
+  text-align:right;
+}
+
+.leyenda-valor strong,
+.leyenda-valor span { display:block; }
+
+.leyenda-valor strong {
+  color:var(--teal);
+  font-size:12px;
+}
+
+.leyenda-valor span {
+  margin-top:2px;
+  color:var(--slate);
+  font-size:8px;
+}
+
+/* CANVAS */
+.grafico-canvas {
+  position:relative;
+  width:100%;
+}
+
+.grafico-barras { height:275px; }
+.grafico-linea { height:285px; }
+
+.grafico-canvas canvas {
+  display:block;
+  width:100% !important;
+  height:100% !important;
+}
+
+/* ACTIVIDAD */
+.grafico-actividad-card { margin-bottom:14px; }
+
+.sin-actividad {
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:8px;
+  min-height:220px;
+  color:var(--slate);
+  font-size:12px;
+}
+
+.sin-actividad ion-icon {
+  font-size:35px;
+  color:var(--teal);
+}
+
+/* PANEL RESUMEN */
+.panel-resumen {
+  padding:18px;
+  border:1px solid #dfe7eb;
+  border-radius:15px;
+  background:var(--surface);
+  box-shadow:0 5px 18px rgba(10,31,51,.05);
+}
+
+.panel-header {
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:15px;
+  padding-bottom:13px;
+  margin-bottom:14px;
+  border-bottom:1px solid #edf1f3;
+}
+
+.panel-header h2 {
+  margin:4px 0 3px;
+  color:var(--abyss);
+  font-size:17px;
+}
+
+.panel-header p {
+  margin:0;
+  color:var(--slate);
+  font-size:10px;
+}
+
+.total-especies {
+  flex-shrink:0;
+  padding:6px 10px;
+  border-radius:20px;
+  background:var(--foam);
+  color:var(--slate);
+  font-size:10px;
+}
+
+/* TABLA */
+.tabla-contenedor {
+  width:100%;
+  overflow-x:auto;
+  border:1px solid #e1e8ec;
+  border-radius:10px;
+}
+
+.tabla-especies {
+  width:100%;
+  min-width:750px;
+  border-collapse:collapse;
+}
+
+.tabla-especies th,
+.tabla-especies td {
+  padding:11px 13px;
+  border-bottom:1px solid #edf1f3;
+  text-align:left;
+}
+
+.tabla-especies th {
+  background:var(--foam);
+  color:var(--slate);
+  font-size:9px;
+  font-weight:700;
+  text-transform:uppercase;
+  letter-spacing:.3px;
+}
+
+.tabla-especies td {
+  color:var(--ink);
+  font-size:11px;
+}
+
+.tabla-especies tbody tr:last-child td { border-bottom:0; }
+.tabla-especies tbody tr:hover { background:#f8fbfc; }
+
+.especie-tabla {
+  display:flex;
+  align-items:center;
+  gap:9px;
+  min-width:180px;
+}
+
+.especie-icono {
+  flex-shrink:0;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  width:34px;
+  height:34px;
+  border-radius:8px;
+  background:var(--abyss);
+  color:var(--teal-glow);
+}
+
+.especie-icono ion-icon { font-size:18px; }
+
+.especie-tabla strong,
+.especie-tabla span { display:block; }
+
+.especie-tabla strong {
+  color:var(--abyss);
+  font-size:11px;
+}
+
+.especie-tabla span {
+  margin-top:2px;
+  color:var(--slate);
+  font-size:8px;
+  font-style:italic;
+}
+
+.dato-destacado {
+  color:var(--abyss);
+  font-size:14px;
+}
+
+/* DISTRIBUCIÓN */
+.distribucion-celda {
+  display:flex;
+  align-items:center;
+  gap:8px;
+  min-width:120px;
+}
+
+.barra-progreso {
+  width:80px;
+  height:6px;
+  overflow:hidden;
+  border-radius:10px;
+  background:#e3eaee;
+}
+
+.barra-progreso-valor {
+  height:100%;
+  border-radius:10px;
+  background:var(--teal);
+}
+
+.distribucion-celda span {
+  min-width:38px;
+  color:var(--slate);
+  font-size:9px;
+}
+
+/* CONFIANZA */
+.confianza { min-width:100px; }
+
+.confianza strong {
+  display:block;
+  margin-bottom:5px;
+  color:var(--abyss);
+  font-size:11px;
+}
+
+.barra-confianza {
+  width:100%;
+  height:5px;
+  overflow:hidden;
+  border-radius:10px;
+  background:#e3eaee;
+}
+
+.barra-confianza-valor {
+  height:100%;
+  border-radius:10px;
+  background:var(--success);
+}
+
+/* TABLET */
+@media(max-width:1000px) {
+  .estadisticas-dashboard { grid-template-columns:repeat(2,1fr); }
+  .graficos-grid { grid-template-columns:1fr; }
+  .grafico-dona-contenido { grid-template-columns:240px 1fr; }
+}
+
+/* TABLET PEQUEÑA */
+@media(max-width:700px) {
+  .dashboard { padding:16px; }
+
+  .dashboard-header {
+    flex-direction:column;
+    align-items:stretch;
+  }
+
+  .btn-actualizar { align-self:flex-start; }
+  .grafico-dona-contenido { grid-template-columns:1fr; }
+
+  .grafico-dona {
+    width:200px;
+    height:200px;
+  }
+
+  .leyenda-especies { width:100%; }
+  .grafico-barras { height:250px; }
+  .grafico-linea { height:250px; }
+}
+
+/* CELULAR */
+@media(max-width:500px) {
+  .dashboard { padding:12px; }
+  .dashboard-header { margin-bottom:16px; }
+  .dashboard-header h1 { font-size:24px; }
+  .dashboard-header p { font-size:11px; }
+
+  .estadisticas-dashboard {
+    grid-template-columns:repeat(2,1fr);
+    gap:8px;
+  }
+
+  .stat-card {
+    flex-direction:column;
+    align-items:flex-start;
+    gap:8px;
+    padding:13px;
+  }
+
+  .stat-icon {
+    width:37px;
+    height:37px;
+  }
+
+  .stat-icon ion-icon { font-size:19px; }
+  .stat-contenido strong { font-size:18px; }
+
+  .grafico-card,
+  .panel-resumen {
+    padding:13px;
+    border-radius:12px;
+  }
+
+  .grafico-header { margin-bottom:12px; }
+
+  .grafico-header h2,
+  .panel-header h2 { font-size:15px; }
+
+  .grafico-header p,
+  .panel-header p { font-size:9px; }
+
+  .grafico-icon {
+    width:34px;
+    height:34px;
+  }
+
+  .grafico-dona {
+    width:185px;
+    height:185px;
+  }
+
+  .centro-dona {
+    width:70px;
+    height:55px;
+  }
+
+  .centro-dona strong { font-size:22px; }
+
+  .grafico-barras,
+  .grafico-linea { height:230px; }
+
+  .panel-header { align-items:flex-start; }
+}
+
+/* CELULARES PEQUEÑOS */
+@media(max-width:360px) {
+  .estadisticas-dashboard { grid-template-columns:1fr; }
+
+  .stat-card {
+    flex-direction:row;
+    align-items:center;
+  }
+
+  .grafico-dona {
+    width:170px;
+    height:170px;
+  }
+
+  .leyenda-item { padding:8px; }
+}

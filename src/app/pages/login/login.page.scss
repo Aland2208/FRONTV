@@ -1,0 +1,214 @@
+:host {
+  --abyss: #071627;
+  --abyss-mid: #0d2438;
+  --panel: #112c42;
+  --panel-light: #17374f;
+  --teal: #17b8ac;
+  --teal-glow: #5eead4;
+  --coral: #ff7a52;
+  --coral-dark: #e35f39;
+  --white: #f2f9fb;
+  --slate: #9fb4c4;
+  --border: rgba(94, 234, 212, 0.22);
+  --success: #34d399;
+  --danger: #f87171;
+
+  --font-mono: 'IBM Plex Mono', 'Courier New', monospace;
+  --font-sans: 'IBM Plex Sans', -apple-system, sans-serif;
+
+  color-scheme: dark;
+}
+
+.login-content {
+  --background: radial-gradient(circle at 50% 0%, var(--abyss-mid) 0%, var(--abyss) 65%);
+  background: radial-gradient(circle at 50% 0%, var(--abyss-mid) 0%, var(--abyss) 65%);
+}
+
+.login-wrap {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: 100%;
+  max-width: 400px;
+  margin: 0 auto;
+  padding: 24px 20px 40px;
+}
+
+/* ---------- HERO / MARCA ---------- */
+.login-hero {
+  text-align: center;
+  margin-bottom: 28px;
+}
+
+.login-eyebrow {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--teal-glow);
+  margin-bottom: 16px;
+}
+
+.scan-badge {
+  position: relative;
+  width: 76px;
+  height: 76px;
+  margin: 0 auto 18px;
+  border-radius: 50%;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(180deg, var(--panel) 0%, var(--panel-light) 100%);
+  border: 2px solid rgba(94, 234, 212, 0.45);
+  box-shadow: 0 0 0 8px rgba(23, 184, 172, 0.1), 0 0 24px rgba(94, 234, 212, 0.25);
+
+  ion-icon {
+    font-size: 32px;
+    color: var(--teal-glow);
+    z-index: 1;
+  }
+}
+
+.scan-badge__line {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--teal-glow) 50%, transparent);
+  box-shadow: 0 0 8px var(--teal-glow);
+  animation: scan 2.4s ease-in-out infinite;
+}
+
+@keyframes scan {
+  0%   { top: 12%; opacity: 0.5; }
+  50%  { top: 82%; opacity: 1; }
+  100% { top: 12%; opacity: 0.5; }
+}
+
+.login-title {
+  font-family: var(--font-sans);
+  font-weight: 800;
+  font-size: 2rem;
+  letter-spacing: 0.05em;
+  color: var(--white);
+  margin: 0;
+}
+
+.login-subtitle {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--slate);
+  margin-top: 8px;
+}
+
+/* ---------- CARD (panel de instrumento, no tarjeta blanca) ---------- */
+.login-card {
+  background: linear-gradient(180deg, var(--panel) 0%, var(--panel-light) 100%);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 24px 20px;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.45);
+}
+
+/* ---------- CAMPOS: alto contraste, pensados para sol directo ---------- */
+.field {
+  margin-bottom: 18px;
+
+  &:last-child {
+    margin-bottom: 4px;
+  }
+}
+
+.field__label {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--teal-glow);
+  margin-bottom: 8px;
+  padding-left: 2px;
+}
+
+.field__box {
+  --background: rgba(7, 22, 39, 0.55);
+  --color: var(--white);
+  --placeholder-color: rgba(159, 180, 196, 0.55);
+  --placeholder-opacity: 1;
+  --padding-start: 14px;
+  --inner-padding-end: 14px;
+  --min-height: 52px;
+
+  background: rgba(7, 22, 39, 0.55);
+  border: 1.5px solid rgba(94, 234, 212, 0.25);
+  border-radius: 12px;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+
+  &.item-has-focus {
+    border-color: var(--teal-glow);
+    background: rgba(7, 22, 39, 0.8);
+    box-shadow: 0 0 0 3px rgba(94, 234, 212, 0.18);
+  }
+
+  ion-input {
+    --color: var(--white);
+    --placeholder-color: rgba(159, 180, 196, 0.55);
+    font-family: var(--font-mono);
+    font-weight: 600;
+    font-size: 1rem;
+    letter-spacing: 0.01em;
+  }
+}
+
+/* ---------- LINKS ---------- */
+.login-forgot {
+  text-align: right;
+  margin: 14px 6px 0 0;
+
+  a {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--teal-glow);
+    text-decoration: none;
+  }
+}
+
+.login-signup {
+  text-align: center;
+  margin-top: 28px;
+
+  p {
+    font-size: 0.88rem;
+    font-weight: 500;
+    color: var(--slate);
+    margin: 0;
+  }
+
+  a {
+    font-weight: 800;
+    color: var(--teal-glow);
+    text-decoration: none;
+  }
+}
+
+/* ---------- BOTÓN: coral saturado, máxima visibilidad ---------- */
+.btn-ingresar {
+  margin-top: 26px;
+  height: 52px;
+  --background: var(--coral);
+  --background-activated: var(--coral-dark);
+  --background-hover: var(--coral-dark);
+  --box-shadow: 0 10px 24px rgba(255, 122, 82, 0.4);
+  --color: #1a0a04;
+  font-weight: 800;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  font-size: 0.92rem;
+}

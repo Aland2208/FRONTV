@@ -1,0 +1,157 @@
+<div class="pagina-vinculacion">
+
+  <div class="encabezado">
+    <span class="etiqueta">CONFIGURACIÓN DE CUENTA</span>
+    <h1>Vincular administrador</h1>
+    <p>Consulta tu administrador actual o busca otro mediante su correo electrónico.</p>
+  </div>
+
+  <div class="contenedor">
+
+    <!-- ADMINISTRADOR ACTUAL -->
+    <div *ngIf="cargandoActual" class="tarjeta-actual">
+      <div class="estado-cargando">
+        <ion-icon name="hourglass-outline"></ion-icon>
+        <span>Consultando vinculación actual...</span>
+      </div>
+    </div>
+
+    <div *ngIf="!cargandoActual && administradorActual" class="tarjeta-actual">
+      <div class="titulo-actual">
+        <div class="icono-actual">
+          <ion-icon name="checkmark-circle-outline"></ion-icon>
+        </div>
+
+        <div>
+          <span>VINCULACIÓN ACTUAL</span>
+          <h2>Administrador vinculado actualmente</h2>
+        </div>
+      </div>
+
+      <div class="administrador-actual-info">
+        <div class="avatar">
+          <ion-icon name="person-outline"></ion-icon>
+        </div>
+
+        <div class="datos">
+          <h3>
+            {{ administradorActual.nombre }}
+            {{ administradorActual.apellido }}
+          </h3>
+          <p>{{ administradorActual.correo }}</p>
+        </div>
+
+        <div class="estado-vinculado">
+          <ion-icon name="checkmark-circle-outline"></ion-icon>
+          Vinculado
+        </div>
+      </div>
+    </div>
+
+    <div *ngIf="!cargandoActual && !administradorActual" class="sin-vinculacion">
+      <ion-icon name="information-circle-outline"></ion-icon>
+      <div>
+        <strong>Sin administrador vinculado</strong>
+        <span>Actualmente tu cuenta no está asociada a ningún administrador.</span>
+      </div>
+    </div>
+
+    <!-- BÚSQUEDA -->
+    <div class="tarjeta-busqueda">
+
+      <div class="titulo-tarjeta">
+        <div class="icono-titulo">
+          <ion-icon name="person-add-outline"></ion-icon>
+        </div>
+
+        <div>
+          <span>ASIGNACIÓN</span>
+          <h2>
+            {{ administradorActual ? 'Cambiar administrador' : 'Buscar administrador' }}
+          </h2>
+        </div>
+      </div>
+
+      <div class="formulario">
+
+        <label for="correoAdministrador">Correo electrónico</label>
+
+        <div class="campo">
+          <ion-icon name="mail-outline"></ion-icon>
+
+          <input
+            id="correoAdministrador"
+            type="email"
+            [(ngModel)]="correo"
+            placeholder="administrador@correo.com"
+            autocomplete="email"
+            [disabled]="buscando || vinculando"
+            (keyup.enter)="buscarAdministrador()">
+        </div>
+
+        <small>
+          Ingresa el correo asociado a la cuenta del administrador.
+        </small>
+
+        <div *ngIf="mensaje" class="mensaje">
+          <ion-icon name="information-circle-outline"></ion-icon>
+          <span>{{ mensaje }}</span>
+        </div>
+
+        <button
+          type="button"
+          class="btn-buscar"
+          [disabled]="buscando || vinculando"
+          (click)="buscarAdministrador()">
+
+          <ion-icon [name]="buscando ? 'hourglass-outline' : 'search-outline'"></ion-icon>
+
+          {{ buscando ? 'Buscando...' : 'Buscar administrador' }}
+        </button>
+
+      </div>
+    </div>
+
+    <!-- RESULTADO DE BÚSQUEDA -->
+    <div *ngIf="administrador" class="tarjeta-administrador">
+
+      <div class="avatar">
+        <ion-icon name="person-outline"></ion-icon>
+      </div>
+
+      <div class="datos">
+        <span>ADMINISTRADOR ENCONTRADO</span>
+        <h3>
+          {{ administrador.nombre }}
+          {{ administrador.apellido }}
+        </h3>
+        <p>{{ administrador.correo }}</p>
+      </div>
+
+      <button
+        *ngIf="!administradorActual || administradorActual.id_administrador !== administrador.id_usuario"
+        type="button"
+        class="btn-vincular"
+        [disabled]="vinculando"
+        (click)="vincularAdministrador()">
+
+        <ion-icon [name]="vinculando ? 'hourglass-outline' : 'link-outline'"></ion-icon>
+
+        {{ vinculando
+          ? 'Vinculando...'
+          : (administradorActual ? 'Cambiar' : 'Vincular')
+        }}
+      </button>
+
+      <div
+        *ngIf="administradorActual && administradorActual.id_administrador === administrador.id_usuario"
+        class="estado-vinculado">
+        <ion-icon name="checkmark-circle-outline"></ion-icon>
+        Ya vinculado
+      </div>
+
+    </div>
+
+  </div>
+
+</div>

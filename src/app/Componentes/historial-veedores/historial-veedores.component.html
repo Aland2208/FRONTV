@@ -1,0 +1,736 @@
+<div class="historial-page">
+
+  <!-- ========================================== -->
+  <!-- VISTA 1: VEEDORES RELACIONADOS -->
+  <!-- ========================================== -->
+  <ng-container *ngIf="!veedorSeleccionado">
+
+    <!-- ENCABEZADO -->
+    <section class="page-header">
+      <div>
+        <span class="eyebrow">ADMINISTRACIÓN</span>
+        <h1>Historial de veedores</h1>
+        <p>Consulta los veedores relacionados contigo y revisa el historial de reportes registrados por cada uno.</p>
+      </div>
+
+      <button class="btn-actualizar" type="button" (click)="cargarVeedores()">
+        <ion-icon name="refresh-outline"></ion-icon>
+        Actualizar
+      </button>
+    </section>
+
+    <!-- BUSCADOR -->
+    <section class="toolbar-veedores">
+      <div class="search-box">
+        <ion-icon name="search-outline"></ion-icon>
+        <input
+          type="text"
+          [(ngModel)]="busquedaVeedor"
+          placeholder="Buscar veedor por nombre o correo..."
+        />
+      </div>
+
+      <div class="cantidad-veedores" *ngIf="!cargando">
+        <ion-icon name="people-outline"></ion-icon>
+        <span>
+          {{veedoresFiltrados.length}}
+          {{veedoresFiltrados.length===1 ? 'veedor' : 'veedores'}}
+        </span>
+      </div>
+    </section>
+
+    <!-- CARGANDO -->
+    <div class="estado-carga" *ngIf="cargando">
+      <div class="spinner"></div>
+      <p>Cargando historial de veedores...</p>
+    </div>
+
+    <!-- SIN VEEDORES -->
+    <div class="estado-vacio" *ngIf="!cargando && veedoresFiltrados.length===0">
+      <ion-icon name="people-outline"></ion-icon>
+
+      <h3 *ngIf="veedores.length===0">
+        No existen veedores relacionados
+      </h3>
+
+      <h3 *ngIf="veedores.length>0">
+        No se encontraron resultados
+      </h3>
+
+      <p *ngIf="veedores.length===0">
+        Aún no existen veedores asociados a tu cuenta de administrador.
+      </p>
+
+      <p *ngIf="veedores.length>0">
+        No existen veedores que coincidan con la búsqueda realizada.
+      </p>
+    </div>
+
+    <!-- TARJETAS DE VEEDORES -->
+    <section
+      class="veedores-grid"
+      *ngIf="!cargando && veedoresFiltrados.length>0">
+
+      <article
+        class="veedor-card"
+        *ngFor="let veedor of veedoresFiltrados">
+
+        <!-- CABECERA TARJETA -->
+        <div class="veedor-card-header">
+
+          <div class="veedor-avatar">
+            {{obtenerIniciales(veedor)}}
+          </div>
+
+          <span
+            class="relacion-badge"
+            [class.actual]="veedor.relacion_actual===1"
+            [class.anterior]="veedor.relacion_actual!==1">
+
+            <ion-icon
+              [name]="veedor.relacion_actual===1
+                ? 'checkmark-circle-outline'
+                : 'time-outline'">
+            </ion-icon>
+
+            {{
+              veedor.relacion_actual===1
+                ? 'Relación actual'
+                : 'Relación anterior'
+            }}
+          </span>
+
+        </div>
+
+        <!-- INFORMACIÓN -->
+        <div class="veedor-info">
+          <h2>
+            {{veedor.nombre}} {{veedor.apellido}}
+          </h2>
+
+          <div class="veedor-correo">
+            <ion-icon name="mail-outline"></ion-icon>
+            <span>{{veedor.correo}}</span>
+          </div>
+        </div>
+
+        <!-- ESTADÍSTICAS -->
+        <div class="veedor-estadisticas">
+
+          <div class="estadistica">
+            <span>Total</span>
+            <strong>{{veedor.total_reportes}}</strong>
+          </div>
+
+          <div class="estadistica completo">
+            <span>Completos</span>
+            <strong>{{veedor.reportes_completos}}</strong>
+          </div>
+
+          <div class="estadistica incompleto">
+            <span>Incompletos</span>
+            <strong>{{veedor.reportes_incompletos}}</strong>
+          </div>
+
+        </div>
+
+        <!-- FECHA DE RELACIÓN -->
+        <div class="veedor-relacion">
+
+          <div>
+            <span>Primera asignación</span>
+            <strong>
+              {{formatearFecha(veedor.primera_asignacion)}}
+            </strong>
+          </div>
+
+          <div>
+            <span>Estado</span>
+            <strong>
+              {{veedor.estado===1 ? 'Activo' : 'Inactivo'}}
+            </strong>
+          </div>
+
+        </div>
+
+        <!-- BOTÓN -->
+        <button
+          class="btn-historial"
+          type="button"
+          (click)="verHistorial(veedor)">
+
+          <ion-icon name="time-outline"></ion-icon>
+          Ver historial
+
+          <ion-icon
+            class="flecha"
+            name="arrow-forward-outline">
+          </ion-icon>
+
+        </button>
+
+      </article>
+
+    </section>
+
+  </ng-container>
+
+  <!-- ========================================== -->
+  <!-- VISTA 2: HISTORIAL DEL VEEDOR -->
+  <!-- ========================================== -->
+  <ng-container *ngIf="veedorSeleccionado">
+
+    <!-- VOLVER -->
+    <button
+      class="btn-volver"
+      type="button"
+      (click)="volverAVeedores()">
+
+      <ion-icon name="arrow-back-outline"></ion-icon>
+      Volver a veedores
+    </button>
+
+    <!-- CABECERA DEL VEEDOR -->
+    <section class="veedor-detalle-header">
+
+      <div class="veedor-identidad">
+
+        <div class="veedor-avatar grande">
+          {{obtenerIniciales(veedorSeleccionado)}}
+        </div>
+
+        <div>
+          <span class="eyebrow">
+            HISTORIAL DEL VEEDOR
+          </span>
+
+          <h1>
+            {{veedorSeleccionado.nombre}}
+            {{veedorSeleccionado.apellido}}
+          </h1>
+
+          <p>
+            <ion-icon name="mail-outline"></ion-icon>
+            {{veedorSeleccionado.correo}}
+          </p>
+        </div>
+
+      </div>
+
+      <button
+        class="btn-actualizar"
+        type="button"
+        (click)="cargarReportesVeedor()"
+        [disabled]="cargandoReportes">
+
+        <ion-icon name="refresh-outline"></ion-icon>
+        Actualizar
+      </button>
+
+    </section>
+
+    <!-- RESUMEN -->
+    <section class="resumen-grid">
+
+      <button
+        class="resumen-card"
+        [class.activa]="filtroEstado==='Todos'"
+        (click)="seleccionarFiltro('Todos')">
+
+        <div class="resumen-icon">
+          <ion-icon name="documents-outline"></ion-icon>
+        </div>
+
+        <div>
+          <span>Total</span>
+          <strong>{{totalReportes}}</strong>
+        </div>
+
+      </button>
+
+      <button
+        class="resumen-card"
+        [class.activa]="filtroEstado==='Completo'"
+        (click)="seleccionarFiltro('Completo')">
+
+        <div class="resumen-icon completo">
+          <ion-icon name="checkmark-circle-outline"></ion-icon>
+        </div>
+
+        <div>
+          <span>Completos</span>
+          <strong>{{reportesCompletos}}</strong>
+        </div>
+
+      </button>
+
+      <button
+        class="resumen-card"
+        [class.activa]="filtroEstado==='Incompleto'"
+        (click)="seleccionarFiltro('Incompleto')">
+
+        <div class="resumen-icon incompleto">
+          <ion-icon name="alert-circle-outline"></ion-icon>
+        </div>
+
+        <div>
+          <span>Incompletos</span>
+          <strong>{{reportesIncompletos}}</strong>
+        </div>
+
+      </button>
+
+    </section>
+
+    <!-- PANEL DE REPORTES -->
+    <section class="panel">
+
+      <!-- BUSCADOR Y FILTROS -->
+      <div class="toolbar">
+
+        <div class="search-box">
+          <ion-icon name="search-outline"></ion-icon>
+
+          <input
+            type="text"
+            [(ngModel)]="busquedaReporte"
+            placeholder="Buscar por reporte, título, especie o fecha..."
+          />
+        </div>
+
+        <div class="filtros">
+
+          <button
+            [class.activo]="filtroEstado==='Todos'"
+            (click)="seleccionarFiltro('Todos')">
+            Todos
+          </button>
+
+          <button
+            [class.activo]="filtroEstado==='Completo'"
+            (click)="seleccionarFiltro('Completo')">
+            Completos
+          </button>
+
+          <button
+            [class.activo]="filtroEstado==='Incompleto'"
+            (click)="seleccionarFiltro('Incompleto')">
+            Incompletos
+          </button>
+
+        </div>
+
+      </div>
+
+      <!-- CARGANDO REPORTES -->
+      <div
+        class="estado-carga"
+        *ngIf="cargandoReportes">
+
+        <div class="spinner"></div>
+        <p>Cargando historial de reportes...</p>
+
+      </div>
+
+      <!-- SIN REPORTES -->
+      <div
+        class="estado-vacio"
+        *ngIf="
+          !cargandoReportes &&
+          reportesFiltrados.length===0
+        ">
+
+        <ion-icon name="document-text-outline"></ion-icon>
+
+        <h3 *ngIf="reportes.length===0">
+          No existen reportes registrados
+        </h3>
+
+        <h3 *ngIf="reportes.length>0">
+          No se encontraron resultados
+        </h3>
+
+        <p *ngIf="reportes.length===0">
+          Este veedor no registra reportes durante el período relacionado con tu administración.
+        </p>
+
+        <p *ngIf="reportes.length>0">
+          No existen reportes que coincidan con los filtros seleccionados.
+        </p>
+
+      </div>
+
+      <!-- TABLA -->
+      <div
+        class="tabla-wrapper"
+        *ngIf="
+          !cargandoReportes &&
+          reportesFiltrados.length>0
+        ">
+
+        <table>
+
+          <thead>
+            <tr>
+              <th>Reporte</th>
+              <th>Especie</th>
+              <th>Tipo</th>
+              <th>Fecha</th>
+              <th>Hora</th>
+              <th>Información</th>
+              <th>Archivos</th>
+              <th>Acción</th>
+            </tr>
+          </thead>
+
+          <tbody>
+
+            <tr *ngFor="let reporte of reportesFiltrados">
+
+              <!-- REPORTE -->
+              <td>
+                <div class="reporte-id">
+                  #{{reporte.id_reporte}}
+                </div>
+
+                <small>
+                  {{reporte.titulo || 'Sin título'}}
+                </small>
+              </td>
+
+              <!-- ESPECIE -->
+              <td>
+                <strong>
+                  {{reporte.especie || 'Sin especie'}}
+                </strong>
+
+                <small>
+                  {{reporte.nombre_cientifico || '—'}}
+                </small>
+              </td>
+
+              <!-- TIPO -->
+              <td>
+                {{reporte.nombre_tipo || 'Sin completar'}}
+              </td>
+
+              <!-- FECHA -->
+              <td>
+                {{formatearFecha(reporte.fecha_reporte)}}
+              </td>
+
+              <!-- HORA -->
+              <td>
+                {{reporte.hora_reporte || '—'}}
+              </td>
+
+              <!-- ESTADO -->
+              <td>
+
+                <span
+                  class="badge"
+                  [class.completo]="
+                    reporte.estado_reporte==='Completo'
+                  "
+                  [class.incompleto]="
+                    reporte.estado_reporte==='Incompleto'
+                  ">
+
+                  <ion-icon
+                    [name]="
+                      reporte.estado_reporte==='Completo'
+                        ? 'checkmark-circle-outline'
+                        : 'alert-circle-outline'
+                    ">
+                  </ion-icon>
+
+                  {{reporte.estado_reporte}}
+
+                </span>
+
+              </td>
+
+              <!-- ARCHIVOS -->
+              <td>
+                <div class="archivos-badges">
+
+                  <span
+                    class="archivo-badge"
+                    [class.generado]="reporte.archivo_pdf">
+                    PDF
+                  </span>
+
+                  <span
+                    class="archivo-badge"
+                    [class.generado]="reporte.archivo_csv">
+                    CSV
+                  </span>
+
+                </div>
+              </td>
+
+              <!-- ACCIÓN -->
+              <td>
+                <button
+                  class="btn-ver"
+                  type="button"
+                  (click)="verReporte(reporte)">
+
+                  <ion-icon name="eye-outline"></ion-icon>
+                  Ver
+
+                </button>
+              </td>
+
+            </tr>
+
+          </tbody>
+
+        </table>
+
+      </div>
+
+    </section>
+
+  </ng-container>
+
+  <!-- ========================================== -->
+  <!-- MODAL DETALLE DEL REPORTE -->
+  <!-- ========================================== -->
+  <div
+    class="detalle-overlay"
+    *ngIf="reporteSeleccionado"
+    (click)="cerrarDetalle()">
+
+    <div
+      class="detalle-modal"
+      (click)="$event.stopPropagation()">
+
+      <!-- CABECERA -->
+      <div class="detalle-header">
+
+        <div>
+          <span class="eyebrow">
+            DETALLE DEL REPORTE
+          </span>
+
+          <h2>
+            Reporte #{{reporteSeleccionado.id_reporte}}
+          </h2>
+        </div>
+
+        <button
+          class="btn-cerrar"
+          type="button"
+          (click)="cerrarDetalle()">
+
+          <ion-icon name="close-outline"></ion-icon>
+
+        </button>
+
+      </div>
+
+      <!-- ESTADO Y FECHA -->
+      <div class="detalle-estado">
+
+        <span
+          class="badge"
+          [class.completo]="
+            reporteSeleccionado.estado_reporte==='Completo'
+          "
+          [class.incompleto]="
+            reporteSeleccionado.estado_reporte==='Incompleto'
+          ">
+
+          <ion-icon
+            [name]="
+              reporteSeleccionado.estado_reporte==='Completo'
+                ? 'checkmark-circle-outline'
+                : 'alert-circle-outline'
+            ">
+          </ion-icon>
+
+          {{reporteSeleccionado.estado_reporte}}
+
+        </span>
+
+        <span>
+          {{formatearFecha(reporteSeleccionado.fecha_reporte)}}
+          ·
+          {{reporteSeleccionado.hora_reporte}}
+        </span>
+
+      </div>
+
+      <!-- IMAGEN -->
+      <div
+        class="detalle-imagen"
+        *ngIf="reporteSeleccionado.imagen_url">
+
+        <img
+          [src]="reporteSeleccionado.imagen_url"
+          alt="Evidencia de la captura"
+        />
+
+      </div>
+
+      <!-- DATOS -->
+      <div class="detalle-grid">
+
+        <!-- TÍTULO -->
+        <div class="campo campo-destacado">
+          <span>Título del reporte</span>
+
+          <strong>
+            {{reporteSeleccionado.titulo || 'Sin título'}}
+          </strong>
+        </div>
+
+        <!-- TIPO -->
+        <div class="campo">
+          <span>Tipo de reporte</span>
+
+          <strong>
+            {{reporteSeleccionado.nombre_tipo || 'Sin tipo de reporte'}}
+          </strong>
+        </div>
+
+        <!-- VEEDOR -->
+        <div class="campo">
+          <span>Veedor</span>
+
+          <strong>
+            {{veedorSeleccionado?.nombre}}
+            {{veedorSeleccionado?.apellido}}
+          </strong>
+        </div>
+
+        <!-- ESPECIE -->
+        <div class="campo">
+          <span>Especie</span>
+
+          <strong>
+            {{reporteSeleccionado.especie || 'Sin información'}}
+          </strong>
+        </div>
+
+        <!-- NOMBRE CIENTÍFICO -->
+        <div class="campo">
+          <span>Nombre científico</span>
+
+          <strong>
+            {{reporteSeleccionado.nombre_cientifico || 'Sin información'}}
+          </strong>
+        </div>
+
+        <!-- PESO -->
+        <div class="campo">
+          <span>Peso</span>
+
+          <strong>
+            {{formatearPeso(reporteSeleccionado.peso)}}
+          </strong>
+        </div>
+
+        <!-- CONFIANZA -->
+        <div class="campo">
+          <span>Confianza</span>
+
+          <strong>
+            {{formatearConfianza(reporteSeleccionado.porcentaje)}}
+          </strong>
+        </div>
+
+        <!-- FECHA CAPTURA -->
+        <div class="campo">
+          <span>Fecha de captura</span>
+
+          <strong>
+            {{formatearFecha(reporteSeleccionado.fecha_captura)}}
+          </strong>
+        </div>
+
+        <!-- HORA CAPTURA -->
+        <div class="campo">
+          <span>Hora de captura</span>
+
+          <strong>
+            {{reporteSeleccionado.hora_captura || '—'}}
+          </strong>
+        </div>
+
+        <!-- ID CAPTURA -->
+        <div class="campo">
+          <span>ID de captura</span>
+
+          <strong>
+            {{reporteSeleccionado.id_captura || '—'}}
+          </strong>
+        </div>
+
+        <!-- ID DETECCIÓN -->
+        <div class="campo">
+          <span>ID de detección</span>
+
+          <strong>
+            {{reporteSeleccionado.id_deteccion || '—'}}
+          </strong>
+        </div>
+
+        <!-- PDF -->
+        <div class="campo">
+          <span>PDF</span>
+
+          <strong
+            [class.archivo-generado]="
+              reporteSeleccionado.archivo_pdf
+            ">
+
+            {{
+              reporteSeleccionado.archivo_pdf
+                ? 'Generado'
+                : 'No generado'
+            }}
+
+          </strong>
+        </div>
+
+        <!-- CSV -->
+        <div class="campo">
+          <span>CSV</span>
+
+          <strong
+            [class.archivo-generado]="
+              reporteSeleccionado.archivo_csv
+            ">
+
+            {{
+              reporteSeleccionado.archivo_csv
+                ? 'Generado'
+                : 'No generado'
+            }}
+
+          </strong>
+        </div>
+
+      </div>
+
+      <!-- FOOTER -->
+      <div class="detalle-footer">
+
+        <button
+          type="button"
+          class="btn-secundario"
+          (click)="cerrarDetalle()">
+
+          Cerrar
+
+        </button>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</div>

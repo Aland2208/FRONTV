@@ -1,27 +1,104 @@
-#container {
-  text-align: center;
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap');
 
-  position: absolute;
-  left: 0;
-  right: 0;
-  top: 50%;
-  transform: translateY(-50%);
+:host {
+  --abyss: #0a1f33;
+  --abyss-light: #123354;
+
+  --teal: #12969e;
+  --teal-glow: #4fd1c5;
+
+  --coral: #ff6b4a;
+
+  --foam: #f2f7fa;
+  --surface: #ffffff;
+
+  --ink: #1b2b3a;
+  --slate: #5a6b7a;
+
+  --success: #1fae7c;
+  --danger: #e5484d;
+
+  --font-mono: 'IBM Plex Mono', 'Courier New', monospace;
+  --font-sans: 'IBM Plex Sans', -apple-system, sans-serif;
+
+  font-family: var(--font-sans);
 }
 
-#container strong {
-  font-size: 20px;
-  line-height: 26px;
+
+/* ==========================================
+   FONDO GENERAL
+   ========================================== */
+
+ion-content.app-content {
+  --background: var(--foam);
 }
 
-#container p {
-  font-size: 16px;
-  line-height: 22px;
 
-  color: #8c8c8c;
+/* ==========================================
+   HEADER
+   ========================================== */
 
-  margin: 0;
+.app-toolbar {
+  --background: var(--abyss);
+  --color: white;
 }
 
-#container a {
-  text-decoration: none;
+
+/* BOTONES DE LOS MENÚS */
+
+ion-menu-button {
+  --color: white;
+
+  font-size: 24px;
+}
+
+
+/* ==========================================
+   TÍTULO
+   ========================================== */
+
+.app-title {
+  display: block;
+
+  font-family: var(--font-sans);
+
+  font-weight: 700;
+
+  font-size: 1.05rem;
+
+  letter-spacing: 0.02em;
+}
+
+
+.app-subtitle {
+  display: block;
+
+  font-family: var(--font-mono);
+
+  font-size: 0.7rem;
+
+  letter-spacing: 0.12em;
+
+  text-transform: uppercase;
+
+  color: var(--teal-glow);
+
+  margin-top: 2px;
+}
+
+
+/* ==========================================
+   RESPONSIVE
+   ========================================== */
+
+@media (max-width: 480px) {
+
+  .app-title {
+    font-size: 0.95rem;
+  }
+
+  .app-subtitle {
+    font-size: 0.62rem;
+  }
+
 }

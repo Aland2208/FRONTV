@@ -1,0 +1,48 @@
+<ion-menu
+  menuId="menuPrincipal"
+  contentId="principal"
+  side="start">
+
+  <ion-header>
+
+    <ion-toolbar >
+
+      <ion-title>
+        Menú
+      </ion-title>
+
+    </ion-toolbar>
+
+  </ion-header>
+
+
+  <ion-content>
+
+    <ion-list lines="none">
+
+      <ion-menu-toggle
+        auto-hide="true"
+        *ngFor="let opcion of opcionesMenu">
+
+        <ion-item
+          button
+          (click)="seleccionarVista(opcion.vista)">
+
+          <ion-icon
+            slot="start"
+            [name]="opcion.icono">
+          </ion-icon>
+
+          <ion-label>
+            {{ opcion.nombre }}
+          </ion-label>
+
+        </ion-item>
+
+      </ion-menu-toggle>
+
+    </ion-list>
+
+  </ion-content>
+
+</ion-menu>

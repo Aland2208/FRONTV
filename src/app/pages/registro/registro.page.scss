@@ -1,0 +1,389 @@
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700;800&display=swap');
+
+:host{
+ --abyss:#071627;
+ --abyss-mid:#0d2438;
+ --panel:#112c42;
+ --panel-light:#17374f;
+ --teal:#17b8ac;
+ --teal-glow:#5eead4;
+ --coral:#ff7a52;
+ --coral-dark:#e35f39;
+ --white:#f2f9fb;
+ --slate:#9fb4c4;
+ --border:rgba(94,234,212,.22);
+ --success:#34d399;
+ --danger:#f87171;
+ --font-mono:'IBM Plex Mono','Courier New',monospace;
+ --font-sans:'IBM Plex Sans',-apple-system,sans-serif;
+ color-scheme:dark;
+}
+
+/* HEADER */
+.registro-header{
+ background:var(--abyss-mid);
+}
+
+.registro-header ion-toolbar{
+ --background:var(--abyss-mid);
+ --color:var(--white);
+ --border-width:0;
+}
+
+.registro-header ion-back-button{
+ --color:var(--teal-glow);
+ color:var(--teal-glow);
+ font-family:var(--font-sans);
+ font-size:.8rem;
+ font-weight:700;
+}
+
+/* FONDO */
+.registro-content{
+ --background:radial-gradient(circle at 50% 0%,var(--abyss-mid) 0%,var(--abyss) 65%);
+}
+
+/* CONTENEDOR */
+.registro-wrap{
+ display:flex;
+ flex-direction:column;
+ justify-content:center;
+ min-height:100%;
+ width:100%;
+ max-width:400px;
+ margin:0 auto;
+ padding:24px 20px 50px;
+ box-sizing:border-box;
+}
+
+/* ENCABEZADO */
+.registro-hero{
+ text-align:center;
+ margin-bottom:24px;
+}
+
+.registro-eyebrow{
+ display:block;
+ margin-bottom:14px;
+ color:var(--teal-glow);
+ font-family:var(--font-mono);
+ font-size:.7rem;
+ font-weight:700;
+ letter-spacing:.12em;
+ text-transform:uppercase;
+}
+
+.registro-icon{
+ width:64px;
+ height:64px;
+ margin:0 auto 16px;
+ display:flex;
+ align-items:center;
+ justify-content:center;
+ border:2px solid rgba(94,234,212,.45);
+ border-radius:50%;
+ background:linear-gradient(180deg,var(--panel) 0%,var(--panel-light) 100%);
+ box-shadow:0 0 0 8px rgba(23,184,172,.1),0 0 24px rgba(94,234,212,.2);
+}
+
+.registro-icon ion-icon{
+ color:var(--teal-glow);
+ font-size:28px;
+}
+
+.registro-hero h1{
+ margin:0;
+ color:var(--white);
+ font-family:var(--font-sans);
+ font-size:1.8rem;
+ font-weight:800;
+ letter-spacing:.02em;
+}
+
+.registro-hero p{
+ margin:8px auto 0;
+ color:var(--slate);
+ font-family:var(--font-mono);
+ font-size:.74rem;
+ font-weight:500;
+ line-height:1.5;
+}
+
+/* PANEL */
+.registro-card{
+ width:100%;
+ padding:22px 20px;
+ box-sizing:border-box;
+ background:linear-gradient(180deg,var(--panel) 0%,var(--panel-light) 100%);
+ border:1px solid var(--border);
+ border-radius:20px;
+ box-shadow:0 16px 40px rgba(0,0,0,.45);
+}
+
+/* CAMPOS */
+.field{
+ margin-bottom:16px;
+}
+
+.field:last-child{
+ margin-bottom:0;
+}
+
+.field__label{
+ display:block;
+ margin:0 0 7px 2px;
+ color:var(--teal-glow);
+ font-family:var(--font-mono);
+ font-size:.68rem;
+ font-weight:700;
+ letter-spacing:.1em;
+ text-transform:uppercase;
+}
+
+/* INPUTS */
+.field__box{
+ --background:rgba(7,22,39,.55);
+ --color:var(--white);
+ --placeholder-color:rgba(159,180,196,.55);
+ --placeholder-opacity:1;
+ --padding-start:14px;
+ --inner-padding-end:14px;
+ --min-height:50px;
+ background:rgba(7,22,39,.55);
+ border:1.5px solid rgba(94,234,212,.25);
+ border-radius:12px;
+ transition:border-color .15s ease,box-shadow .15s ease,background .15s ease;
+}
+
+.field__box.item-has-focus{
+ border-color:var(--teal-glow);
+ background:rgba(7,22,39,.8);
+ box-shadow:0 0 0 3px rgba(94,234,212,.18);
+}
+
+.field__box ion-input{
+ --color:var(--white);
+ --placeholder-color:rgba(159,180,196,.55);
+ --placeholder-opacity:1;
+ font-family:var(--font-mono);
+ font-size:.95rem;
+ font-weight:600;
+}
+
+/* ==========================================
+   SELECCIÓN DEL TIPO DE CUENTA
+   ========================================== */
+
+.roles{
+ display:flex;
+ flex-direction:column;
+ gap:10px;
+ width:100%;
+}
+
+.rol-card{
+ appearance:none;
+ -webkit-appearance:none;
+ width:100%;
+ min-height:68px;
+ margin:0;
+ padding:11px 12px;
+ display:grid;
+ grid-template-columns:42px minmax(0,1fr) 22px;
+ align-items:center;
+ gap:12px;
+ border:1.5px solid rgba(94,234,212,.22);
+ border-radius:12px;
+ outline:none;
+ background:rgba(7,22,39,.55);
+ color:var(--white);
+ font-family:var(--font-sans);
+ text-align:left;
+ cursor:pointer;
+ box-shadow:none;
+ transition:background .15s ease,border-color .15s ease,box-shadow .15s ease,transform .15s ease;
+}
+
+.rol-card:hover{
+ background:rgba(7,22,39,.8);
+ border-color:rgba(94,234,212,.5);
+}
+
+/* ROL SELECCIONADO */
+.rol-card.rol-activo{
+ background:rgba(23,184,172,.12);
+ border-color:var(--teal-glow);
+ box-shadow:0 0 0 2px rgba(94,234,212,.1);
+}
+
+/* ICONO IZQUIERDO */
+.rol-icon{
+ width:42px;
+ height:42px;
+ display:flex;
+ align-items:center;
+ justify-content:center;
+ border-radius:10px;
+ background:rgba(23,184,172,.1);
+ transition:background .15s ease;
+}
+
+.rol-icon ion-icon{
+ display:block;
+ color:var(--teal-glow);
+ font-size:21px;
+}
+
+.rol-card.rol-activo .rol-icon{
+ background:rgba(94,234,212,.14);
+}
+
+/* INFORMACIÓN DEL ROL */
+.rol-info{
+ min-width:0;
+ display:flex;
+ flex-direction:column;
+ align-items:flex-start;
+ gap:4px;
+}
+
+.rol-info strong{
+ display:block;
+ width:100%;
+ color:var(--white);
+ font-family:var(--font-sans);
+ font-size:.8rem;
+ font-weight:700;
+ line-height:1.2;
+}
+
+.rol-info span{
+ display:block;
+ width:100%;
+ color:var(--slate);
+ font-family:var(--font-mono);
+ font-size:.58rem;
+ font-weight:500;
+ line-height:1.4;
+ white-space:normal;
+}
+
+/* CHECK DERECHO */
+.rol-check{
+ display:block;
+ justify-self:end;
+ color:var(--slate);
+ font-size:20px;
+}
+
+.rol-card.rol-activo .rol-check{
+ color:var(--teal-glow);
+}
+
+/* ACCESIBILIDAD DEL BOTÓN */
+.rol-card:focus-visible{
+ border-color:var(--teal-glow);
+ box-shadow:0 0 0 3px rgba(94,234,212,.15);
+}
+
+/* BOTÓN REGISTRARSE */
+.btn-registro{
+ width:100%;
+ height:52px;
+ margin-top:22px;
+ --background:var(--coral);
+ --background-activated:var(--coral-dark);
+ --background-hover:var(--coral-dark);
+ --box-shadow:0 10px 24px rgba(255,122,82,.4);
+ --color:#1a0a04;
+ font-family:var(--font-sans);
+ font-size:.92rem;
+ font-weight:800;
+ letter-spacing:.03em;
+ text-transform:uppercase;
+}
+
+.btn-registro ion-spinner{
+ color:#1a0a04;
+}
+
+/* VOLVER A LOGIN */
+.registro-login{
+ margin-top:22px;
+ text-align:center;
+}
+
+.registro-login p{
+ margin:0;
+ color:var(--slate);
+ font-family:var(--font-sans);
+ font-size:.85rem;
+ font-weight:500;
+}
+
+.registro-login a{
+ color:var(--teal-glow);
+ font-weight:800;
+ text-decoration:none;
+}
+
+.registro-login a:hover{
+ text-decoration:underline;
+}
+
+/* RESPONSIVE */
+@media(max-width:480px){
+ .registro-wrap{
+  justify-content:flex-start;
+  padding:20px 18px 40px;
+ }
+
+ .registro-hero{
+  margin-bottom:20px;
+ }
+
+ .registro-icon{
+  width:58px;
+  height:58px;
+ }
+
+ .registro-icon ion-icon{
+  font-size:26px;
+ }
+
+ .registro-hero h1{
+  font-size:1.55rem;
+ }
+
+ .registro-card{
+  padding:20px 18px;
+ }
+
+ .rol-card{
+  min-height:66px;
+  padding:10px;
+  grid-template-columns:40px minmax(0,1fr) 20px;
+  gap:10px;
+ }
+
+ .rol-icon{
+  width:40px;
+  height:40px;
+ }
+
+ .rol-icon ion-icon{
+  font-size:20px;
+ }
+
+ .rol-info strong{
+  font-size:.78rem;
+ }
+
+ .rol-info span{
+  font-size:.56rem;
+ }
+
+ .rol-check{
+  font-size:19px;
+ }
+}

@@ -1,0 +1,465 @@
+<div class="reportes-page">
+
+  <!-- ENCABEZADO -->
+  <section class="page-header">
+    <div>
+      <span class="eyebrow">ADMINISTRACIÓN</span>
+      <h1>Reportes del día</h1>
+      <p>Revisa y administra los reportes registrados por tus observadores durante la jornada actual.</p>
+    </div>
+
+    <button class="btn-actualizar" type="button" (click)="cargarReportes()">
+      <ion-icon name="refresh-outline"></ion-icon>
+      Actualizar
+    </button>
+  </section>
+
+  <!-- FECHA -->
+  <div class="fecha-box" *ngIf="fechaEcuador">
+    <ion-icon name="calendar-outline"></ion-icon>
+    <span>Fecha Ecuador: <strong>{{formatearFecha(fechaEcuador)}}</strong></span>
+  </div>
+
+  <!-- RESUMEN -->
+  <section class="resumen-grid">
+    <button class="resumen-card" [class.activa]="filtroEstado==='Todos'" (click)="seleccionarFiltro('Todos')">
+      <div class="resumen-icon">
+        <ion-icon name="documents-outline"></ion-icon>
+      </div>
+      <div>
+        <span>Total</span>
+        <strong>{{total}}</strong>
+      </div>
+    </button>
+
+    <button class="resumen-card" [class.activa]="filtroEstado==='Completo'" (click)="seleccionarFiltro('Completo')">
+      <div class="resumen-icon completo">
+        <ion-icon name="checkmark-circle-outline"></ion-icon>
+      </div>
+      <div>
+        <span>Completos</span>
+        <strong>{{completos}}</strong>
+      </div>
+    </button>
+
+    <button class="resumen-card" [class.activa]="filtroEstado==='Incompleto'" (click)="seleccionarFiltro('Incompleto')">
+      <div class="resumen-icon incompleto">
+        <ion-icon name="alert-circle-outline"></ion-icon>
+      </div>
+      <div>
+        <span>Incompletos</span>
+        <strong>{{incompletos}}</strong>
+      </div>
+    </button>
+  </section>
+
+  <!-- PANEL -->
+  <section class="panel">
+
+    <!-- BUSCADOR Y FILTROS -->
+    <div class="toolbar">
+      <div class="search-box">
+        <ion-icon name="search-outline"></ion-icon>
+        <input type="text" [(ngModel)]="busqueda" placeholder="Buscar observador, especie o reporte..." />
+      </div>
+
+      <div class="filtros">
+        <button [class.activo]="filtroEstado==='Todos'" (click)="seleccionarFiltro('Todos')">
+          Todos
+        </button>
+
+        <button [class.activo]="filtroEstado==='Completo'" (click)="seleccionarFiltro('Completo')">
+          Completos
+        </button>
+
+        <button [class.activo]="filtroEstado==='Incompleto'" (click)="seleccionarFiltro('Incompleto')">
+          Incompletos
+        </button>
+      </div>
+    </div>
+
+    <!-- CARGANDO -->
+    <div class="estado-carga" *ngIf="cargando">
+      <div class="spinner"></div>
+      <p>Cargando reportes...</p>
+    </div>
+
+    <!-- SIN REPORTES -->
+    <div class="estado-vacio" *ngIf="!cargando && reportesFiltrados.length===0">
+      <ion-icon name="document-text-outline"></ion-icon>
+      <h3>No se encontraron reportes</h3>
+
+      <p *ngIf="reportes.length===0">
+        Tus observadores aún no registran reportes durante el día de hoy.
+      </p>
+
+      <p *ngIf="reportes.length>0">
+        No existen resultados que coincidan con los filtros seleccionados.
+      </p>
+    </div>
+
+    <!-- TABLA -->
+    <div class="tabla-wrapper" *ngIf="!cargando && reportesFiltrados.length>0">
+      <table>
+        <thead>
+          <tr>
+            <th>Reporte</th>
+            <th>Observador</th>
+            <th>Especie</th>
+            <th>Tipo</th>
+            <th>Hora</th>
+            <th>Información</th>
+            <th>Acción</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          <tr *ngFor="let reporte of reportesFiltrados">
+
+            <td>
+              <div class="reporte-id">#{{reporte.id_reporte}}</div>
+              <small>{{reporte.titulo || 'Sin título'}}</small>
+            </td>
+
+            <td>
+              <div class="usuario">
+                <div class="avatar">
+                  {{reporte.nombre?.charAt(0)}}{{reporte.apellido?.charAt(0)}}
+                </div>
+
+                <div>
+                  <strong>{{reporte.nombre_completo}}</strong>
+                  <small>{{reporte.correo}}</small>
+                </div>
+              </div>
+            </td>
+
+            <td>
+              <strong>{{reporte.especie || 'Sin especie'}}</strong>
+              <small>{{reporte.nombre_cientifico || '—'}}</small>
+            </td>
+
+            <td>
+              {{reporte.nombre_tipo || 'Sin completar'}}
+            </td>
+
+            <td>
+              {{reporte.hora_reporte || '—'}}
+            </td>
+
+            <td>
+              <span class="badge" [class.completo]="reporte.estado_reporte==='Completo'"
+                [class.incompleto]="reporte.estado_reporte==='Incompleto'">
+
+                <ion-icon [name]="reporte.estado_reporte==='Completo'
+                    ? 'checkmark-circle-outline'
+                    : 'alert-circle-outline'">
+                </ion-icon>
+
+                {{reporte.estado_reporte}}
+              </span>
+            </td>
+
+            <td>
+              <button class="btn-ver" type="button" (click)="verReporte(reporte)">
+                <ion-icon name="eye-outline"></ion-icon>
+                Ver
+              </button>
+            </td>
+
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+  </section>
+
+  <!-- MODAL -->
+  <div class="detalle-overlay" *ngIf="reporteSeleccionado" (click)="cerrarDetalle()">
+
+    <div class="detalle-modal" (click)="$event.stopPropagation()">
+
+      <!-- CABECERA -->
+      <div class="detalle-header">
+        <div>
+          <span class="eyebrow">DETALLE DEL REPORTE</span>
+          <h2>Reporte #{{reporteSeleccionado.id_reporte}}</h2>
+        </div>
+
+        <button class="btn-cerrar" type="button" (click)="cerrarDetalle()" [disabled]="guardando || generandoPDF">
+          <ion-icon name="close-outline"></ion-icon>
+        </button>
+      </div>
+
+      <!-- ESTADO -->
+      <div class="detalle-estado">
+        <span class="badge" [class.completo]="reporteSeleccionado.estado_reporte==='Completo'"
+          [class.incompleto]="reporteSeleccionado.estado_reporte==='Incompleto'">
+
+          <ion-icon [name]="reporteSeleccionado.estado_reporte==='Completo'
+              ? 'checkmark-circle-outline'
+              : 'alert-circle-outline'">
+          </ion-icon>
+
+          {{reporteSeleccionado.estado_reporte}}
+        </span>
+
+        <span>
+          {{formatearFecha(reporteSeleccionado.fecha_reporte)}}
+          ·
+          {{reporteSeleccionado.hora_reporte}}
+        </span>
+      </div>
+
+      <!-- IMAGEN -->
+      <div class="detalle-imagen" *ngIf="reporteSeleccionado.imagen_url">
+
+        <img [src]="reporteSeleccionado.imagen_url" alt="Evidencia de la captura" />
+      </div>
+
+      <!-- INFORMACIÓN -->
+      <div class="detalle-grid">
+
+        <!-- OBSERVADOR -->
+        <div class="campo">
+          <span>Observador</span>
+          <strong>{{reporteSeleccionado.nombre_completo}}</strong>
+        </div>
+
+        <!-- CORREO -->
+        <div class="campo">
+          <span>Correo</span>
+          <strong>{{reporteSeleccionado.correo}}</strong>
+        </div>
+
+        <!-- INFORMACIÓN EDITABLE -->
+        <div class="campo campo-edicion">
+          <span>Información del reporte</span>
+
+          <!-- VISUALIZACIÓN -->
+          <ng-container *ngIf="!editando">
+
+            <div class="dato-reporte">
+              <small>Título</small>
+              <strong>
+                {{reporteSeleccionado.titulo || 'Sin título'}}
+              </strong>
+            </div>
+
+            <div class="dato-reporte">
+              <small>Tipo de reporte</small>
+              <strong>
+                {{reporteSeleccionado.nombre_tipo || 'Sin tipo de reporte'}}
+              </strong>
+            </div>
+
+            <button type="button" class="btn-editar-reporte" (click)="iniciarEdicion()" [disabled]="generandoPDF">
+
+              <ion-icon name="create-outline"></ion-icon>
+              Editar reporte
+            </button>
+
+          </ng-container>
+
+          <!-- EDICIÓN -->
+          <ng-container *ngIf="editando">
+
+            <div class="form-edicion">
+
+              <label>Título del reporte</label>
+
+              <input type="text" [(ngModel)]="tituloEditado" maxlength="150" placeholder="Ingrese el título del reporte"
+                [disabled]="guardando" />
+
+              <label>Tipo de reporte</label>
+
+              <select [(ngModel)]="tipoEditado" [disabled]="guardando">
+
+                <option [ngValue]="null">
+                  Seleccione un tipo de reporte
+                </option>
+
+                <option *ngFor="let tipo of tiposReporte" [ngValue]="tipo.id_tipo_reporte">
+                  {{tipo.nombre_tipo}}
+                </option>
+
+              </select>
+
+              <div class="acciones-edicion">
+
+                <button type="button" class="btn-cancelar-edicion" (click)="cancelarEdicion()" [disabled]="guardando">
+
+                  Cancelar
+                </button>
+
+                <button type="button" class="btn-guardar-edicion" (click)="guardarEdicion()" [disabled]="
+                    guardando ||
+                    !tituloEditado.trim() ||
+                    tipoEditado===null
+                  ">
+
+                  <ion-icon name="save-outline"></ion-icon>
+
+                  {{guardando ? 'Guardando...' : 'Guardar cambios'}}
+                </button>
+
+              </div>
+            </div>
+
+          </ng-container>
+        </div>
+
+        <!-- ESPECIE -->
+        <div class="campo">
+          <span>Especie</span>
+          <strong>
+            {{reporteSeleccionado.especie || 'Sin información'}}
+          </strong>
+        </div>
+
+        <!-- NOMBRE CIENTÍFICO -->
+        <div class="campo">
+          <span>Nombre científico</span>
+          <strong>
+            {{reporteSeleccionado.nombre_cientifico || 'Sin información'}}
+          </strong>
+        </div>
+
+        <!-- PESO -->
+        <div class="campo">
+          <span>Peso</span>
+          <strong>
+            {{formatearPeso(reporteSeleccionado.peso)}}
+          </strong>
+        </div>
+
+        <!-- CONFIANZA -->
+        <div class="campo">
+          <span>Confianza</span>
+          <strong>
+            {{formatearConfianza(reporteSeleccionado.porcentaje)}}
+          </strong>
+        </div>
+
+        <!-- ID CAPTURA -->
+        <div class="campo">
+          <span>ID de captura</span>
+          <strong>
+            {{reporteSeleccionado.id_captura || '—'}}
+          </strong>
+        </div>
+
+        <!-- ID DETECCIÓN -->
+        <div class="campo">
+          <span>ID de detección</span>
+          <strong>
+            {{reporteSeleccionado.id_deteccion || '—'}}
+          </strong>
+        </div>
+
+        <!-- PDF -->
+        <div class="campo campo-archivo">
+          <span>PDF</span>
+
+          <div class="archivo-info">
+
+            <strong [class.archivo-generado]="reporteSeleccionado.archivo_pdf">
+
+              {{reporteSeleccionado.archivo_pdf
+              ? 'Generado'
+              : 'No generado'}}
+            </strong>
+
+            <!-- SOLO APARECE SI EL REPORTE ESTÁ COMPLETO -->
+            <button *ngIf="
+                reporteSeleccionado.titulo &&
+                reporteSeleccionado.id_tipo_reporte
+              " type="button" class="btn-generar-pdf" (click)="generarPDF()"
+              [disabled]="generandoPDF || editando || guardando">
+
+              <ion-icon [name]="reporteSeleccionado.archivo_pdf
+                  ? 'download-outline'
+                  : 'document-text-outline'">
+              </ion-icon>
+
+              {{
+              generandoPDF
+              ? 'Generando...'
+              : reporteSeleccionado.archivo_pdf
+              ? 'Descargar nuevamente'
+              : 'Generar PDF'
+              }}
+
+            </button>
+
+            <!-- MENSAJE SI ESTÁ INCOMPLETO -->
+            <small class="archivo-aviso" *ngIf="
+                !reporteSeleccionado.titulo ||
+                !reporteSeleccionado.id_tipo_reporte
+              ">
+
+              Completa el título y tipo de reporte para generar el PDF.
+            </small>
+
+          </div>
+        </div>
+
+        <div class="campo campo-archivo">
+          <span>CSV</span>
+
+          <div class="archivo-info">
+
+            <strong [class.archivo-generado]="reporteSeleccionado.archivo_csv">
+
+              {{reporteSeleccionado.archivo_csv
+              ? 'Generado'
+              : 'No generado'}}
+            </strong>
+
+            <button *ngIf="
+        reporteSeleccionado.titulo &&
+        reporteSeleccionado.id_tipo_reporte
+      " type="button" class="btn-generar-csv" (click)="generarCSV()"
+              [disabled]="generandoCSV || generandoPDF || editando || guardando">
+
+              <ion-icon [name]="reporteSeleccionado.archivo_csv
+          ? 'download-outline'
+          : 'document-outline'">
+              </ion-icon>
+
+              {{
+              generandoCSV
+              ? 'Generando...'
+              : reporteSeleccionado.archivo_csv
+              ? 'Descargar nuevamente'
+              : 'Generar CSV'
+              }}
+
+            </button>
+
+            <small class="archivo-aviso" *ngIf="
+        !reporteSeleccionado.titulo ||
+        !reporteSeleccionado.id_tipo_reporte
+      ">
+
+              Completa el título y tipo de reporte para generar el CSV.
+
+            </small>
+
+          </div>
+        </div>
+
+      </div>
+
+      <!-- FOOTER -->
+      <div class="detalle-footer">
+        <button type="button" class="btn-secundario" (click)="cerrarDetalle()" [disabled]="guardando || generandoPDF">
+
+          Cerrar
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+</div>

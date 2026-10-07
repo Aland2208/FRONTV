@@ -1,0 +1,176 @@
+<div class="pagina-usuarios">
+
+  <div class="encabezado">
+    <div>
+      <span class="etiqueta">ADMINISTRACIÓN</span>
+      <h1>Gestión de usuarios</h1>
+      <p>Administra las cuentas de los observadores pesqueros.</p>
+    </div>
+
+    <button
+      type="button"
+      class="btn-nuevo"
+      (click)="nuevoObservador()">
+      <ion-icon name="person-add-outline"></ion-icon>
+      Nuevo observador
+    </button>
+  </div>
+
+  <!-- RESUMEN -->
+  <div class="resumen">
+
+    <div class="resumen-item">
+      <span>Total</span>
+      <strong>{{ observadores.length }}</strong>
+    </div>
+
+    <div class="resumen-item">
+      <span>Activos</span>
+      <strong>{{ totalActivos }}</strong>
+    </div>
+
+    <div class="resumen-item">
+      <span>Inactivos</span>
+      <strong>{{ totalInactivos }}</strong>
+    </div>
+
+  </div>
+
+  <!-- BUSCADOR -->
+  <div class="barra-herramientas">
+
+    <div class="buscador">
+      <ion-icon name="search-outline"></ion-icon>
+
+      <input
+        type="text"
+        [(ngModel)]="busqueda"
+        placeholder="Buscar por nombre, apellido o correo...">
+    </div>
+
+  </div>
+
+  <!-- CARGANDO -->
+  <div *ngIf="cargando" class="estado-pagina">
+    <ion-icon name="hourglass-outline"></ion-icon>
+    <span>Cargando observadores...</span>
+  </div>
+
+  <!-- SIN USUARIOS -->
+  <div
+    *ngIf="!cargando && observadoresFiltrados.length===0"
+    class="estado-pagina">
+
+    <ion-icon name="people-outline"></ion-icon>
+
+    <span>
+      {{ busqueda
+        ? 'No se encontraron observadores.'
+        : 'No existen observadores registrados.'
+      }}
+    </span>
+  </div>
+
+  <!-- TABLA -->
+  <div
+    *ngIf="!cargando && observadoresFiltrados.length>0"
+    class="tabla-contenedor">
+
+    <table>
+
+      <thead>
+        <tr>
+          <th>Observador</th>
+          <th>Correo</th>
+          <th>Estado</th>
+          <th class="acciones-titulo">Acciones</th>
+        </tr>
+      </thead>
+
+      <tbody>
+
+        <tr *ngFor="let usuario of observadoresFiltrados">
+
+          <td>
+            <div class="usuario">
+              <div class="avatar">
+                <ion-icon name="person-outline"></ion-icon>
+              </div>
+
+              <div>
+                <strong>
+                  {{ usuario.nombre }}
+                  {{ usuario.apellido }}
+                </strong>
+
+                <span>
+                  ID #{{ usuario.id_usuario }}
+                </span>
+              </div>
+            </div>
+          </td>
+
+          <td>
+            <span class="correo">
+              {{ usuario.correo }}
+            </span>
+          </td>
+
+          <td>
+            <span
+              class="estado"
+              [class.activo]="usuario.estado===1"
+              [class.inactivo]="usuario.estado===0">
+
+              <span class="punto"></span>
+
+              {{ usuario.estado===1
+                ? 'Activo'
+                : 'Inactivo'
+              }}
+            </span>
+          </td>
+
+          <td>
+            <div class="acciones">
+
+              <button
+                type="button"
+                class="btn-accion editar"
+                title="Editar observador"
+                (click)="editarObservador(usuario)">
+                <ion-icon name="create-outline"></ion-icon>
+                Editar
+              </button>
+
+              <button
+                type="button"
+                class="btn-accion"
+                [class.desactivar]="usuario.estado===1"
+                [class.activar]="usuario.estado===0"
+                (click)="cambiarEstado(usuario)">
+
+                <ion-icon
+                  [name]="usuario.estado===1
+                    ? 'ban-outline'
+                    : 'checkmark-circle-outline'">
+                </ion-icon>
+
+                {{ usuario.estado===1
+                  ? 'Desactivar'
+                  : 'Activar'
+                }}
+              </button>
+
+            </div>
+          </td>
+
+        </tr>
+
+      </tbody>
+
+    </table>
+
+  </div>
+
+</div>
