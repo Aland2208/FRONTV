@@ -44,8 +44,14 @@ export class RestablecerPasswordPage implements OnInit {
     private toastCtrl: ToastController
   ) { }
 
-  ngOnInit() {
+  ngOnInit() { }
+
+  ionViewWillEnter() {
+    console.log('ENTRANDO A RESTABLECER PASSWORD');
+
     this.token = this.route.snapshot.queryParamMap.get('token') || '';
+
+    console.log('TOKEN:', this.token);
 
     if (!this.token) {
       this.regresarLogin();
@@ -54,17 +60,23 @@ export class RestablecerPasswordPage implements OnInit {
 
     this.validarToken();
   }
-
   validarToken() {
+    console.log('LLAMANDO VALIDAR TOKEN:', this.token);
+
     this.validandoToken = true;
+    this.tokenValido = false;
 
     this.authService.validarTokenRecuperacion(this.token).subscribe({
-      next: () => {
+      next: (res) => {
+        console.log('TOKEN VÁLIDO:', res);
+
         this.tokenValido = true;
         this.validandoToken = false;
       },
 
-      error: () => {
+      error: (err) => {
+        console.log('TOKEN INVÁLIDO:', err);
+
         this.tokenValido = false;
         this.validandoToken = false;
 
