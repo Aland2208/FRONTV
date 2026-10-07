@@ -1,5 +1,6 @@
 import {Routes} from '@angular/router';
 import {authGuard} from './guards/auth-guard';
+import {guestGuard} from './guards/guest-guard';
 
 export const routes:Routes=[
  {
@@ -14,19 +15,23 @@ export const routes:Routes=[
  },
  {
   path:'login',
-  loadComponent:()=>import('./pages/login/login.page').then(m=>m.LoginPage)
+  loadComponent:()=>import('./pages/login/login.page').then(m=>m.LoginPage),
+  canActivate:[guestGuard]
  },
  {
   path:'registro',
-  loadComponent:()=>import('./pages/registro/registro.page').then(m=>m.RegistroPage)
+  loadComponent:()=>import('./pages/registro/registro.page').then(m=>m.RegistroPage),
+  canActivate:[guestGuard]
  },
  {
   path:'recuperar',
-  loadComponent:()=>import('./pages/recuperar/recuperar.page').then(m=>m.RecuperarPage)
+  loadComponent:()=>import('./pages/recuperar/recuperar.page').then(m=>m.RecuperarPage),
+  canActivate:[guestGuard]
  },
  {
   path:'restablecer-password',
-  loadComponent:()=>import('./pages/restablecer-password/restablecer-password.page').then(m=>m.RestablecerPasswordPage)
+  loadComponent:()=>import('./pages/restablecer-password/restablecer-password.page').then(m=>m.RestablecerPasswordPage),
+  canActivate:[guestGuard]
  },
  {
   path:'**',

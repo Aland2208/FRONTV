@@ -2,11 +2,11 @@ import {inject} from '@angular/core';
 import {CanActivateFn,Router} from '@angular/router';
 import {Auth} from '../servicios/auth';
 
-export const authGuard:CanActivateFn=()=>{
+export const guestGuard:CanActivateFn=()=>{
  const auth=inject(Auth);
  const router=inject(Router);
 
- if(auth.estaAutenticado()) return true;
+ if(!auth.estaAutenticado()) return true;
 
- return router.createUrlTree(['/login']);
+ return router.createUrlTree(['/home']);
 };
