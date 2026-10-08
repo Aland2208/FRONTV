@@ -1,346 +1,362 @@
 <div class="dashboard">
- <!-- ENCABEZADO -->
- <div class="dashboard-header">
-  <div>
-   <span class="etiqueta">ANÁLISIS GENERAL</span>
-   <h1>Dashboard general</h1>
-   <p>Visualiza y compara el rendimiento de los veedores relacionados.</p>
-  </div>
-  <button class="btn-actualizar" type="button" [disabled]="cargando" (click)="cargarDashboard()">
-   <ion-icon name="refresh-outline"></ion-icon>
-   Actualizar
-  </button>
- </div>
-
- <!-- FILTROS -->
- <section class="panel-filtros">
-  <div class="filtro-bloque periodo-bloque">
-   <label>Período</label>
-   <div class="periodos">
-    <button type="button" [class.activo]="periodo==='hoy'" (click)="cambiarPeriodo('hoy')">Hoy</button>
-    <button type="button" [class.activo]="periodo==='7dias'" (click)="cambiarPeriodo('7dias')">7 días</button>
-    <button type="button" [class.activo]="periodo==='30dias'" (click)="cambiarPeriodo('30dias')">30 días</button>
-    <button type="button" [class.activo]="periodo==='personalizado'" (click)="cambiarPeriodo('personalizado')">Personalizado</button>
-   </div>
-  </div>
-
-  <div class="filtro-bloque veedor-bloque">
-   <label>Veedor</label>
-   <div class="select-wrapper">
-    <ion-icon name="person-outline"></ion-icon>
-    <select [(ngModel)]="idVeedorSeleccionado" (ngModelChange)="cambiarVeedor()">
-     <option [ngValue]="null">Todos los veedores</option>
-     <option *ngFor="let veedor of listaVeedores" [ngValue]="veedor.id_usuario">
-      {{ veedor.nombre }} {{ veedor.apellido }}
-     </option>
-    </select>
-    <ion-icon class="select-flecha" name="chevron-down-outline"></ion-icon>
-   </div>
-  </div>
- </section>
-
- <!-- FECHAS PERSONALIZADAS -->
- <section class="fechas-personalizadas" *ngIf="periodo==='personalizado'">
-  <div class="fecha-campo">
-   <label>Desde</label>
-   <input type="date" [(ngModel)]="desde">
-  </div>
-  <div class="fecha-campo">
-   <label>Hasta</label>
-   <input type="date" [(ngModel)]="hasta">
-  </div>
-  <button type="button" class="btn-aplicar" [disabled]="!desde || !hasta || cargando" (click)="aplicarFechas()">
-   <ion-icon name="funnel-outline"></ion-icon>
-   Aplicar período
-  </button>
- </section>
-
- <!-- FILTRO ACTUAL -->
- <div class="filtro-actual" *ngIf="!cargando && !error">
-  <ion-icon name="options-outline"></ion-icon>
-  <span>Mostrando:</span>
-  <strong>{{ nombreVeedorSeleccionado }}</strong>
-  <span class="separador">•</span>
-  <strong>{{ descripcionPeriodo }}</strong>
- </div>
-
- <!-- ERROR -->
- <div class="mensaje-error" *ngIf="error">
-  <ion-icon name="alert-circle-outline"></ion-icon>
-  <span>{{ error }}</span>
- </div>
-
- <!-- CARGANDO -->
- <div class="estado-carga" *ngIf="cargando">
-  <ion-spinner name="crescent"></ion-spinner>
-  <span>Actualizando estadísticas...</span>
- </div>
-
- <ng-container *ngIf="!cargando && !error">
-  <!-- INDICADORES -->
-  <section class="estadisticas-dashboard">
-   <article class="stat-card">
-    <div class="stat-icon"><ion-icon name="fish-outline"></ion-icon></div>
-    <div class="stat-contenido">
-     <span>Capturas</span>
-     <strong>{{ resumen.total_capturas }}</strong>
-     <small>Registradas en el período</small>
-    </div>
-   </article>
-
-   <article class="stat-card">
-    <div class="stat-icon"><ion-icon name="document-text-outline"></ion-icon></div>
-    <div class="stat-contenido">
-     <span>Reportes</span>
-     <strong>{{ resumen.total_reportes }}</strong>
-     <small>{{ resumen.reportes_completos }} completos</small>
-    </div>
-   </article>
-
-   <article class="stat-card">
-    <div class="stat-icon"><ion-icon name="scale-outline"></ion-icon></div>
-    <div class="stat-contenido">
-     <span>Peso total</span>
-     <strong>{{ formatearPeso(resumen.peso_total) }}</strong>
-     <small>Peso acumulado</small>
-    </div>
-   </article>
-
-   <article class="stat-card">
-    <div class="stat-icon"><ion-icon name="analytics-outline"></ion-icon></div>
-    <div class="stat-contenido">
-     <span>Confianza promedio</span>
-     <strong>{{ resumen.confianza_promedio | number:'1.1-2' }}%</strong>
-     <small>Detección del modelo</small>
-    </div>
-   </article>
-  </section>
-
-  <!-- SIN DATOS -->
-  <div class="sin-datos" *ngIf="resumen.total_capturas===0 && resumen.total_reportes===0">
-   <ion-icon name="stats-chart-outline"></ion-icon>
-   <h3>Sin información para mostrar</h3>
-   <p>No existen registros para los filtros seleccionados.</p>
-  </div>
-
-  <ng-container *ngIf="resumen.total_capturas>0 || resumen.total_reportes>0">
-   <!-- COMPARACIÓN VEEDORES + REPORTES -->
-   <section class="graficos-grid principal">
-    <article class="grafico-card">
-     <div class="grafico-header">
-      <div>
-       <span class="etiqueta">COMPARACIÓN</span>
-       <h2>Rendimiento por veedor</h2>
-       <p>Comparación entre capturas y reportes generados.</p>
-      </div>
-      <div class="grafico-icon"><ion-icon name="bar-chart-outline"></ion-icon></div>
-     </div>
-
-     <div class="grafico-canvas grafico-veedores" *ngIf="veedores.length>0">
-      <canvas #graficoVeedores></canvas>
-     </div>
-
-     <div class="sin-actividad compacto" *ngIf="veedores.length===0">
-      <ion-icon name="people-outline"></ion-icon>
-      <span>No existen datos de veedores para este período.</span>
-     </div>
-    </article>
-
-    <article class="grafico-card">
-     <div class="grafico-header">
-      <div>
-       <span class="etiqueta">REPORTES</span>
-       <h2>Completitud de reportes</h2>
-       <p>Distribución entre reportes completos e incompletos.</p>
-      </div>
-      <div class="grafico-icon"><ion-icon name="pie-chart-outline"></ion-icon></div>
-     </div>
-
-     <div class="reportes-grafico-contenido" *ngIf="resumen.total_reportes>0">
-      <div class="grafico-dona reportes-dona">
-       <canvas #graficoReportes></canvas>
-       <div class="centro-dona">
-        <strong>{{ resumen.total_reportes }}</strong>
-        <span>reportes</span>
-       </div>
-      </div>
-
-      <div class="reportes-resumen">
-       <div class="reporte-resumen-item completo">
-        <span class="punto"></span>
+    <!-- ENCABEZADO -->
+    <div class="dashboard-header">
         <div>
-         <small>Completos</small>
-         <strong>{{ resumen.reportes_completos }}</strong>
-         <span>{{ obtenerPorcentajeReportes(resumen.reportes_completos) | number:'1.1-1' }}%</span>
+            <span class="etiqueta">ANÁLISIS GENERAL</span>
+            <h1>Dashboard general</h1>
+            <p>Visualiza y compara el rendimiento de los veedores relacionados.</p>
         </div>
-       </div>
-       <div class="reporte-resumen-item incompleto">
-        <span class="punto"></span>
-        <div>
-         <small>Incompletos</small>
-         <strong>{{ resumen.reportes_incompletos }}</strong>
-         <span>{{ obtenerPorcentajeReportes(resumen.reportes_incompletos) | number:'1.1-1' }}%</span>
+        <button class="btn-actualizar" type="button" [disabled]="cargando" (click)="cargarDashboard()">
+            <ion-icon name="refresh-outline"></ion-icon>
+            Actualizar
+        </button>
+    </div>
+
+    <!-- FILTROS -->
+    <section class="panel-filtros">
+        <div class="filtro-bloque periodo-bloque">
+            <label>Período</label>
+            <div class="periodos">
+                <button type="button" [class.activo]="periodo==='hoy'" (click)="cambiarPeriodo('hoy')">Hoy</button>
+                <button type="button" [class.activo]="periodo==='7dias'" (click)="cambiarPeriodo('7dias')">7
+                    días</button>
+                <button type="button" [class.activo]="periodo==='30dias'" (click)="cambiarPeriodo('30dias')">30
+                    días</button>
+                <button type="button" [class.activo]="periodo==='personalizado'"
+                    (click)="cambiarPeriodo('personalizado')">Personalizado</button>
+            </div>
         </div>
-       </div>
-      </div>
-     </div>
 
-     <div class="sin-actividad compacto" *ngIf="resumen.total_reportes===0">
-      <ion-icon name="document-outline"></ion-icon>
-      <span>No existen reportes para este período.</span>
-     </div>
-    </article>
-   </section>
-
-   <!-- ACTIVIDAD -->
-   <article class="grafico-card grafico-actividad-card">
-    <div class="grafico-header">
-     <div>
-      <span class="etiqueta">ACTIVIDAD</span>
-      <h2>{{ periodo==='hoy' ? 'Actividad durante la jornada' : 'Actividad durante el período' }}</h2>
-      <p>{{ periodo==='hoy' ? 'Evolución de las capturas registradas por hora.' : 'Evolución diaria de las capturas registradas.' }}</p>
-     </div>
-     <div class="grafico-icon"><ion-icon name="trending-up-outline"></ion-icon></div>
-    </div>
-
-    <div class="grafico-canvas grafico-linea" *ngIf="actividad.length>0">
-     <canvas #graficoActividad></canvas>
-    </div>
-
-    <div class="sin-actividad" *ngIf="actividad.length===0">
-     <ion-icon name="time-outline"></ion-icon>
-     <span>No existe actividad registrada en el período.</span>
-    </div>
-   </article>
-
-   <!-- ESPECIES -->
-   <section class="graficos-grid especies-grid">
-    <article class="grafico-card">
-     <div class="grafico-header">
-      <div>
-       <span class="etiqueta">DISTRIBUCIÓN</span>
-       <h2>Capturas por especie</h2>
-       <p>Participación de cada especie en las capturas registradas.</p>
-      </div>
-      <div class="grafico-icon"><ion-icon name="pie-chart-outline"></ion-icon></div>
-     </div>
-
-     <div class="grafico-dona-contenido" *ngIf="especies.length>0">
-      <div class="grafico-dona">
-       <canvas #graficoEspecies></canvas>
-       <div class="centro-dona">
-        <strong>{{ resumen.total_capturas }}</strong>
-        <span>capturas</span>
-       </div>
-      </div>
-
-      <div class="leyenda-especies">
-       <div class="leyenda-item" *ngFor="let especie of especies; let i=index">
-        <div class="leyenda-nombre">
-         <span class="leyenda-color color-{{ i }}"></span>
-         <div>
-          <strong>{{ especie.nombre_comun }}</strong>
-          <small>{{ especie.nombre_cientifico }}</small>
-         </div>
+        <div class="filtro-bloque veedor-bloque">
+            <label>Veedor</label>
+            <div class="select-wrapper">
+                <ion-icon name="person-outline"></ion-icon>
+                <select [(ngModel)]="idVeedorSeleccionado" (ngModelChange)="cambiarVeedor()">
+                    <option [ngValue]="null">Todos los veedores</option>
+                    <option *ngFor="let veedor of listaVeedores" [ngValue]="veedor.id_usuario">
+                        {{ veedor.nombre }} {{ veedor.apellido }}
+                    </option>
+                </select>
+                <ion-icon class="select-flecha" name="chevron-down-outline"></ion-icon>
+            </div>
         </div>
-        <div class="leyenda-valor">
-         <strong>{{ obtenerPorcentaje(especie.total_capturas) | number:'1.1-1' }}%</strong>
-         <span>{{ especie.total_capturas }} {{ especie.total_capturas===1 ? 'captura' : 'capturas' }}</span>
+    </section>
+
+    <!-- FECHAS PERSONALIZADAS -->
+    <section class="fechas-personalizadas" *ngIf="periodo==='personalizado'">
+        <div class="fecha-campo">
+            <label>Desde</label>
+            <input type="date" [(ngModel)]="desde">
         </div>
-       </div>
-      </div>
-     </div>
+        <div class="fecha-campo">
+            <label>Hasta</label>
+            <input type="date" [(ngModel)]="hasta">
+        </div>
+        <button type="button" class="btn-aplicar" [disabled]="!desde || !hasta || cargando" (click)="aplicarFechas()">
+            <ion-icon name="funnel-outline"></ion-icon>
+            Aplicar período
+        </button>
+    </section>
 
-     <div class="sin-actividad compacto" *ngIf="especies.length===0">
-      <ion-icon name="fish-outline"></ion-icon>
-      <span>No existen especies registradas.</span>
-     </div>
-    </article>
-
-    <article class="grafico-card">
-     <div class="grafico-header">
-      <div>
-       <span class="etiqueta">PESO ACUMULADO</span>
-       <h2>Peso por especie</h2>
-       <p>Comparación del peso registrado para cada especie.</p>
-      </div>
-      <div class="grafico-icon"><ion-icon name="bar-chart-outline"></ion-icon></div>
-     </div>
-
-     <div class="grafico-canvas grafico-barras" *ngIf="especies.length>0">
-      <canvas #graficoPeso></canvas>
-     </div>
-
-     <div class="sin-actividad compacto" *ngIf="especies.length===0">
-      <ion-icon name="scale-outline"></ion-icon>
-      <span>No existen datos de peso para mostrar.</span>
-     </div>
-    </article>
-   </section>
-
-   <!-- RENDIMIENTO INDIVIDUAL -->
-   <section class="panel-veedores" *ngIf="veedores.length>0">
-    <div class="panel-header">
-     <div>
-      <span class="etiqueta">DETALLE POR VEEDOR</span>
-      <h2>Rendimiento individual</h2>
-      <p>Resumen estadístico de cada veedor durante el período seleccionado.</p>
-     </div>
-     <span class="total-veedores">
-      {{ veedores.length }} {{ veedores.length===1 ? 'veedor' : 'veedores' }}
-     </span>
+    <!-- FILTRO ACTUAL -->
+    <div class="filtro-actual" *ngIf="!cargando && !error">
+        <ion-icon name="options-outline"></ion-icon>
+        <span>Mostrando:</span>
+        <strong>{{ nombreVeedorSeleccionado }}</strong>
+        <span class="separador">•</span>
+        <strong>{{ descripcionPeriodo }}</strong>
     </div>
 
-    <div class="veedores-grid">
-     <article class="veedor-card" *ngFor="let veedor of veedores">
-      <div class="veedor-header">
-       <div class="veedor-avatar">
-        {{ veedor.nombre.charAt(0) }}{{ veedor.apellido.charAt(0) }}
-       </div>
-       <div class="veedor-identidad">
-        <strong>{{ veedor.nombre }} {{ veedor.apellido }}</strong>
-        <span>{{ veedor.correo }}</span>
-       </div>
-      </div>
-
-      <div class="veedor-metricas">
-       <div>
-        <span>Capturas</span>
-        <strong>{{ veedor.total_capturas }}</strong>
-       </div>
-       <div>
-        <span>Reportes</span>
-        <strong>{{ veedor.total_reportes }}</strong>
-       </div>
-       <div>
-        <span>Peso</span>
-        <strong>{{ formatearPeso(veedor.peso_total) }}</strong>
-       </div>
-      </div>
-
-      <div class="veedor-reportes">
-       <div>
-        <span>Reportes completos</span>
-        <strong class="texto-success">{{ veedor.reportes_completos }}</strong>
-       </div>
-       <div>
-        <span>Reportes incompletos</span>
-        <strong class="texto-coral">{{ veedor.reportes_incompletos }}</strong>
-       </div>
-      </div>
-
-      <div class="confianza-veedor">
-       <div>
-        <span>Confianza promedio</span>
-        <strong>{{ veedor.confianza_promedio | number:'1.1-2' }}%</strong>
-       </div>
-       <div class="barra-confianza">
-        <div class="barra-confianza-valor" [style.width.%]="veedor.confianza_promedio"></div>
-       </div>
-      </div>
-     </article>
+    <!-- ERROR -->
+    <div class="mensaje-error" *ngIf="error">
+        <ion-icon name="alert-circle-outline"></ion-icon>
+        <span>{{ error }}</span>
     </div>
-   </section>
-  </ng-container>
- </ng-container>
+
+    <!-- CARGANDO -->
+    <div class="estado-carga" *ngIf="cargando">
+        <ion-spinner name="crescent"></ion-spinner>
+        <span>Actualizando estadísticas...</span>
+    </div>
+
+    <ng-container *ngIf="!cargando && !error">
+        <!-- INDICADORES -->
+        <section class="estadisticas-dashboard">
+            <article class="stat-card">
+                <div class="stat-icon"><ion-icon name="fish-outline"></ion-icon></div>
+                <div class="stat-contenido">
+                    <span>Capturas</span>
+                    <strong>{{ resumen.total_capturas }}</strong>
+                    <small>Registradas en el período</small>
+                </div>
+            </article>
+
+            <article class="stat-card">
+                <div class="stat-icon"><ion-icon name="document-text-outline"></ion-icon></div>
+                <div class="stat-contenido">
+                    <span>Reportes</span>
+                    <strong>{{ resumen.total_reportes }}</strong>
+                    <small>{{ resumen.reportes_completos }} completos</small>
+                </div>
+            </article>
+
+            <article class="stat-card">
+                <div class="stat-icon"><ion-icon name="scale-outline"></ion-icon></div>
+                <div class="stat-contenido">
+                    <span>Peso total</span>
+                    <strong>{{ formatearPeso(resumen.peso_total) }}</strong>
+                    <small>Peso acumulado</small>
+                </div>
+            </article>
+
+            <article class="stat-card">
+                <div class="stat-icon"><ion-icon name="analytics-outline"></ion-icon></div>
+                <div class="stat-contenido">
+                    <span>Confianza promedio</span>
+                    <strong>{{ resumen.confianza_promedio | number:'1.1-2' }}%</strong>
+                    <small>Detección del modelo</small>
+                </div>
+            </article>
+        </section>
+
+        <!-- SIN DATOS -->
+        <div class="sin-datos" *ngIf="resumen.total_capturas===0 && resumen.total_reportes===0">
+            <ion-icon name="stats-chart-outline"></ion-icon>
+            <h3>Sin información para mostrar</h3>
+            <p>No existen registros para los filtros seleccionados.</p>
+        </div>
+
+        <ng-container *ngIf="resumen.total_capturas>0 || resumen.total_reportes>0">
+            <!-- COMPARACIÓN VEEDORES + REPORTES -->
+            <section class="graficos-grid principal">
+                <article class="grafico-card">
+                    <div class="grafico-header">
+                        <div>
+                            <span class="etiqueta">COMPARACIÓN</span>
+                            <h2>Rendimiento por veedor</h2>
+                            <p>Comparación entre capturas y reportes generados.</p>
+                        </div>
+                        <div class="grafico-icon"><ion-icon name="bar-chart-outline"></ion-icon></div>
+                    </div>
+
+                    <!-- AQUI AGREGAMOS EL SCROLL HORIZONTAL -->
+                    <div class="grafico-scroll-wrapper" *ngIf="veedores.length>0">
+                        <div class="grafico-canvas grafico-veedores">
+                            <canvas #graficoVeedores></canvas>
+                        </div>
+                    </div>
+
+                    <div class="sin-actividad compacto" *ngIf="veedores.length===0">
+                        <ion-icon name="people-outline"></ion-icon>
+                        <span>No existen datos de veedores para este período.</span>
+                    </div>
+                </article>
+
+                <article class="grafico-card">
+                    <div class="grafico-header">
+                        <div>
+                            <span class="etiqueta">REPORTES</span>
+                            <h2>Completitud de reportes</h2>
+                            <p>Distribución entre reportes completos e incompletos.</p>
+                        </div>
+                        <div class="grafico-icon"><ion-icon name="pie-chart-outline"></ion-icon></div>
+                    </div>
+
+                    <div class="reportes-grafico-contenido" *ngIf="resumen.total_reportes>0">
+                        <div class="grafico-dona reportes-dona">
+                            <canvas #graficoReportes></canvas>
+                            <div class="centro-dona">
+                                <strong>{{ resumen.total_reportes }}</strong>
+                                <span>reportes</span>
+                            </div>
+                        </div>
+
+                        <div class="reportes-resumen">
+                            <div class="reporte-resumen-item completo">
+                                <span class="punto"></span>
+                                <div>
+                                    <small>Completos</small>
+                                    <strong>{{ resumen.reportes_completos }}</strong>
+                                    <span>{{ obtenerPorcentajeReportes(resumen.reportes_completos) | number:'1.1-1'
+                                        }}%</span>
+                                </div>
+                            </div>
+                            <div class="reporte-resumen-item incompleto">
+                                <span class="punto"></span>
+                                <div>
+                                    <small>Incompletos</small>
+                                    <strong>{{ resumen.reportes_incompletos }}</strong>
+                                    <span>{{ obtenerPorcentajeReportes(resumen.reportes_incompletos) | number:'1.1-1'
+                                        }}%</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="sin-actividad compacto" *ngIf="resumen.total_reportes===0">
+                        <ion-icon name="document-outline"></ion-icon>
+                        <span>No existen reportes para este período.</span>
+                    </div>
+                </article>
+            </section>
+
+            <!-- ACTIVIDAD -->
+            <article class="grafico-card grafico-actividad-card">
+                <div class="grafico-header">
+                    <div>
+                        <span class="etiqueta">ACTIVIDAD</span>
+                        <h2>{{ periodo==='hoy' ? 'Actividad durante la jornada' : 'Actividad durante el período' }}</h2>
+                        <p>{{ periodo==='hoy' ? 'Evolución de las capturas registradas por hora.' : 'Evolución diaria de
+                            las capturas registradas.' }}</p>
+                    </div>
+                    <div class="grafico-icon"><ion-icon name="trending-up-outline"></ion-icon></div>
+                </div>
+
+                <!-- AQUI AGREGAMOS EL SCROLL HORIZONTAL -->
+                <div class="grafico-scroll-wrapper" *ngIf="actividad.length>0">
+                    <div class="grafico-canvas grafico-linea">
+                        <canvas #graficoActividad></canvas>
+                    </div>
+                </div>
+
+                <div class="sin-actividad" *ngIf="actividad.length===0">
+                    <ion-icon name="time-outline"></ion-icon>
+                    <span>No existe actividad registrada en el período.</span>
+                </div>
+            </article>
+
+            <!-- ESPECIES -->
+            <section class="graficos-grid especies-grid">
+                <article class="grafico-card">
+                    <div class="grafico-header">
+                        <div>
+                            <span class="etiqueta">DISTRIBUCIÓN</span>
+                            <h2>Capturas por especie</h2>
+                            <p>Participación de cada especie en las capturas registradas.</p>
+                        </div>
+                        <div class="grafico-icon"><ion-icon name="pie-chart-outline"></ion-icon></div>
+                    </div>
+
+                    <div class="grafico-dona-contenido" *ngIf="especies.length>0">
+                        <div class="grafico-dona">
+                            <canvas #graficoEspecies></canvas>
+                            <div class="centro-dona">
+                                <strong>{{ resumen.total_capturas }}</strong>
+                                <span>capturas</span>
+                            </div>
+                        </div>
+
+                        <div class="leyenda-especies">
+                            <div class="leyenda-item" *ngFor="let especie of especies; let i=index">
+                                <div class="leyenda-nombre">
+                                    <span class="leyenda-color color-{{ i }}"></span>
+                                    <div>
+                                        <strong>{{ especie.nombre_comun }}</strong>
+                                        <small>{{ especie.nombre_cientifico }}</small>
+                                    </div>
+                                </div>
+                                <div class="leyenda-valor">
+                                    <strong>{{ obtenerPorcentaje(especie.total_capturas) | number:'1.1-1' }}%</strong>
+                                    <span>{{ especie.total_capturas }} {{ especie.total_capturas===1 ? 'captura' :
+                                        'capturas' }}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="sin-actividad compacto" *ngIf="especies.length===0">
+                        <ion-icon name="fish-outline"></ion-icon>
+                        <span>No existen especies registradas.</span>
+                    </div>
+                </article>
+
+                <article class="grafico-card">
+                    <div class="grafico-header">
+                        <div>
+                            <span class="etiqueta">PESO ACUMULADO</span>
+                            <h2>Peso por especie</h2>
+                            <p>Comparación del peso registrado para cada especie.</p>
+                        </div>
+                        <div class="grafico-icon"><ion-icon name="bar-chart-outline"></ion-icon></div>
+                    </div>
+
+                    <!-- AQUI AGREGAMOS EL SCROLL HORIZONTAL -->
+                    <div class="grafico-scroll-wrapper" *ngIf="especies.length>0">
+                        <div class="grafico-canvas grafico-barras">
+                            <canvas #graficoPeso></canvas>
+                        </div>
+                    </div>
+
+                    <div class="sin-actividad compacto" *ngIf="especies.length===0">
+                        <ion-icon name="scale-outline"></ion-icon>
+                        <span>No existen datos de peso para mostrar.</span>
+                    </div>
+                </article>
+            </section>
+
+            <!-- RENDIMIENTO INDIVIDUAL -->
+            <section class="panel-veedores" *ngIf="veedores.length>0">
+                <div class="panel-header">
+                    <div>
+                        <span class="etiqueta">DETALLE POR VEEDOR</span>
+                        <h2>Rendimiento individual</h2>
+                        <p>Resumen estadístico de cada veedor durante el período seleccionado.</p>
+                    </div>
+                    <span class="total-veedores">
+                        {{ veedores.length }} {{ veedores.length===1 ? 'veedor' : 'veedores' }}
+                    </span>
+                </div>
+
+                <div class="veedores-grid">
+                    <article class="veedor-card" *ngFor="let veedor of veedores">
+                        <div class="veedor-header">
+                            <div class="veedor-avatar">
+                                {{ veedor.nombre.charAt(0) }}{{ veedor.apellido.charAt(0) }}
+                            </div>
+                            <div class="veedor-identidad">
+                                <strong>{{ veedor.nombre }} {{ veedor.apellido }}</strong>
+                                <span>{{ veedor.correo }}</span>
+                            </div>
+                        </div>
+
+                        <div class="veedor-metricas">
+                            <div>
+                                <span>Capturas</span>
+                                <strong>{{ veedor.total_capturas }}</strong>
+                            </div>
+                            <div>
+                                <span>Reportes</span>
+                                <strong>{{ veedor.total_reportes }}</strong>
+                            </div>
+                            <div>
+                                <span>Peso</span>
+                                <strong>{{ formatearPeso(veedor.peso_total) }}</strong>
+                            </div>
+                        </div>
+
+                        <div class="veedor-reportes">
+                            <div>
+                                <span>Reportes completos</span>
+                                <strong class="texto-success">{{ veedor.reportes_completos }}</strong>
+                            </div>
+                            <div>
+                                <span>Reportes incompletos</span>
+                                <strong class="texto-coral">{{ veedor.reportes_incompletos }}</strong>
+                            </div>
+                        </div>
+
+                        <div class="confianza-veedor">
+                            <div>
+                                <span>Confianza promedio</span>
+                                <strong>{{ veedor.confianza_promedio | number:'1.1-2' }}%</strong>
+                            </div>
+                            <div class="barra-confianza">
+                                <div class="barra-confianza-valor" [style.width.%]="veedor.confianza_promedio"></div>
+                            </div>
+                        </div>
+                    </article>
+                </div>
+            </section>
+        </ng-container>
+    </ng-container>
 </div>

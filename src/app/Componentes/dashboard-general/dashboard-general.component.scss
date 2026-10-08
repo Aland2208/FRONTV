@@ -28,6 +28,8 @@
     padding: 28px;
     background: var(--foam);
     color: var(--ink);
+    /* Previniendo el desborde general en móviles */
+    overflow-x: hidden; 
 }
 
 /* ENCABEZADO */
@@ -323,7 +325,7 @@
     background: #fff;
     box-shadow: 0 3px 10px rgba(10, 31, 51, .035);
     transition: .2s;
-    min-width: 0; /* Corrección Grid */
+    min-width: 0;
 }
 
 .stat-card:hover {
@@ -395,8 +397,8 @@
     border-radius: 10px;
     background: #fff;
     box-shadow: 0 3px 12px rgba(10, 31, 51, .035);
-    min-width: 0; /* CORRECCIÓN CRUCIAL: Evita que Chart.js desborde el Grid */
-    overflow: hidden; /* Asegura que nada se salga visualmente */
+    min-width: 0;
+    width: 100%;
 }
 
 .grafico-header {
@@ -440,10 +442,27 @@
     font-size: 18px;
 }
 
+/* 
+   =============================================
+   CONTENEDOR SCROLL HORIZONTAL (LA SOLUCIÓN)
+   =============================================
+   Envolvemos los gráficos de línea y barra para que si son
+   muy anchos, el usuario pueda desplazarlos con el dedo en móviles.
+*/
+.grafico-scroll-wrapper {
+    width: 100%;
+    overflow-x: auto;
+    overflow-y: hidden;
+    /* Suaviza el scroll en iOS */
+    -webkit-overflow-scrolling: touch;
+}
+
+/* Este es el contenedor real del canvas */
 .grafico-canvas {
     position: relative;
+    /* En escritorio ocupa el 100% de la tarjeta */
     width: 100%;
-    min-width: 0; /* Corrección para evitar expansión infinita */
+    min-width: 0; 
 }
 
 .grafico-veedores {
@@ -741,7 +760,7 @@
     border-radius: 8px;
     background: #fff;
     transition: .2s;
-    min-width: 0; /* Corrección Grid */
+    min-width: 0;
 }
 
 .veedor-card:hover {
@@ -886,7 +905,7 @@
 }
 
 /* ==========================================
-   NUEVO BLOQUE RESPONSIVE
+   BLOQUE RESPONSIVE
    ========================================== */
 
 @media(max-width:1100px) {
@@ -1003,25 +1022,38 @@
         grid-template-columns: 1fr;
     }
 
-    /* Reducción del tamaño de las donas para evitar desborde en móvil */
+    /* Ajustes en Donas para móvil */
+    .grafico-dona-contenido,
+    .reportes-grafico-contenido {
+        align-items: center;
+    }
+    
     .grafico-dona {
-        width: 170px;
-        height: 170px;
+        width: 160px !important;
+        height: 160px !important;
     }
+    
     .reportes-dona {
-        width: 150px;
-        height: 150px;
+        width: 140px !important;
+        height: 140px !important;
     }
+    
     .centro-dona strong {
-        font-size: 18px;
+        font-size: 16px;
     }
 
-    /* Ajuste en la altura de los contenedores Canvas para celulares */
+    /* CONFIGURACIÓN CRUCIAL: EL SCROLL HORIZONTAL PARA MÓVILES */
+    /* Le damos a todos los canvas un ancho mínimo fijo grande para forzar el scroll,
+       pero solo en móviles. */
+    .grafico-canvas canvas {
+        min-width: 500px !important;
+    }
+
     .grafico-veedores,
     .grafico-linea,
     .grafico-barras {
-        height: 250px; 
-        width: 100%;
+        /* Reducimos la altura general del contenedor en celular */
+        height: 240px; 
     }
 
     .panel-header {
