@@ -875,7 +875,10 @@
     transition: width .4s ease;
 }
 
-/* RESPONSIVE */
+/* ==========================================
+   NUEVO BLOQUE RESPONSIVE CORREGIDO
+   ========================================== */
+
 @media(max-width:1100px) {
     .estadisticas-dashboard {
         grid-template-columns: repeat(2, 1fr);
@@ -914,17 +917,31 @@
         grid-template-columns: 1fr;
     }
 
-    .grafico-dona-contenido {
-        align-items: flex-start;
+    /* Arreglo para que las donas de gráficos y sus leyendas no se solapen */
+    .grafico-dona-contenido,
+    .reportes-grafico-contenido {
+        display: flex;
         flex-direction: column;
-    }
-
-    .grafico-dona {
-        margin: auto;
-    }
-
-    .leyenda-especies {
+        align-items: center;
+        gap: 20px;
         width: 100%;
+    }
+
+    .grafico-dona,
+    .reportes-dona {
+        margin: 0 auto;
+    }
+
+    .leyenda-especies,
+    .reportes-resumen {
+        width: 100%;
+    }
+
+    /* Resumen de reportes en dos columnas para tablet */
+    .reportes-resumen {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
     }
 }
 
@@ -953,6 +970,7 @@
     .periodos {
         display: grid;
         grid-template-columns: 1fr 1fr;
+        gap: 8px; /* Evita que los botones se peguen */
     }
 
     .periodos button {
@@ -977,10 +995,12 @@
         grid-template-columns: 1fr;
     }
 
+    /* Ajuste en la altura de los contenedores Canvas para celulares */
     .grafico-veedores,
     .grafico-linea,
     .grafico-barras {
-        height: 270px;
+        height: 250px; 
+        width: 100%;
     }
 
     .panel-header {
@@ -988,32 +1008,9 @@
         flex-direction: column;
     }
 
-    /* ==========================================
-   AJUSTE - COMPLETITUD DE REPORTES
-   ========================================== */
-
-    .graficos-grid {
-        align-items: start;
-    }
-
-    .reportes-grafico-contenido {
-        display: grid;
-        grid-template-columns: 150px 1fr;
-        align-items: center;
-        gap: 18px;
-    }
-
-    .reportes-dona {
-        width: 150px;
-        height: 150px;
-        margin: 0;
-    }
-
+    /* Resumen de reportes en 1 columna para móviles pequeños */
     .reportes-resumen {
-        width: 100%;
-        display: flex;
-        flex-direction: column;
-        gap: 8px;
+        grid-template-columns: 1fr;
     }
 
     .reporte-resumen-item {
@@ -1028,28 +1025,10 @@
     }
 
     .reporte-resumen-item small {
-        font-size: 8px;
+        font-size: 10px;
     }
 
     .reporte-resumen-item strong {
-        font-size: 14px;
-    }
-
-    @media(max-width:800px) {
-        .reportes-grafico-contenido {
-            grid-template-columns: 1fr;
-            justify-items: center;
-        }
-
-        .reportes-resumen {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-        }
-    }
-
-    @media(max-width:500px) {
-        .reportes-resumen {
-            grid-template-columns: 1fr;
-        }
+        font-size: 15px;
     }
 }
