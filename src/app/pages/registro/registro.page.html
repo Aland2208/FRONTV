@@ -74,6 +74,55 @@
                             placeholder="Ingresa tu contraseña" autocomplete="new-password" required>
                         </ion-input>
                     </ion-item>
+
+                    <div class="password-requirements">
+
+                        <span [class.valido]="requisitosPassword.longitud">
+                            <ion-icon [name]="requisitosPassword.longitud
+                    ? 'checkmark-circle'
+                    : 'ellipse-outline'">
+                            </ion-icon>
+
+                            Mínimo 8 caracteres
+                        </span>
+
+                        <span [class.valido]="requisitosPassword.mayuscula">
+                            <ion-icon [name]="requisitosPassword.mayuscula
+                    ? 'checkmark-circle'
+                    : 'ellipse-outline'">
+                            </ion-icon>
+
+                            Una letra mayúscula
+                        </span>
+
+                        <span [class.valido]="requisitosPassword.minuscula">
+                            <ion-icon [name]="requisitosPassword.minuscula
+                    ? 'checkmark-circle'
+                    : 'ellipse-outline'">
+                            </ion-icon>
+
+                            Una letra minúscula
+                        </span>
+
+                        <span [class.valido]="requisitosPassword.numero">
+                            <ion-icon [name]="requisitosPassword.numero
+                    ? 'checkmark-circle'
+                    : 'ellipse-outline'">
+                            </ion-icon>
+
+                            Un número
+                        </span>
+
+                        <span [class.valido]="requisitosPassword.especial">
+                            <ion-icon [name]="requisitosPassword.especial
+                    ? 'checkmark-circle'
+                    : 'ellipse-outline'">
+                            </ion-icon>
+
+                            Un carácter especial
+                        </span>
+
+                    </div>
                 </div>
 
                 <div class="field">

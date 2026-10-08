@@ -171,6 +171,44 @@
 }
 
 /* ==========================================
+   REQUISITOS DE CONTRASEÑA
+   ========================================== */
+.password-requirements {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 14px;
+    padding: 0 4px;
+}
+
+.password-requirements span {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--slate);
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    font-weight: 500;
+    transition: color 0.2s ease;
+}
+
+.password-requirements span ion-icon {
+    font-size: 16px;
+    color: var(--slate);
+    transition: color 0.2s ease, transform 0.2s ease;
+}
+
+/* Estado válido (cuando se cumple el requisito) */
+.password-requirements span.valido {
+    color: var(--success);
+}
+
+.password-requirements span.valido ion-icon {
+    color: var(--success);
+    transform: scale(1.1); 
+}
+
+/* ==========================================
    SELECCIÓN DEL TIPO DE CUENTA
    ========================================== */
 
@@ -385,5 +423,18 @@
 
  .rol-check{
   font-size:19px;
+ }
+ 
+ .password-requirements {
+     margin-top: 12px;
+     gap: 6px;
+ }
+
+ .password-requirements span {
+     font-size: 0.62rem;
+ }
+
+ .password-requirements span ion-icon {
+     font-size: 14px;
  }
 }
