@@ -109,11 +109,16 @@ import {
   listOutline,
   imagesOutline,
   imageOutline,
+  videocamOutline,
 
-  checkmarkOutline
+  checkmarkOutline,
+  terminalOutline,
+  cloudUploadOutline
 } from 'ionicons/icons';
 
 addIcons({
+  'cloud-upload-outline': cloudUploadOutline,
+  'terminal-outline': terminalOutline,
   'star': star,
   'save': save,
   'save-outline': saveOutline,
@@ -141,6 +146,7 @@ addIcons({
   'analytics-outline': analyticsOutline,
   'pie-chart-outline': pieChartOutline,
   'trending-up-outline': trendingUpOutline,
+  'videocam-outline': videocamOutline,
 
   'cube-outline': cubeOutline,
   'cart-outline': cartOutline,
@@ -216,7 +222,7 @@ addIcons({
   'list-outline': listOutline,
   'images-outline': imagesOutline,
   'image-outline': imageOutline,
-  "checkmark-outline" : checkmarkOutline
+  "checkmark-outline": checkmarkOutline
 });
 
 bootstrapApplication(AppComponent, {
