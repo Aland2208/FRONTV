@@ -36,7 +36,7 @@ export class CamaraComponent implements OnInit, OnDestroy {
   // ==========================================
 
   private readonly PYTHON_API =
-    'http://192.168.18.8:5000';
+    'http://192.168.18.10:5000';
 
 
   urlCamara =
