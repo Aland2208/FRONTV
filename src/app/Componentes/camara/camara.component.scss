@@ -353,3 +353,21 @@ ion-content.app-content {
   .readout__value { font-size: 2.5rem; }
   .tag-data { gap: 14px; }
 }
+
+/* ESTADO DESCONECTADO */
+.ip-chip--off {
+  color: var(--danger) !important;
+  background: rgba(229, 72, 77, 0.12) !important;
+}
+
+.viewfinder__warning {
+  ion-icon {
+    font-size: 34px;
+    color: var(--danger);
+    margin-bottom: 8px;
+  }
+  p {
+    font-size: 0.9rem;
+    color: #ffffff;
+  }
+}

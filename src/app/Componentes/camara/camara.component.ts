@@ -21,7 +21,6 @@ import { Auth } from '../../servicios/auth';
   templateUrl: './camara.component.html',
   styleUrls: ['./camara.component.scss'],
   standalone: true,
-
   imports: [
     CommonModule,
     IonButton,
@@ -30,587 +29,257 @@ import { Auth } from '../../servicios/auth';
 })
 export class CamaraComponent implements OnInit, OnDestroy {
 
-  // ==========================================
-  // CONFIGURACIÓN DE URL CENTRALIZADA
-  // ==========================================
-  // Reemplaza con la URL base de tu backend Node.js en Render
-  private readonly BACKEND_URL = 'https://veedores.onrender.com';
-
   PYTHON_API: string = '';
   urlCamara: string = '';
+  camaraConectada: boolean = false;
+  mensajeEstadoCamara: string = 'Conectando con la cámara...';
 
   // ==========================================
   // MODO PRUEBA SIN BALANZA
   // ==========================================
-
   modoPruebaSinBalanza = true;
-
   pesoPrueba = 250.00;
 
-
   // ==========================================
-  // VARIABLES
+  // VARIABLES BALANZA
   // ==========================================
-
-  camaraConectada = false;
-
   peso: number = 0;
-
   fecha: string = '';
-
   conexion = false;
-
   mensaje = '';
-
   mostrarMensaje = false;
-
   realizandoTara = false;
-
 
   // ==========================================
   // ÚLTIMO RESULTADO
   // ==========================================
-
   ultimoResultado: {
-
     especie: string;
-
     peso: number;
-
     porcentaje: number;
-
     hora: string;
-
     id: number;
-
     imagen_url?: string;
-
   } | null = null;
-
 
   // ==========================================
   // TEMPORIZADORES
   // ==========================================
-
   private temporizadorConexion: any;
-
   private temporizadorMensaje: any;
-
-
-  // ==========================================
-  // CONSTRUCTOR
-  // ==========================================
+  private intervaloMonitorCamara: any;
 
   constructor(
-
     private balanzaService: BalanzaS,
-
     private socketService: SocketS,
-
     private http: HttpClient,
-
     private authService: Auth
-
   ) { }
 
-
-  // ==========================================
-  // INICIAR
-  // ==========================================
-
   ngOnInit() {
-
     this.cargarUrlCamaraAsignada();
 
     this.peso = 0;
-
     this.fecha = '';
 
-
     if (this.modoPruebaSinBalanza) {
-
-      console.warn(
-        '🧪 MODO PRUEBA SIN BALANZA ACTIVADO'
-      );
-
-      console.warn(
-        `⚖️ Peso simulado: ${this.pesoPrueba} g`
-      );
-
+      console.warn('🧪 MODO PRUEBA SIN BALANZA ACTIVADO');
+      console.warn(`⚖️ Peso simulado: ${this.pesoPrueba} g`);
     }
 
-
-    // ==========================================
-    // SOCKET CONECTADO
-    // ==========================================
-
+    // Sockets Balanza
     this.socketService.conectado(() => {
-
-      console.log(
-        '🔌 Socket conectado'
-      );
-
+      console.log('🔌 Socket balanza conectado');
     });
-
-
-    // ==========================================
-    // SOCKET DESCONECTADO
-    // ==========================================
 
     this.socketService.desconectado(() => {
-
       if (!this.modoPruebaSinBalanza) {
-
         this.conexion = false;
-
         this.peso = 0;
-
         this.fecha = '';
-
       }
-
     });
-
-
-    // ==========================================
-    // ESCUCHAR PESO
-    // ==========================================
 
     this.socketService.escucharPeso((data) => {
-
-      console.log(
-        '⚖️ LLEGÓ PESO:',
-        data
-      );
-
-
-      if (this.modoPruebaSinBalanza) {
-
-        return;
-
-      }
-
-
-      this.peso =
-        Number(data.peso);
-
-
-      this.fecha =
-        data.fecha_hora;
-
-
+      if (this.modoPruebaSinBalanza) return;
+      this.peso = Number(data.peso);
+      this.fecha = data.fecha_hora;
       this.conexion = true;
 
-
-      clearTimeout(
-        this.temporizadorConexion
-      );
-
-
-      this.temporizadorConexion =
-        setTimeout(() => {
-
-          if (!this.realizandoTara) {
-
-            console.log(
-              '⚠️ No llegaron pesos en 2 segundos'
-            );
-
-
-            this.conexion = false;
-
-            this.peso = 0;
-
-            this.fecha = '';
-
-          }
-
-        }, 2000);
-
+      clearTimeout(this.temporizadorConexion);
+      this.temporizadorConexion = setTimeout(() => {
+        if (!this.realizandoTara) {
+          this.conexion = false;
+          this.peso = 0;
+          this.fecha = '';
+        }
+      }, 2000);
     });
 
-
-    // ==========================================
-    // PESO GUARDADO
-    // ==========================================
-
-    this.socketService.escucharGuardado(
-      (data) => {
-
-        console.log(
-          'Peso guardado:',
-          data
-        );
-
-
-        if (!this.modoPruebaSinBalanza) {
-
-          this.mostrarAlerta(
-            '✅ Peso guardado correctamente'
-          );
-
-        }
-
+    this.socketService.escucharGuardado(() => {
+      if (!this.modoPruebaSinBalanza) {
+        this.mostrarAlerta('✅ Peso guardado correctamente');
       }
-    );
+    });
 
-
-    // ==========================================
-    // TARA
-    // ==========================================
-
-    this.socketService.escucharTara(
-      (data) => {
-
-        console.log(
-          'Tara:',
-          data
-        );
-
-
-        if (this.modoPruebaSinBalanza) {
-
-          return;
-
-        }
-
-
-        this.realizandoTara = true;
-
-
-        this.mostrarAlerta(
-          '⚖️ Tara realizada correctamente'
-        );
-
-
-        setTimeout(() => {
-
-          this.realizandoTara = false;
-
-        }, 2500);
-
-      }
-    );
-
+    this.socketService.escucharTara(() => {
+      if (this.modoPruebaSinBalanza) return;
+      this.realizandoTara = true;
+      this.mostrarAlerta('⚖️ Tara realizada correctamente');
+      setTimeout(() => {
+        this.realizandoTara = false;
+      }, 2500);
+    });
   }
 
-
   // ==========================================
-  // CARGAR CÁMARA DEL ADMINISTRADOR ASIGNADO
+  // CÁMARA: CARGAR Y VIGILAR ESTADO
   // ==========================================
-
   cargarUrlCamaraAsignada() {
     const idUsuario = this.authService.obtenerIdUsuario();
     if (!idUsuario) {
-      this.camaraConectada = false;
+      this.desconectarCamara('No se identificó la sesión del usuario.');
       return;
     }
 
-    // Usar el método del servicio Auth para que tome el prefijo correcto de environment.apiUrl
-    this.authService.obtenerUrlCamaraVinculada(idUsuario)
-      .subscribe({
-        next: (res) => {
-          if (res?.estado === 1 && res.url_camara) {
-            this.PYTHON_API = res.url_camara;
-            this.urlCamara = `${this.PYTHON_API}/video_feed`;
-            this.camaraConectada = true;
-          } else {
-            this.camaraConectada = false;
-            this.mostrarAlerta('⚠️ El administrador aún no ha habilitado la cámara.');
-          }
-        },
-        error: (err) => {
-          console.error('Error al obtener URL de la cámara:', err);
-          this.camaraConectada = false;
-          this.mostrarAlerta('❌ Error al consultar la cámara del equipo.');
+    this.authService.obtenerUrlCamaraVinculada(idUsuario).subscribe({
+      next: (res) => {
+        if (res?.estado === 1 && res.url_camara) {
+          this.PYTHON_API = res.url_camara;
+          this.urlCamara = `${this.PYTHON_API}/video_feed`;
+          this.camaraConectada = true;
+          this.iniciarMonitoreoConexion();
+        } else {
+          this.desconectarCamara('El administrador aún no ha habilitado la cámara.');
         }
-      });
+      },
+      error: () => {
+        this.desconectarCamara('Error al consultar el servidor.');
+      }
+    });
   }
 
+  // Verifica cada 3 segundos si Python sigue respondiendo
+  iniciarMonitoreoConexion() {
+    clearInterval(this.intervaloMonitorCamara);
+
+    this.intervaloMonitorCamara = setInterval(() => {
+      if (!this.PYTHON_API) return;
+
+      // Petición rápida de verificación
+      this.http.get<any>(`${this.PYTHON_API}/api-local/estado`).subscribe({
+        next: (estado) => {
+          if (estado?.estado === 1) {
+            if (!this.camaraConectada) {
+              this.camaraConectada = true;
+              this.urlCamara = `${this.PYTHON_API}/video_feed?t=${Date.now()}`;
+            }
+          } else {
+            this.desconectarCamara('Cámara detenida por el sistema.');
+          }
+        },
+        error: () => {
+          // Si el túnel de Cloudflare se cerró o se apagó el script
+          this.desconectarCamara('Transmisión finalizada o túnel desconectado.');
+        }
+      });
+    }, 3000);
+  }
+
+  desconectarCamara(motivo: string) {
+    this.camaraConectada = false;
+    this.urlCamara = ''; // Vacía la imagen para evitar que quede congelada
+    this.mensajeEstadoCamara = motivo;
+  }
+
+  alCargarCamara() {
+    this.camaraConectada = true;
+  }
+
+  errorCamara() {
+    this.desconectarCamara('Error al cargar la transmisión de video.');
+  }
 
   // ==========================================
   // GUARDAR CAPTURA
   // ==========================================
-
   guardarCapturaWeb() {
-
-    if (!this.PYTHON_API) {
-      this.mostrarAlerta('⚠️ No hay cámara conectada para procesar la captura.');
+    if (!this.camaraConectada || !this.PYTHON_API) {
+      this.mostrarAlerta('⚠️ La cámara no está transmitiendo en vivo.');
       return;
     }
 
-    const pesoRegistro =
-      this.modoPruebaSinBalanza
-        ? this.pesoPrueba
-        : this.peso;
+    const pesoRegistro = this.modoPruebaSinBalanza ? this.pesoPrueba : this.peso;
 
-
-    if (
-      !this.modoPruebaSinBalanza &&
-      pesoRegistro <= 0
-    ) {
-
-      this.mostrarAlerta(
-        '⚠️ No hay peso válido en la balanza para guardar'
-      );
-
+    if (!this.modoPruebaSinBalanza && pesoRegistro <= 0) {
+      this.mostrarAlerta('⚠️ No hay peso válido en la balanza para guardar');
       return;
-
     }
 
+    this.mostrarAlerta(this.modoPruebaSinBalanza ? '🧪 Modo prueba: procesando captura...' : '⏳ Procesando captura...');
 
-    this.mostrarAlerta(
-      this.modoPruebaSinBalanza
-        ? '🧪 Modo prueba: procesando captura...'
-        : '⏳ Procesando captura...'
-    );
-
-
-    // PETICIÓN AL ENDPOINT PYTHON A TRAVÉS DE LA URL ASIGNADA
-    this.http.post<any>(
-
-      `${this.PYTHON_API}/api-local/subir-cloudinary`,
-
-      {}
-
-    ).subscribe({
-
+    this.http.post<any>(`${this.PYTHON_API}/api-local/subir-cloudinary`, {}).subscribe({
       next: (resPython) => {
+        const idEspecieDetectada = Number(resPython.id_deteccion);
+        const especieDetectada = resPython.especie;
+        const imagenUrlCloudinary = resPython.imagen_url;
+        const porcentajeDeteccion = Number(resPython.porcentaje);
 
-        const idEspecieDetectada =
-          Number(
-            resPython.id_deteccion
-          );
-
-
-        const especieDetectada =
-          resPython.especie;
-
-
-        const imagenUrlCloudinary =
-          resPython.imagen_url;
-
-
-        const porcentajeDeteccion =
-          Number(
-            resPython.porcentaje
-          );
-
-
-        if (
-          !idEspecieDetectada ||
-          !imagenUrlCloudinary
-        ) {
-
-          this.mostrarAlerta(
-            '❌ Python no devolvió los datos necesarios'
-          );
-
+        if (!idEspecieDetectada || !imagenUrlCloudinary || Number.isNaN(porcentajeDeteccion)) {
+          this.mostrarAlerta('❌ Python no devolvió los datos necesarios');
           return;
-
         }
 
-
-        if (
-          Number.isNaN(
-            porcentajeDeteccion
-          )
-        ) {
-
-          this.mostrarAlerta(
-            '❌ Python no devolvió un porcentaje válido'
-          );
-
-          return;
-
-        }
-
-
-        const idUsuario =
-          this.authService
-            .obtenerIdUsuario();
-
-
+        const idUsuario = this.authService.obtenerIdUsuario();
         if (!idUsuario) {
-
-          this.mostrarAlerta(
-            '❌ No se pudo identificar al usuario'
-          );
-
+          this.mostrarAlerta('❌ No se pudo identificar al usuario');
           return;
-
         }
-
 
         const datosCaptura = {
-
-          id_especie:
-            idEspecieDetectada,
-
-          id_usuario:
-            idUsuario,
-
-          peso:
-            pesoRegistro,
-
-          imagen_url:
-            imagenUrlCloudinary,
-
-          porcentaje:
-            porcentajeDeteccion
-
+          id_especie: idEspecieDetectada,
+          id_usuario: idUsuario,
+          peso: pesoRegistro,
+          imagen_url: imagenUrlCloudinary,
+          porcentaje: porcentajeDeteccion
         };
 
-
-        this.balanzaService
-          .registrarCaptura(datosCaptura).subscribe({
-            next: (resBD) => {
-              this.ultimoResultado = {
-                especie: especieDetectada,
-                peso: pesoRegistro,
-                porcentaje: porcentajeDeteccion,
-                hora: new Date().toLocaleTimeString([], {
-                  hour: '2-digit',
-                  minute: '2-digit',
-                  second: '2-digit'
-                }),
-                id: idEspecieDetectada,
-                imagen_url: imagenUrlCloudinary
-              };
-              this.mostrarAlerta(
-                `✅ Captura registrada (${especieDetectada} - ${porcentajeDeteccion.toFixed(2)}%)`
-              );
-            },
-
-            error: (err) => {
-              console.error(
-                '❌ ERROR NODE / MYSQL:',
-                err
-              );
-
-              if (err.error?.mensaje) {
-                this.mostrarAlerta(
-                  `❌ ${err.error.mensaje}`
-                );
-              } else {
-                this.mostrarAlerta(
-                  '❌ Error al guardar en la base de datos'
-                );
-              }
-            }
-          });
+        this.balanzaService.registrarCaptura(datosCaptura).subscribe({
+          next: () => {
+            this.ultimoResultado = {
+              especie: especieDetectada,
+              peso: pesoRegistro,
+              porcentaje: porcentajeDeteccion,
+              hora: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' }),
+              id: idEspecieDetectada,
+              imagen_url: imagenUrlCloudinary
+            };
+            this.mostrarAlerta(`✅ Captura registrada (${especieDetectada} - ${porcentajeDeteccion.toFixed(2)}%)`);
+          },
+          error: (err) => {
+            this.mostrarAlerta(err.error?.mensaje ? `❌ ${err.error.mensaje}` : '❌ Error al guardar en la base de datos');
+          }
+        });
       },
-
       error: (err) => {
-        console.error(
-          '❌ ERROR PYTHON / CLOUDINARY:',
-          err
-        );
-
-        if (err.error?.mensaje) {
-          this.mostrarAlerta(
-            `⚠️ ${err.error.mensaje}`
-          );
-        } else {
-          this.mostrarAlerta(
-            '❌ Error al comunicarse con Python'
-          );
-        }
+        this.mostrarAlerta(err.error?.mensaje ? `⚠️ ${err.error.mensaje}` : '❌ Error al comunicarse con Python');
       }
     });
   }
 
-
-  // ==========================================
-  // OBTENER ÚLTIMO PESO
-  // ==========================================
-
-  obtenerUltimoPeso() {
-    if (this.modoPruebaSinBalanza) {
-      this.peso =
-        this.pesoPrueba;
-
-      this.fecha =
-        new Date()
-          .toLocaleString();
-      return;
-    }
-
-    this.balanzaService
-      .obtenerUltimoPeso().subscribe({
-        next: (respuesta) => {
-          if (respuesta.estado == 1) {
-            this.peso =
-              Number(
-                respuesta.data.peso
-              );
-            this.fecha =
-              respuesta.data.fecha_hora;
-          }
-        },
-        error: (error) => {
-          console.error(
-            error
-          );
-        }
-      });
+  mostrarAlerta(texto: string) {
+    this.mensaje = texto;
+    this.mostrarMensaje = true;
+    clearTimeout(this.temporizadorMensaje);
+    this.temporizadorMensaje = setTimeout(() => {
+      this.mostrarMensaje = false;
+    }, 3000);
   }
-
-
-  // ==========================================
-  // MENSAJES
-  // ==========================================
-
-  mostrarAlerta(
-    texto: string
-  ) {
-    this.mensaje =
-      texto;
-
-    this.mostrarMensaje =
-      true;
-
-    clearTimeout(
-      this.temporizadorMensaje
-    );
-
-    this.temporizadorMensaje =
-      setTimeout(() => {
-        this.mostrarMensaje =
-          false;
-      }, 3000);
-  }
-
-
-  // ==========================================
-  // CÁMARA
-  // ==========================================
-
-  alCargarCamara() {
-    this.camaraConectada =
-      true;
-  }
-
-  errorCamara() {
-    this.camaraConectada =
-      false;
-  }
-
-
-  // ==========================================
-  // DESTRUIR
-  // ==========================================
 
   ngOnDestroy() {
-    clearTimeout(
-      this.temporizadorConexion
-    );
-
-    clearTimeout(
-      this.temporizadorMensaje
-    );
-
-    this.socketService
-      .desconectar();
+    clearInterval(this.intervaloMonitorCamara);
+    clearTimeout(this.temporizadorConexion);
+    clearTimeout(this.temporizadorMensaje);
+    this.socketService.desconectar();
   }
 }
