@@ -143,7 +143,7 @@ export class MenuComponent implements OnInit {
         },
 
         {
-          nombre: 'Crear reporte',
+          nombre: 'Generar reporte',
           vista: 'crear-reporte',
           icono: 'create-outline'
         },
