@@ -8,41 +8,40 @@
 
     <header class="panel__head">
 
-      <span class="eyebrow">
-        Cámara en vivo
-      </span>
+      <div class="panel__head-left">
+        <span class="eyebrow">
+          Cámara en vivo
+        </span>
 
-      <span class="ip-chip"></span>
+        <!-- BOTÓN PARA CONFIGURAR LA URL DINÁMICA -->
+        <button type="button" class="btn-config-url" (click)="configurarUrlTunel()" title="Configurar URL del túnel">
+          <ion-icon name="settings-outline"></ion-icon>
+        </button>
+      </div>
+
+      <span class="ip-chip">En línea</span>
 
     </header>
 
 
-    <div
-      class="viewfinder"
-      [class.is-live]="camaraConectada">
+    <div class="viewfinder" [class.is-live]="camaraConectada">
 
-      <span
-        class="viewfinder__corner viewfinder__corner--tl">
+      <span class="viewfinder__corner viewfinder__corner--tl">
       </span>
 
-      <span
-        class="viewfinder__corner viewfinder__corner--tr">
+      <span class="viewfinder__corner viewfinder__corner--tr">
       </span>
 
-      <span
-        class="viewfinder__corner viewfinder__corner--bl">
+      <span class="viewfinder__corner viewfinder__corner--bl">
       </span>
 
-      <span
-        class="viewfinder__corner viewfinder__corner--br">
+      <span class="viewfinder__corner viewfinder__corner--br">
       </span>
 
 
       <!-- EN VIVO -->
 
-      <span
-        class="rec-dot"
-        *ngIf="camaraConectada">
+      <span class="rec-dot" *ngIf="camaraConectada">
 
         <span class="rec-dot__pulse"></span>
 
@@ -53,27 +52,14 @@
 
       <!-- SIN TRANSMISIÓN -->
 
-      <div
-        class="viewfinder__warning"
-        *ngIf="!camaraConectada">
+      <div class="viewfinder__warning" *ngIf="!camaraConectada">
 
-        <ion-icon
-          name="warning-outline">
+        <ion-icon name="warning-outline">
         </ion-icon>
 
         <p>
 
-          Sin transmisión desde
-
-          <strong>
-            http://192.168.18.10:5000/
-          </strong>
-
-        </p>
-
-        <p class="viewfinder__hint">
-
-          Ejecuta el script de Python en el equipo de campo.
+          Verifique la cámara o la URL del túnel.
 
         </p>
 
@@ -82,13 +68,8 @@
 
       <!-- TRANSMISIÓN -->
 
-      <img
-        [src]="urlCamara"
-        [hidden]="!camaraConectada"
-        (load)="alCargarCamara()"
-        (error)="errorCamara()"
-        class="viewfinder__img"
-        alt="Transmisión de cámara en vivo">
+      <img [src]="urlCamara" [hidden]="!camaraConectada" (load)="alCargarCamara()" (error)="errorCamara()"
+        class="viewfinder__img" alt="Transmisión de cámara en vivo">
 
     </div>
 
@@ -108,14 +89,11 @@
       </span>
 
 
-      <span
-        class="status-dot"
-        [class.status-dot--on]="
+      <span class="status-dot" [class.status-dot--on]="
           conexion &&
           !realizandoTara &&
           !modoPruebaSinBalanza
-        "
-        [class.status-dot--busy]="
+        " [class.status-dot--busy]="
           realizandoTara ||
           modoPruebaSinBalanza
         ">
@@ -135,12 +113,12 @@
       <div class="readout__value">
 
         {{
-          (
-            modoPruebaSinBalanza
-              ? pesoPrueba
-              : peso
-          )
-          | number:'1.2-2'
+        (
+        modoPruebaSinBalanza
+        ? pesoPrueba
+        : peso
+        )
+        | number:'1.2-2'
         }}
 
         <span class="readout__unit">
@@ -161,9 +139,7 @@
 
       <!-- MODO PRUEBA -->
 
-      <span
-        *ngIf="modoPruebaSinBalanza"
-        class="scale-status__busy">
+      <span *ngIf="modoPruebaSinBalanza" class="scale-status__busy">
 
         ● Modo prueba — peso simulado
 
@@ -172,13 +148,11 @@
 
       <!-- CONECTADA -->
 
-      <span
-        *ngIf="
+      <span *ngIf="
           !modoPruebaSinBalanza &&
           conexion &&
           !realizandoTara
-        "
-        class="scale-status__ok">
+        " class="scale-status__ok">
 
         ● Balanza conectada
 
@@ -187,13 +161,11 @@
 
       <!-- DESCONECTADA -->
 
-      <span
-        *ngIf="
+      <span *ngIf="
           !modoPruebaSinBalanza &&
           !conexion &&
           !realizandoTara
-        "
-        class="scale-status__off">
+        " class="scale-status__off">
 
         ● Balanza desconectada
 
@@ -202,12 +174,10 @@
 
       <!-- TARA -->
 
-      <span
-        *ngIf="
+      <span *ngIf="
           !modoPruebaSinBalanza &&
           realizandoTara
-        "
-        class="scale-status__busy">
+        " class="scale-status__busy">
 
         ◐ Realizando tara…
 
@@ -220,9 +190,7 @@
     <!-- MENSAJE -->
     <!-- ===================================== -->
 
-    <div
-      *ngIf="mostrarMensaje"
-      class="mensaje">
+    <div *ngIf="mostrarMensaje" class="mensaje">
 
       {{ mensaje }}
 
@@ -242,9 +210,9 @@
       <span class="last-reading__value">
 
         {{
-          modoPruebaSinBalanza
-            ? 'Peso simulado'
-            : fecha
+        modoPruebaSinBalanza
+        ? 'Peso simulado'
+        : fecha
         }}
 
       </span>
@@ -258,9 +226,7 @@
   <!-- RESULTADO -->
   <!-- ========================================= -->
 
-  <section
-    class="panel panel--tag"
-    *ngIf="ultimoResultado">
+  <section class="panel panel--tag" *ngIf="ultimoResultado">
 
     <span class="tag-eyebrow">
       ✓ Captura registrada
@@ -288,8 +254,8 @@
         <span class="tag-data__value">
 
           {{
-            ultimoResultado.peso
-            | number:'1.2-2'
+          ultimoResultado.peso
+          | number:'1.2-2'
           }} g
 
         </span>
@@ -312,8 +278,8 @@
         <span class="tag-data__value">
 
           {{
-            ultimoResultado.porcentaje
-            | number:'1.2-2'
+          ultimoResultado.porcentaje
+          | number:'1.2-2'
           }} %
 
         </span>
@@ -350,15 +316,9 @@
   <!-- REGISTRAR CAPTURA -->
   <!-- ========================================= -->
 
-  <ion-button
-    expand="block"
-    shape="round"
-    class="btn-capturar"
-    (click)="guardarCapturaWeb()">
+  <ion-button expand="block" shape="round" class="btn-capturar" (click)="guardarCapturaWeb()">
 
-    <ion-icon
-      name="camera-outline"
-      slot="start">
+    <ion-icon name="camera-outline" slot="start">
     </ion-icon>
 
     Registrar captura

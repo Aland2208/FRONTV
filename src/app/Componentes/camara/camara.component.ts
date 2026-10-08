@@ -32,18 +32,19 @@ import { Auth } from '../../servicios/auth';
 export class CamaraComponent implements OnInit, OnDestroy {
 
   // ==========================================
-  // API PYTHON
+  // CONFIGURACIÓN DINÁMICA DEL TÚNEL
   // ==========================================
 
-  /*local
-  private readonly PYTHON_API = 'http://192.168.18.10:5000';*/
+  private readonly URL_BASE_DEFECTO =
+    'https://condo-thumbzilla-row-pack.trycloudflare.com';
 
-  //tunel cloudflared
-  private readonly PYTHON_API = 'https://condo-thumbzilla-row-pack.trycloudflare.com';
+  get PYTHON_API(): string {
+    return localStorage.getItem('URL_TUNEL_VIGIA') || this.URL_BASE_DEFECTO;
+  }
 
-  urlCamara =
-    `${this.PYTHON_API}/video_feed`;
-
+  get urlCamara(): string {
+    return `${this.PYTHON_API}/video_feed`;
+  }
 
   // ==========================================
   // MODO PRUEBA SIN BALANZA
@@ -300,25 +301,35 @@ export class CamaraComponent implements OnInit, OnDestroy {
 
 
   // ==========================================
+  // CONFIGURAR URL DEL TÚNEL EN VIVO
+  // ==========================================
+
+  configurarUrlTunel() {
+    const nuevaUrl = prompt(
+      'Pega aquí la URL generada por Cloudflare (https://....trycloudflare.com):',
+      this.PYTHON_API
+    );
+
+    if (nuevaUrl && nuevaUrl.trim() !== '') {
+      const urlLimpia = nuevaUrl.trim().replace(/\/+$/, '');
+      localStorage.setItem('URL_TUNEL_VIGIA', urlLimpia);
+      this.mostrarAlerta('✅ URL actualizada correctamente');
+      this.camaraConectada = true;
+    }
+  }
+
+
+  // ==========================================
   // GUARDAR CAPTURA
   // ==========================================
 
   guardarCapturaWeb() {
-
-    // ==========================================
-    // PESO
-    // ==========================================
 
     const pesoRegistro =
       this.modoPruebaSinBalanza
         ? this.pesoPrueba
         : this.peso;
 
-
-
-    // ==========================================
-    // VALIDAR PESO REAL
-    // ==========================================
 
     if (
       !this.modoPruebaSinBalanza &&
@@ -341,10 +352,7 @@ export class CamaraComponent implements OnInit, OnDestroy {
     );
 
 
-    // ==========================================
-    // PYTHON
-    // ==========================================
-
+    // PETICIÓN AL ENDPOINT PYTHON A TRAVÉS DE LA URL DINÁMICA
     this.http.post<any>(
 
       `${this.PYTHON_API}/api-local/subir-cloudinary`,
@@ -354,16 +362,6 @@ export class CamaraComponent implements OnInit, OnDestroy {
     ).subscribe({
 
       next: (resPython) => {
-
-        // ======================================
-        // DATOS DE PYTHON
-        // ======================================
-
-        /*
-          Tu Python todavía llama a este campo
-          "id_deteccion", pero realmente contiene
-          el ID de la especie.
-        */
 
         const idEspecieDetectada =
           Number(
@@ -384,10 +382,6 @@ export class CamaraComponent implements OnInit, OnDestroy {
             resPython.porcentaje
           );
 
-
-        // ======================================
-        // VALIDACIONES
-        // ======================================
 
         if (
           !idEspecieDetectada ||
@@ -418,10 +412,6 @@ export class CamaraComponent implements OnInit, OnDestroy {
         }
 
 
-        // ======================================
-        // USUARIO AUTENTICADO
-        // ======================================
-
         const idUsuario =
           this.authService
             .obtenerIdUsuario();
@@ -437,10 +427,6 @@ export class CamaraComponent implements OnInit, OnDestroy {
 
         }
 
-
-        // ======================================
-        // DATOS PARA NODE
-        // ======================================
 
         const datosCaptura = {
 
@@ -461,15 +447,10 @@ export class CamaraComponent implements OnInit, OnDestroy {
 
         };
 
-        // ======================================
-        // GUARDAR EN MYSQL
-        // ======================================
+
         this.balanzaService
           .registrarCaptura(datosCaptura).subscribe({
             next: (resBD) => {
-              // ==================================
-              // RESULTADO
-              // ==================================
               this.ultimoResultado = {
                 especie: especieDetectada,
                 peso: pesoRegistro,
@@ -478,8 +459,7 @@ export class CamaraComponent implements OnInit, OnDestroy {
                   hour: '2-digit',
                   minute: '2-digit',
                   second: '2-digit'
-                }
-                ),
+                }),
                 id: idEspecieDetectada,
                 imagen_url: imagenUrlCloudinary
               };
@@ -498,8 +478,7 @@ export class CamaraComponent implements OnInit, OnDestroy {
                 this.mostrarAlerta(
                   `❌ ${err.error.mensaje}`
                 );
-              }
-              else {
+              } else {
                 this.mostrarAlerta(
                   '❌ Error al guardar en la base de datos'
                 );
@@ -508,9 +487,6 @@ export class CamaraComponent implements OnInit, OnDestroy {
           });
       },
 
-      // ========================================
-      // ERROR PYTHON
-      // ========================================
       error: (err) => {
         console.error(
           '❌ ERROR PYTHON / CLOUDINARY:',
@@ -518,13 +494,10 @@ export class CamaraComponent implements OnInit, OnDestroy {
         );
 
         if (err.error?.mensaje) {
-
           this.mostrarAlerta(
             `⚠️ ${err.error.mensaje}`
           );
-
-        }
-        else {
+        } else {
           this.mostrarAlerta(
             '❌ Error al comunicarse con Python'
           );
@@ -533,9 +506,11 @@ export class CamaraComponent implements OnInit, OnDestroy {
     });
   }
 
+
   // ==========================================
   // OBTENER ÚLTIMO PESO
   // ==========================================
+
   obtenerUltimoPeso() {
     if (this.modoPruebaSinBalanza) {
       this.peso =
@@ -550,8 +525,7 @@ export class CamaraComponent implements OnInit, OnDestroy {
     this.balanzaService
       .obtenerUltimoPeso().subscribe({
         next: (respuesta) => {
-          if (
-            respuesta.estado == 1) {
+          if (respuesta.estado == 1) {
             this.peso =
               Number(
                 respuesta.data.peso
@@ -568,9 +542,11 @@ export class CamaraComponent implements OnInit, OnDestroy {
       });
   }
 
+
   // ==========================================
   // MENSAJES
   // ==========================================
+
   mostrarAlerta(
     texto: string
   ) {
@@ -591,9 +567,11 @@ export class CamaraComponent implements OnInit, OnDestroy {
       }, 3000);
   }
 
+
   // ==========================================
   // CÁMARA
   // ==========================================
+
   alCargarCamara() {
     this.camaraConectada =
       true;
@@ -603,6 +581,7 @@ export class CamaraComponent implements OnInit, OnDestroy {
     this.camaraConectada =
       false;
   }
+
 
   // ==========================================
   // DESTRUIR
