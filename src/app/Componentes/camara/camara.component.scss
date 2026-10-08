@@ -67,12 +67,6 @@ ion-content.app-content {
   margin-bottom: 14px;
 }
 
-.panel__head-left {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
 .eyebrow {
   font-family: var(--font-mono);
   font-size: 0.72rem;
@@ -80,26 +74,6 @@ ion-content.app-content {
   letter-spacing: 0.1em;
   text-transform: uppercase;
   color: var(--slate);
-}
-
-/* BOTÓN DE CONFIGURACIÓN */
-.btn-config-url {
-  background: transparent;
-  border: none;
-  color: var(--teal);
-  cursor: pointer;
-  font-size: 16px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 4px;
-  border-radius: 6px;
-  transition: background 0.2s ease, transform 0.15s ease;
-}
-
-.btn-config-url:hover {
-  background: rgba(18, 150, 158, 0.12);
-  transform: rotate(30deg);
 }
 
 /* ---------- CÁMARA / VIEWFINDER ---------- */

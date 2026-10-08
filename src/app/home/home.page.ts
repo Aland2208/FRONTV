@@ -28,6 +28,7 @@ import { UsuariosAdminComponent } from './../Componentes/usuarios-admin/usuarios
 import { ReportesAdminComponent } from '../Componentes/reportes-admin/reportes-admin.component';
 import { HistorialVeedoresComponent } from '../Componentes/historial-veedores/historial-veedores.component';
 import { DashboardGeneralComponent } from '../Componentes/dashboard-general/dashboard-general.component';
+import { ConfigurarCamaraComponent } from '../Componentes/configurar-camara/configurar-camara.component';
 
 @Component({
   selector:'app-home',
@@ -56,7 +57,8 @@ import { DashboardGeneralComponent } from '../Componentes/dashboard-general/dash
     UsuariosAdminComponent,
     ReportesAdminComponent,
     HistorialVeedoresComponent,
-    DashboardGeneralComponent
+    DashboardGeneralComponent,
+    ConfigurarCamaraComponent
   ]
 })
 export class HomePage implements OnInit {

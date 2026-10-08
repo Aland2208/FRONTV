@@ -8,16 +8,9 @@
 
     <header class="panel__head">
 
-      <div class="panel__head-left">
-        <span class="eyebrow">
-          Cámara en vivo
-        </span>
-
-        <!-- BOTÓN PARA CONFIGURAR LA URL DINÁMICA -->
-        <button type="button" class="btn-config-url" (click)="configurarUrlTunel()" title="Configurar URL del túnel">
-          <ion-icon name="settings-outline"></ion-icon>
-        </button>
-      </div>
+      <span class="eyebrow">
+        Cámara en vivo
+      </span>
 
       <span class="ip-chip">En línea</span>
 
@@ -59,7 +52,7 @@
 
         <p>
 
-          Verifique la cámara o la URL del túnel.
+          Cámara no disponible. Verifique que el administrador haya habilitado la sesión.
 
         </p>
 
@@ -68,8 +61,8 @@
 
       <!-- TRANSMISIÓN -->
 
-      <img [src]="urlCamara" [hidden]="!camaraConectada" (load)="alCargarCamara()" (error)="errorCamara()"
-        class="viewfinder__img" alt="Transmisión de cámara en vivo">
+      <img *ngIf="urlCamara" [src]="urlCamara" [hidden]="!camaraConectada" (load)="alCargarCamara()"
+        (error)="errorCamara()" class="viewfinder__img" alt="Transmisión de cámara en vivo">
 
     </div>
 

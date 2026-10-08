@@ -16,7 +16,6 @@ import { BalanzaS } from '../../servicios/balanza-s';
 import { SocketS } from '../../servicios/socket-s';
 import { Auth } from '../../servicios/auth';
 
-
 @Component({
   selector: 'app-camara',
   templateUrl: './camara.component.html',
@@ -32,19 +31,13 @@ import { Auth } from '../../servicios/auth';
 export class CamaraComponent implements OnInit, OnDestroy {
 
   // ==========================================
-  // CONFIGURACIÓN DINÁMICA DEL TÚNEL
+  // CONFIGURACIÓN DE URL CENTRALIZADA
   // ==========================================
+  // Reemplaza con la URL base de tu backend Node.js en Render
+  private readonly BACKEND_URL = 'https://veedores.onrender.com';
 
-  private readonly URL_BASE_DEFECTO =
-    'https://condo-thumbzilla-row-pack.trycloudflare.com';
-
-  get PYTHON_API(): string {
-    return localStorage.getItem('URL_TUNEL_VIGIA') || this.URL_BASE_DEFECTO;
-  }
-
-  get urlCamara(): string {
-    return `${this.PYTHON_API}/video_feed`;
-  }
+  PYTHON_API: string = '';
+  urlCamara: string = '';
 
   // ==========================================
   // MODO PRUEBA SIN BALANZA
@@ -59,7 +52,7 @@ export class CamaraComponent implements OnInit, OnDestroy {
   // VARIABLES
   // ==========================================
 
-  camaraConectada = true;
+  camaraConectada = false;
 
   peso: number = 0;
 
@@ -126,6 +119,8 @@ export class CamaraComponent implements OnInit, OnDestroy {
   // ==========================================
 
   ngOnInit() {
+
+    this.cargarUrlCamaraAsignada();
 
     this.peso = 0;
 
@@ -301,21 +296,34 @@ export class CamaraComponent implements OnInit, OnDestroy {
 
 
   // ==========================================
-  // CONFIGURAR URL DEL TÚNEL EN VIVO
+  // CARGAR CÁMARA DEL ADMINISTRADOR ASIGNADO
   // ==========================================
 
-  configurarUrlTunel() {
-    const nuevaUrl = prompt(
-      'Pega aquí la URL generada por Cloudflare (https://....trycloudflare.com):',
-      this.PYTHON_API
-    );
-
-    if (nuevaUrl && nuevaUrl.trim() !== '') {
-      const urlLimpia = nuevaUrl.trim().replace(/\/+$/, '');
-      localStorage.setItem('URL_TUNEL_VIGIA', urlLimpia);
-      this.mostrarAlerta('✅ URL actualizada correctamente');
-      this.camaraConectada = true;
+  cargarUrlCamaraAsignada() {
+    const idUsuario = this.authService.obtenerIdUsuario();
+    if (!idUsuario) {
+      this.camaraConectada = false;
+      return;
     }
+
+    this.http.get<any>(`${this.BACKEND_URL}/config/url-camara/${idUsuario}`)
+      .subscribe({
+        next: (res) => {
+          if (res?.estado === 1 && res.url_camara) {
+            this.PYTHON_API = res.url_camara;
+            this.urlCamara = `${this.PYTHON_API}/video_feed`;
+            this.camaraConectada = true;
+          } else {
+            this.camaraConectada = false;
+            this.mostrarAlerta('⚠️ El administrador aún no ha habilitado la cámara.');
+          }
+        },
+        error: (err) => {
+          console.error('Error al obtener URL de la cámara:', err);
+          this.camaraConectada = false;
+          this.mostrarAlerta('❌ Error al consultar la cámara del equipo.');
+        }
+      });
   }
 
 
@@ -324,6 +332,11 @@ export class CamaraComponent implements OnInit, OnDestroy {
   // ==========================================
 
   guardarCapturaWeb() {
+
+    if (!this.PYTHON_API) {
+      this.mostrarAlerta('⚠️ No hay cámara conectada para procesar la captura.');
+      return;
+    }
 
     const pesoRegistro =
       this.modoPruebaSinBalanza
@@ -352,7 +365,7 @@ export class CamaraComponent implements OnInit, OnDestroy {
     );
 
 
-    // PETICIÓN AL ENDPOINT PYTHON A TRAVÉS DE LA URL DINÁMICA
+    // PETICIÓN AL ENDPOINT PYTHON A TRAVÉS DE LA URL ASIGNADA
     this.http.post<any>(
 
       `${this.PYTHON_API}/api-local/subir-cloudinary`,

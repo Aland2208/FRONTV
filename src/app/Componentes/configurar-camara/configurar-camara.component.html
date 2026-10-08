@@ -1,0 +1,56 @@
+<div class="config-camara-container">
+  <div class="card-config">
+
+    <header class="card-config__header">
+      <div class="header-icono">
+        <ion-icon name="videocam-outline"></ion-icon>
+      </div>
+      <h2>Configuración de la Cámara</h2>
+      <p>Establece el enlace del túnel seguro (Cloudflare) para transmitir la cámara a tus veedores.</p>
+    </header>
+
+    <div class="card-config__body">
+
+      <!-- ESTADO ACTUAL -->
+      <div class="estado-box" [class.is-activa]="urlActual">
+        <div class="estado-indicador"></div>
+        <div class="estado-info">
+          <span>ESTADO DEL TÚNEL</span>
+          <strong>{{ urlActual ? 'Cámara Habilitada' : 'Sin enlace configurado' }}</strong>
+        </div>
+      </div>
+
+      <!-- URL ACTUAL GUARDADA -->
+      <div class="info-url" *ngIf="urlActual">
+        <span class="info-url__label">Enlace activo:</span>
+        <code class="info-url__valor">{{ urlActual }}</code>
+        <small *ngIf="fechaActualizacion">Última actualización: {{ fechaActualizacion }}</small>
+      </div>
+
+      <!-- FORMULARIO -->
+      <div class="form-group">
+        <label for="urlCamara">Nuevo enlace generado por Cloudflare</label>
+        <div class="input-wrapper">
+          <ion-icon name="link-outline"></ion-icon>
+          <input type="url" id="urlCamara" [(ngModel)]="nuevaUrl"
+            placeholder="https://palabras-aleatorias.trycloudflare.com" autocomplete="off">
+        </div>
+        <small class="hint">Copia la dirección HTTPS generada en tu consola de Windows.</small>
+      </div>
+
+      <!-- BOTÓN GUARDAR -->
+      <ion-button expand="block" shape="round" class="btn-guardar" [disabled]="cargando || !nuevaUrl"
+        (click)="guardarConfiguracion()">
+        <ion-icon name="cloud-upload-outline" slot="start"></ion-icon>
+        {{ cargando ? 'Guardando...' : 'Habilitar Cámara para el Equipo' }}
+      </ion-button>
+
+      <!-- GUÍA RÁPIDA -->
+      <div class="guia-rapida">
+        <h4><ion-icon name="terminal-outline"></ion-icon> Comando en la Laptop:</h4>
+        <code>cloudflared tunnel --url http://localhost:5000</code>
+      </div>
+
+    </div>
+  </div>
+</div>
