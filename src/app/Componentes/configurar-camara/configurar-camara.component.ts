@@ -1,7 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { HttpClient } from '@angular/common/http';
 import { IonButton, IonIcon, ToastController } from '@ionic/angular/standalone';
 import { Auth } from '../../servicios/auth';
 
@@ -19,9 +18,6 @@ import { Auth } from '../../servicios/auth';
 })
 export class ConfigurarCamaraComponent implements OnInit {
 
-  // URL del backend desplegado en Render (o localhost si pruebas en local)
-  private readonly BACKEND_URL = 'https://veedores.onrender.com';
-
   urlActual: string | null = null;
   fechaActualizacion: string | null = null;
   nuevaUrl: string = '';
@@ -29,13 +25,14 @@ export class ConfigurarCamaraComponent implements OnInit {
   idAdministrador: number | null = null;
 
   constructor(
-    private http: HttpClient,
     private authService: Auth,
     private toastCtrl: ToastController
   ) { }
 
   ngOnInit() {
     this.idAdministrador = this.authService.obtenerIdUsuario();
+    console.log('🔑 ID Administrador obtenido:', this.idAdministrador);
+
     if (this.idAdministrador) {
       this.cargarConfiguracionActual();
     }
@@ -44,7 +41,7 @@ export class ConfigurarCamaraComponent implements OnInit {
   cargarConfiguracionActual() {
     if (!this.idAdministrador) return;
 
-    this.http.get<any>(`${this.BACKEND_URL}/config/url-camara/${this.idAdministrador}`)
+    this.authService.obtenerUrlCamaraVinculada(this.idAdministrador)
       .subscribe({
         next: (res) => {
           if (res?.estado === 1 && res.url_camara) {
@@ -57,12 +54,20 @@ export class ConfigurarCamaraComponent implements OnInit {
   }
 
   guardarConfiguracion() {
+    if (!this.idAdministrador) {
+      this.idAdministrador = this.authService.obtenerIdUsuario();
+      if (!this.idAdministrador) {
+        this.mostrarToast('No se identificó al administrador. Inicie sesión nuevamente.', 'danger');
+        return;
+      }
+    }
+
     if (!this.nuevaUrl.trim()) {
-      this.mostrarToast('Ingresa una URL válida', 'warning');
+      this.mostrarToast('Ingresa una URL válida.', 'warning');
       return;
     }
 
-    let urlLimpia = this.nuevaUrl.trim().replace(/\/+$/, '');
+    const urlLimpia = this.nuevaUrl.trim().replace(/\/+$/, '');
 
     if (!urlLimpia.startsWith('https://')) {
       this.mostrarToast('La URL debe comenzar estrictamente con https://', 'warning');
@@ -71,12 +76,7 @@ export class ConfigurarCamaraComponent implements OnInit {
 
     this.cargando = true;
 
-    const payload = {
-      id_administrador: this.idAdministrador,
-      url_camara: urlLimpia
-    };
-
-    this.http.post<any>(`${this.BACKEND_URL}/config/url-camara`, payload)
+    this.authService.guardarUrlCamara(this.idAdministrador, urlLimpia)
       .subscribe({
         next: (res) => {
           this.cargando = false;
@@ -91,7 +91,8 @@ export class ConfigurarCamaraComponent implements OnInit {
         error: (err) => {
           this.cargando = false;
           console.error('Error al guardar:', err);
-          this.mostrarToast('❌ Error de comunicación con el servidor.', 'danger');
+          const msg = err.error?.mensaje || 'Error de comunicación con el servidor.';
+          this.mostrarToast(`❌ ${msg}`, 'danger');
         }
       });
   }

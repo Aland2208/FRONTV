@@ -306,4 +306,24 @@ export class Auth {
             `${environment.apiUrl}auth/validar-reset/${encodeURIComponent(token)}`
         );
     }
+
+    // ==========================================
+    // CONFIGURACIÓN DE CÁMARA
+    // ==========================================
+
+    guardarUrlCamara(idAdministrador: number, urlCamara: string): Observable<any> {
+        return this.http.post(
+            `${environment.apiUrl}administrador/config/url-camara`,
+            {
+                id_administrador: idAdministrador,
+                url_camara: urlCamara
+            }
+        );
+    }
+
+    obtenerUrlCamaraVinculada(idUsuario: number): Observable<any> {
+        return this.http.get(
+            `${environment.apiUrl}administrador/config/url-camara/${idUsuario}`
+        );
+    }
 }
