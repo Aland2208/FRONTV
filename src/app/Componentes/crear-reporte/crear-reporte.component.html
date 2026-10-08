@@ -3,919 +3,252 @@
   <!-- ========================================= -->
   <!-- ENCABEZADO -->
   <!-- ========================================= -->
-
   <section class="reporte-header">
-
     <div>
-
-      <span class="eyebrow">
-        Reportes
-      </span>
-
-      <h1>
-        Crear reporte
-      </h1>
-
-      <p>
-        Capturas pendientes del día agrupadas por especie.
-      </p>
-
+      <span class="eyebrow">Reportes</span>
+      <h1>Generar reporte</h1>
+      <p>Capturas pendientes del día agrupadas por especie.</p>
     </div>
-
   </section>
-
 
   <!-- ========================================= -->
   <!-- USUARIO -->
   <!-- ========================================= -->
-
-  <section
-    class="usuario-card"
-    *ngIf="usuario">
-
+  <section class="usuario-card" *ngIf="usuario">
     <div class="usuario-icon">
-
-      <ion-icon
-        name="person-outline">
-      </ion-icon>
-
+      <ion-icon name="person-outline"></ion-icon>
     </div>
-
     <div>
-
-      <span class="usuario-label">
-        Usuario
-      </span>
-
-      <strong>
-        {{ usuario.nombre }}
-        {{ usuario.apellido }}
-      </strong>
-
+      <span class="usuario-label">Usuario</span>
+      <strong>{{ usuario.nombre }} {{ usuario.apellido }}</strong>
     </div>
-
   </section>
-
 
   <!-- ========================================= -->
   <!-- CARGANDO -->
   <!-- ========================================= -->
-
-  <div
-    class="estado-container"
-    *ngIf="cargando">
-
-    <ion-spinner
-      name="crescent">
-    </ion-spinner>
-
-    <p>
-      Cargando capturas del día...
-    </p>
-
+  <div class="estado-container" *ngIf="cargando">
+    <ion-spinner name="crescent"></ion-spinner>
+    <p>Cargando capturas del día...</p>
   </div>
-
 
   <!-- ========================================= -->
   <!-- ERROR -->
   <!-- ========================================= -->
-
-  <div
-    class="estado-container estado-error"
-    *ngIf="!cargando && error">
-
-    <ion-icon
-      name="warning-outline">
-    </ion-icon>
-
-    <h3>
-      No se pudieron cargar los registros
-    </h3>
-
-    <p>
-      {{ mensaje }}
-    </p>
-
+  <div class="estado-container estado-error" *ngIf="!cargando && error">
+    <ion-icon name="warning-outline"></ion-icon>
+    <h3>No se pudieron cargar los registros</h3>
+    <p>{{ mensaje }}</p>
   </div>
-
 
   <!-- ========================================= -->
   <!-- CONTENIDO -->
   <!-- ========================================= -->
+  <ng-container *ngIf="!cargando && !error">
 
-  <ng-container
-    *ngIf="!cargando && !error">
-
-
-    <!-- ======================================= -->
     <!-- RESUMEN GENERAL -->
-    <!-- ======================================= -->
-
     <section class="resumen-grid">
-
-      <!-- CAPTURAS -->
-
       <div class="resumen-card">
-
-        <span class="resumen-label">
-          Capturas
-        </span>
-
-        <strong class="resumen-value">
-          {{ resumen.total_registros }}
-        </strong>
-
+        <span class="resumen-label">Capturas</span>
+        <strong class="resumen-value">{{ resumen.total_registros }}</strong>
       </div>
-
-
-      <!-- PESO TOTAL -->
-
       <div class="resumen-card">
-
-        <span class="resumen-label">
-          Peso total
-        </span>
-
+        <span class="resumen-label">Peso total</span>
         <strong class="resumen-value">
-
-          {{
-            resumen.peso_total
-            | number:'1.2-2'
-          }}
-
-          <small>
-            g
-          </small>
-
+          {{ resumen.peso_total | number:'1.2-2' }} <small>g</small>
         </strong>
-
       </div>
-
-
-      <!-- CONFIANZA -->
-
       <div class="resumen-card">
-
-        <span class="resumen-label">
-          Confianza promedio
-        </span>
-
+        <span class="resumen-label">Confianza promedio</span>
         <strong class="resumen-value">
-
-          {{
-            resumen.confianza_promedio
-            | number:'1.2-2'
-          }}
-
-          <small>
-            %
-          </small>
-
+          {{ resumen.confianza_promedio | number:'1.2-2' }} <small>%</small>
         </strong>
-
       </div>
-
     </section>
 
-
-    <!-- ======================================= -->
     <!-- SIN REGISTROS -->
-    <!-- ======================================= -->
-
-    <section
-      class="sin-registros"
-      *ngIf="gruposEspecies.length === 0">
-
-      <ion-icon
-        name="document-text-outline">
-      </ion-icon>
-
-      <h2>
-        Sin capturas pendientes
-      </h2>
-
-      <p>
-        No existen capturas pendientes para generar
-        reportes durante el día de hoy.
-      </p>
-
+    <section class="sin-registros" *ngIf="gruposEspecies.length === 0">
+      <ion-icon name="document-text-outline"></ion-icon>
+      <h2>Sin capturas pendientes</h2>
+      <p>No existen capturas pendientes para generar reportes durante el día de hoy.</p>
     </section>
 
-
-    <!-- ======================================= -->
     <!-- LISTA DE ESPECIES -->
-    <!-- ======================================= -->
-
-    <section
-      class="lista-reportes"
-      *ngIf="gruposEspecies.length > 0">
-
-
-      <!-- ===================================== -->
-      <!-- ENCABEZADO -->
-      <!-- ===================================== -->
+    <section class="lista-reportes" *ngIf="gruposEspecies.length > 0">
 
       <div class="lista-header">
-
         <div>
-
-          <span class="eyebrow">
-            Capturas del día
-          </span>
-
-          <h2>
-            Especies detectadas
-          </h2>
-
+          <span class="eyebrow">Capturas del día</span>
+          <h2>Especies detectadas</h2>
         </div>
-
-
-        <span class="cantidad-chip">
-
-          {{ gruposEspecies.length }}
-
-        </span>
-
+        <span class="cantidad-chip">{{ gruposEspecies.length }}</span>
       </div>
 
+      <article class="grupo-especie" *ngFor="let grupo of gruposEspecies">
 
-      <!-- ===================================== -->
-      <!-- GRUPO POR ESPECIE -->
-      <!-- ===================================== -->
-
-      <article
-        class="grupo-especie"
-        *ngFor="let grupo of gruposEspecies">
-
-
-        <!-- =================================== -->
         <!-- CABECERA DE LA ESPECIE -->
-        <!-- =================================== -->
-
         <div class="especie-header">
-
-          <!-- INFORMACIÓN -->
-
           <div class="especie-info">
-
-            <span class="registro-id">
-              Especie
-            </span>
-
-            <h3>
-              {{ grupo.especie }}
-            </h3>
-
-            <p class="nombre-cientifico">
-              {{ grupo.nombre_cientifico }}
-            </p>
-
+            <span class="registro-id">Especie</span>
+            <h3>{{ grupo.especie }}</h3>
+            <p class="nombre-cientifico">{{ grupo.nombre_cientifico }}</p>
           </div>
-
-
-          <!-- TOTAL CAPTURAS -->
-
           <div class="capturas-chip">
-
             {{ grupo.total_capturas }}
-
-            <span>
-
-              {{
-                grupo.total_capturas === 1
-                ? 'captura'
-                : 'capturas'
-              }}
-
-            </span>
-
+            <span>{{ grupo.total_capturas === 1 ? 'captura' : 'capturas' }}</span>
           </div>
-
         </div>
 
-
-        <!-- =================================== -->
         <!-- COLLAGE DE FOTOGRAFÍAS -->
-        <!-- =================================== -->
-
         <div class="evidencias-header">
-
           <div>
-
-            <strong>
-              Evidencias fotográficas
-            </strong>
-
-            <span>
-              Fotografías correspondientes a las
-              capturas de {{ grupo.especie }}
-            </span>
-
+            <strong>Evidencias fotográficas</strong>
+            <span>Fotografías correspondientes a las capturas de {{ grupo.especie }}</span>
           </div>
-
           <span class="evidencias-cantidad">
-
-            {{ grupo.total_capturas }}
-
-            {{
-              grupo.total_capturas === 1
-              ? 'imagen'
-              : 'imágenes'
-            }}
-
+            {{ grupo.total_capturas }} {{ grupo.total_capturas === 1 ? 'imagen' : 'imágenes' }}
           </span>
-
         </div>
-
 
         <div class="collage-capturas">
-
-          <div
-            class="collage-item"
-            *ngFor="let captura of grupo.capturas">
-
-
-            <!-- =============================== -->
-            <!-- IMAGEN -->
-            <!-- =============================== -->
-
-            <img
-              *ngIf="captura.imagen_url"
-              [src]="captura.imagen_url"
-              [alt]="'Captura #' + captura.id_captura"
+          <div class="collage-item" *ngFor="let captura of grupo.capturas">
+            <img *ngIf="captura.imagen_url" [src]="captura.imagen_url" [alt]="'Captura #' + captura.id_captura"
               loading="lazy">
-
-
-            <!-- =============================== -->
-            <!-- SIN IMAGEN -->
-            <!-- =============================== -->
-
-            <div
-              class="collage-sin-imagen"
-              *ngIf="!captura.imagen_url">
-
-              <ion-icon
-                name="image-outline">
-              </ion-icon>
-
-              <span>
-                Sin imagen
-              </span>
-
+            <div class="collage-sin-imagen" *ngIf="!captura.imagen_url">
+              <ion-icon name="image-outline"></ion-icon>
+              <span>Sin imagen</span>
             </div>
-
-
-            <!-- =============================== -->
-            <!-- ID CAPTURA -->
-            <!-- =============================== -->
-
-            <span class="collage-id">
-
-              #{{ captura.id_captura }}
-
-            </span>
-
-
-            <!-- =============================== -->
-            <!-- CONFIANZA -->
-            <!-- =============================== -->
-
-            <span class="collage-confianza">
-
-              {{
-                captura.porcentaje
-                | number:'1.0-1'
-              }}%
-
-            </span>
-
+            <span class="collage-id">#{{ captura.id_captura }}</span>
+            <span class="collage-confianza">{{ captura.porcentaje | number:'1.0-1' }}%</span>
           </div>
-
         </div>
 
-
-        <!-- =================================== -->
         <!-- RESUMEN DE LA ESPECIE -->
-        <!-- =================================== -->
-
         <div class="resumen-especie">
-
-
-          <!-- CAPTURAS -->
-
           <div class="dato">
-
-            <span>
-              Capturas
-            </span>
-
-            <strong>
-              {{ grupo.total_capturas }}
-            </strong>
-
+            <span>Capturas</span>
+            <strong>{{ grupo.total_capturas }}</strong>
           </div>
-
-
-          <!-- PESO -->
-
           <div class="dato">
-
-            <span>
-              Peso acumulado
-            </span>
-
-            <strong>
-
-              {{
-                grupo.peso_total
-                | number:'1.2-2'
-              }} g
-
-            </strong>
-
+            <span>Peso acumulado</span>
+            <strong>{{ grupo.peso_total | number:'1.2-2' }} g</strong>
           </div>
-
-
-          <!-- CONFIANZA -->
-
           <div class="dato">
-
-            <span>
-              Confianza promedio
-            </span>
-
-            <strong>
-
-              {{
-                grupo.confianza_promedio
-                | number:'1.2-2'
-              }} %
-
-            </strong>
-
+            <span>Confianza promedio</span>
+            <strong>{{ grupo.confianza_promedio | number:'1.2-2' }} %</strong>
           </div>
-
         </div>
 
-
-        <!-- =================================== -->
         <!-- DETALLE DE CAPTURAS -->
-        <!-- =================================== -->
-
         <div class="detalle-capturas">
-
-
-          <!-- ENCABEZADO -->
-
           <div class="detalle-header">
-
-            <div>
-
-              <strong>
-                Detalle de capturas
-              </strong>
-
-              <span>
-                Registros incluidos en este reporte
-              </span>
-
-            </div>
-
+            <strong>Detalle de capturas</strong>
+            <span>Registros incluidos en este reporte</span>
           </div>
 
-
-          <!-- ================================= -->
           <!-- CABECERA DE TABLA -->
-          <!-- ================================= -->
-
-          <div
-            class="captura-fila captura-cabecera">
-
-            <span>
-              Registro
-            </span>
-
-            <span>
-              Peso
-            </span>
-
-            <span>
-              Confianza
-            </span>
-
-            <span>
-              Hora
-            </span>
-
+          <div class="captura-fila captura-cabecera">
+            <span>Registro</span>
+            <span>Peso</span>
+            <span>Confianza</span>
+            <span>Hora</span>
+            <span style="text-align: center;">Acción</span>
           </div>
 
-
-          <!-- ================================= -->
           <!-- FILAS -->
-          <!-- ================================= -->
-
-          <div
-            class="captura-fila"
-            *ngFor="let captura of grupo.capturas">
-
-
-            <!-- REGISTRO -->
-
-            <span class="captura-id">
-
-              #{{ captura.id_captura }}
-
+          <div class="captura-fila" *ngFor="let captura of grupo.capturas">
+            <span class="captura-id">#{{ captura.id_captura }}</span>
+            <span>{{ captura.peso | number:'1.2-2' }} g</span>
+            <span>{{ captura.porcentaje | number:'1.2-2' }} %</span>
+            <span>{{ captura.hora_captura }}</span>
+            <span style="text-align: center;">
+              <button type="button" class="btn-eliminar-captura" title="Descartar captura errónea"
+                (click)="anularCaptura(captura)">
+                <ion-icon name="trash-outline"></ion-icon>
+              </button>
             </span>
-
-
-            <!-- PESO -->
-
-            <span>
-
-              {{
-                captura.peso
-                | number:'1.2-2'
-              }} g
-
-            </span>
-
-
-            <!-- CONFIANZA -->
-
-            <span>
-
-              {{
-                captura.porcentaje
-                | number:'1.2-2'
-              }} %
-
-            </span>
-
-
-            <!-- HORA -->
-
-            <span>
-
-              {{ captura.hora_captura }}
-
-            </span>
-
           </div>
-
         </div>
 
-
-        <!-- =================================== -->
         <!-- CONFIGURACIÓN DEL REPORTE -->
-        <!-- =================================== -->
-
         <div class="configuracion-reporte">
-
-
-          <!-- ================================= -->
-          <!-- ENCABEZADO CONFIGURACIÓN -->
-          <!-- ================================= -->
-
           <div class="configuracion-titulo">
-
-            <ion-icon
-              name="document-text-outline">
-            </ion-icon>
-
+            <ion-icon name="document-text-outline"></ion-icon>
             <div>
-
-              <strong>
-                Preparar reporte de
-                {{ grupo.especie }}
-              </strong>
-
-              <span>
-
-                El PDF y CSV incluirán las
-                {{ grupo.total_capturas }}
-                capturas y sus evidencias
-                fotográficas.
-
-              </span>
-
+              <strong>Preparar reporte de {{ grupo.especie }}</strong>
+              <span>El PDF y CSV incluirán las {{ grupo.total_capturas }} capturas y sus evidencias fotográficas.</span>
             </div>
-
           </div>
 
-
-          <!-- ================================= -->
-          <!-- TIPO DE REPORTE -->
-          <!-- ================================= -->
-
           <div class="campo-reporte">
-
-            <label>
-              Tipo de reporte
-            </label>
-
-            <select
-              [(ngModel)]="grupo.tipoSeleccionado">
-
-              <option
-                [ngValue]="null">
-
-                Seleccione un tipo de reporte
-
-              </option>
-
-
-              <option
-                *ngFor="let tipo of tiposReporte"
-                [ngValue]="tipo.id_tipo_reporte">
-
+            <label>Tipo de reporte</label>
+            <select [(ngModel)]="grupo.tipoSeleccionado">
+              <option [ngValue]="null">Seleccione un tipo de reporte</option>
+              <option *ngFor="let tipo of tiposReporte" [ngValue]="tipo.id_tipo_reporte">
                 {{ tipo.nombre_tipo }}
-
               </option>
-
             </select>
-
           </div>
-
-
-          <!-- ================================= -->
-          <!-- TÍTULO -->
-          <!-- ================================= -->
 
           <div class="campo-reporte">
-
-            <label>
-              Título del reporte
-            </label>
-
-            <input
-              type="text"
-              [(ngModel)]="grupo.tituloReporte"
-              placeholder="Ingrese el título">
-
+            <label>Título del reporte</label>
+            <input type="text" [(ngModel)]="grupo.tituloReporte" placeholder="Ingrese el título">
           </div>
 
-
-          <!-- ================================= -->
           <!-- ESTADO DE ARCHIVOS -->
-          <!-- ================================= -->
-
           <div class="archivos-reporte">
-
-
-            <!-- =============================== -->
-            <!-- PDF -->
-            <!-- =============================== -->
-
-            <div
-              class="archivo-estado"
-              [class.archivo-generado]="
-                grupo.pdfGenerado
-              ">
-
-              <ion-icon
-                [name]="
-                  grupo.pdfGenerado
-                  ? 'checkmark-circle-outline'
-                  : 'document-outline'
-                ">
-              </ion-icon>
-
-
+            <div class="archivo-estado" [class.archivo-generado]="grupo.pdfGenerado">
+              <ion-icon [name]="grupo.pdfGenerado ? 'checkmark-circle-outline' : 'document-outline'"></ion-icon>
               <div>
-
-                <strong>
-                  Archivo PDF
-                </strong>
-
-                <span>
-
-                  {{
-                    grupo.pdfGenerado
-                    ? 'Generado'
-                    : 'Pendiente'
-                  }}
-
-                </span>
-
+                <strong>Archivo PDF</strong>
+                <span>{{ grupo.pdfGenerado ? 'Generado' : 'Pendiente' }}</span>
               </div>
-
             </div>
 
-
-            <!-- =============================== -->
-            <!-- CSV -->
-            <!-- =============================== -->
-
-            <div
-              class="archivo-estado"
-              [class.archivo-generado]="
-                grupo.csvGenerado
-              ">
-
-              <ion-icon
-                [name]="
-                  grupo.csvGenerado
-                  ? 'checkmark-circle-outline'
-                  : 'document-outline'
-                ">
-              </ion-icon>
-
-
+            <div class="archivo-estado" [class.archivo-generado]="grupo.csvGenerado">
+              <ion-icon [name]="grupo.csvGenerado ? 'checkmark-circle-outline' : 'document-outline'"></ion-icon>
               <div>
-
-                <strong>
-                  Archivo CSV
-                </strong>
-
-                <span>
-
-                  {{
-                    grupo.csvGenerado
-                    ? 'Generado'
-                    : 'Pendiente'
-                  }}
-
-                </span>
-
+                <strong>Archivo CSV</strong>
+                <span>{{ grupo.csvGenerado ? 'Generado' : 'Pendiente' }}</span>
               </div>
-
             </div>
-
           </div>
 
-
-          <!-- ================================= -->
           <!-- BOTONES GENERAR ARCHIVOS -->
-          <!-- ================================= -->
-
           <div class="botones-archivos">
-
-
-            <!-- =============================== -->
-            <!-- GENERAR PDF -->
-            <!-- =============================== -->
-
-            <button
-              type="button"
-              class="btn-archivo"
-              [disabled]="grupo.generandoPDF"
-              (click)="generarPDF(grupo)">
-
-
-              <ion-spinner
-                *ngIf="grupo.generandoPDF"
-                name="crescent">
-              </ion-spinner>
-
-
-              <ion-icon
-                *ngIf="!grupo.generandoPDF"
-                name="document-text-outline">
-              </ion-icon>
-
-
-              <span>
-
-                {{
-                  grupo.generandoPDF
-                  ? 'Generando PDF...'
-                  : grupo.pdfGenerado
-                    ? 'Generar PDF nuevamente'
-                    : 'Generar PDF'
-                }}
-
-              </span>
-
+            <button type="button" class="btn-archivo" [disabled]="grupo.generandoPDF" (click)="generarPDF(grupo)">
+              <ion-spinner *ngIf="grupo.generandoPDF" name="crescent"></ion-spinner>
+              <ion-icon *ngIf="!grupo.generandoPDF" name="document-text-outline"></ion-icon>
+              <span>{{ grupo.generandoPDF ? 'Generando PDF...' : grupo.pdfGenerado ? 'Generar PDF nuevamente' : 'Generar
+                PDF' }}</span>
             </button>
 
-
-            <!-- =============================== -->
-            <!-- GENERAR CSV -->
-            <!-- =============================== -->
-
-            <button
-              type="button"
-              class="btn-archivo"
-              [disabled]="grupo.generandoCSV"
-              (click)="generarCSV(grupo)">
-
-
-              <ion-spinner
-                *ngIf="grupo.generandoCSV"
-                name="crescent">
-              </ion-spinner>
-
-
-              <ion-icon
-                *ngIf="!grupo.generandoCSV"
-                name="grid-outline">
-              </ion-icon>
-
-
-              <span>
-
-                {{
-                  grupo.generandoCSV
-                  ? 'Generando CSV...'
-                  : grupo.csvGenerado
-                    ? 'Generar CSV nuevamente'
-                    : 'Generar CSV'
-                }}
-
-              </span>
-
+            <button type="button" class="btn-archivo" [disabled]="grupo.generandoCSV" (click)="generarCSV(grupo)">
+              <ion-spinner *ngIf="grupo.generandoCSV" name="crescent"></ion-spinner>
+              <ion-icon *ngIf="!grupo.generandoCSV" name="grid-outline"></ion-icon>
+              <span>{{ grupo.generandoCSV ? 'Generando CSV...' : grupo.csvGenerado ? 'Generar CSV nuevamente' : 'Generar
+                CSV' }}</span>
             </button>
-
           </div>
 
-
-          <!-- ================================= -->
-          <!-- ARCHIVOS COMPLETOS -->
-          <!-- ================================= -->
-
-          <div
-            class="archivos-completos"
-            *ngIf="
-              grupo.pdfGenerado &&
-              grupo.csvGenerado
-            ">
-
-            <ion-icon
-              name="checkmark-circle-outline">
-            </ion-icon>
-
-            <span>
-
-              PDF y CSV generados correctamente.
-              El reporte está listo para enviarse.
-
-            </span>
-
+          <div class="archivos-completos" *ngIf="grupo.pdfGenerado && grupo.csvGenerado">
+            <ion-icon name="checkmark-circle-outline"></ion-icon>
+            <span>PDF y CSV generados correctamente. El reporte está listo para enviarse.</span>
           </div>
 
-
-          <!-- ================================= -->
-          <!-- ENVIAR REPORTE -->
-          <!-- ================================= -->
-
-          <button
-            type="button"
-            class="btn-enviar"
-            [disabled]="
-              grupo.enviando ||
-              !grupo.pdfGenerado ||
-              !grupo.csvGenerado
-            "
-            (click)="enviarReporte(grupo)">
-
-
-            <ion-spinner
-              *ngIf="grupo.enviando"
-              name="crescent">
-            </ion-spinner>
-
-
-            <ion-icon
-              *ngIf="!grupo.enviando"
-              name="send-outline">
-            </ion-icon>
-
-
-            <span>
-
-              {{
-                grupo.enviando
-                ? 'Enviando reporte...'
-                : 'Enviar reporte'
-              }}
-
-            </span>
-
+          <button type="button" class="btn-enviar"
+            [disabled]="grupo.enviando || !grupo.pdfGenerado || !grupo.csvGenerado" (click)="enviarReporte(grupo)">
+            <ion-spinner *ngIf="grupo.enviando" name="crescent"></ion-spinner>
+            <ion-icon *ngIf="!grupo.enviando" name="send-outline"></ion-icon>
+            <span>{{ grupo.enviando ? 'Enviando reporte...' : 'Enviar reporte' }}</span>
           </button>
 
-
-          <!-- ================================= -->
-          <!-- MENSAJE -->
-          <!-- ================================= -->
-
-          <p
-            class="mensaje-envio"
-            *ngIf="
-              !grupo.pdfGenerado ||
-              !grupo.csvGenerado
-            ">
-
-            Genere el archivo PDF y CSV para
-            habilitar el envío del reporte.
-
+          <p class="mensaje-envio" *ngIf="!grupo.pdfGenerado || !grupo.csvGenerado">
+            Genere el archivo PDF y CSV para habilitar el envío del reporte.
           </p>
-
         </div>
 
       </article>
-
     </section>
-
   </ng-container>
-
 </div>

@@ -159,14 +159,12 @@ export class CamaraComponent implements OnInit, OnDestroy {
     });
   }
 
-  // Verifica cada 3 segundos si Python sigue respondiendo
   iniciarMonitoreoConexion() {
     clearInterval(this.intervaloMonitorCamara);
 
     this.intervaloMonitorCamara = setInterval(() => {
       if (!this.PYTHON_API) return;
 
-      // Petición rápida de verificación
       this.http.get<any>(`${this.PYTHON_API}/api-local/estado`).subscribe({
         next: (estado) => {
           if (estado?.estado === 1) {
@@ -179,7 +177,6 @@ export class CamaraComponent implements OnInit, OnDestroy {
           }
         },
         error: () => {
-          // Si el túnel de Cloudflare se cerró o se apagó el script
           this.desconectarCamara('Transmisión finalizada o túnel desconectado.');
         }
       });
@@ -188,7 +185,7 @@ export class CamaraComponent implements OnInit, OnDestroy {
 
   desconectarCamara(motivo: string) {
     this.camaraConectada = false;
-    this.urlCamara = ''; // Vacía la imagen para evitar que quede congelada
+    this.urlCamara = '';
     this.mensajeEstadoCamara = motivo;
   }
 
@@ -201,7 +198,7 @@ export class CamaraComponent implements OnInit, OnDestroy {
   }
 
   // ==========================================
-  // GUARDAR CAPTURA
+  // GUARDAR CAPTURA CON VERIFICACIÓN PREVIA
   // ==========================================
   guardarCapturaWeb() {
     if (!this.camaraConectada || !this.PYTHON_API) {
@@ -216,8 +213,9 @@ export class CamaraComponent implements OnInit, OnDestroy {
       return;
     }
 
-    this.mostrarAlerta(this.modoPruebaSinBalanza ? '🧪 Modo prueba: procesando captura...' : '⏳ Procesando captura...');
+    this.mostrarAlerta('⏳ Procesando captura con IA...');
 
+    // 1. Obtener predicción de Python sin guardar todavía en BD
     this.http.post<any>(`${this.PYTHON_API}/api-local/subir-cloudinary`, {}).subscribe({
       next: (resPython) => {
         const idEspecieDetectada = Number(resPython.id_deteccion);
@@ -230,6 +228,20 @@ export class CamaraComponent implements OnInit, OnDestroy {
           return;
         }
 
+        // 2. VENTANA DE VERIFICACIÓN / CONFIRMACIÓN
+        const confirmacion = confirm(
+          `🔍 VERIFICACIÓN DE CAPTURA:\n\n` +
+          `• Especie: ${especieDetectada} (${porcentajeDeteccion.toFixed(1)}%)\n` +
+          `• Peso balanza: ${pesoRegistro.toFixed(2)} g\n\n` +
+          `¿Los datos son correctos para registrarlos en la faena?`
+        );
+
+        if (!confirmacion) {
+          this.mostrarAlerta('↩️ Captura descartada. Puedes reintentar.');
+          return;
+        }
+
+        // 3. Si confirma, se inserta en MySQL
         const idUsuario = this.authService.obtenerIdUsuario();
         if (!idUsuario) {
           this.mostrarAlerta('❌ No se pudo identificar al usuario');
@@ -254,10 +266,10 @@ export class CamaraComponent implements OnInit, OnDestroy {
               id: idEspecieDetectada,
               imagen_url: imagenUrlCloudinary
             };
-            this.mostrarAlerta(`✅ Captura registrada (${especieDetectada} - ${porcentajeDeteccion.toFixed(2)}%)`);
+            this.mostrarAlerta(`✅ Captura confirmada y registrada (${especieDetectada})`);
           },
           error: (err) => {
-            this.mostrarAlerta(err.error?.mensaje ? `❌ ${err.error.mensaje}` : '❌ Error al guardar en la base de datos');
+            this.mostrarAlerta(err.error?.mensaje ? `❌ ${err.error.mensaje}` : '❌ Error al guardar en base de datos');
           }
         });
       },

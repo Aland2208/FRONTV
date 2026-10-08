@@ -1,8 +1,4 @@
-import {
-  Component,
-  OnInit
-} from '@angular/core';
-
+import { Component, OnInit } from '@angular/core';
 import {
   CommonModule
 } from '@angular/common';
@@ -24,19 +20,15 @@ import {
   Auth
 } from '../../servicios/auth';
 
+import {
+  BalanzaS
+} from '../../servicios/balanza-s';
 
 @Component({
   selector: 'app-crear-reporte',
-
-  templateUrl:
-    './crear-reporte.component.html',
-
-  styleUrls: [
-    './crear-reporte.component.scss'
-  ],
-
+  templateUrl: './crear-reporte.component.html',
+  styleUrls: ['./crear-reporte.component.scss'],
   standalone: true,
-
   imports: [
     CommonModule,
     FormsModule,
@@ -44,1410 +36,295 @@ import {
     IonSpinner
   ]
 })
-export class CrearReporteComponent
-  implements OnInit {
-
-
-  // ==========================================
-  // REPORTES ORIGINALES
-  // ==========================================
+export class CrearReporteComponent implements OnInit {
 
   reportes: any[] = [];
-
-
-  // ==========================================
-  // REPORTES AGRUPADOS POR ESPECIE
-  // ==========================================
-
   gruposEspecies: any[] = [];
-
-
-  // ==========================================
-  // TIPOS DE REPORTE
-  // ==========================================
-
   tiposReporte: any[] = [];
 
-
-  // ==========================================
-  // RESUMEN GENERAL
-  // ==========================================
-
   resumen = {
-
     total_registros: 0,
-
     peso_total: 0,
-
     confianza_promedio: 0
-
   };
 
-
-  // ==========================================
-  // USUARIO
-  // ==========================================
-
   usuario: any = null;
-
-
-  // ==========================================
-  // ESTADOS
-  // ==========================================
-
   cargando = false;
-
   mensaje = '';
-
   error = false;
 
-
-  // ==========================================
-  // CONSTRUCTOR
-  // ==========================================
-
   constructor(
-
-    private reporteService:
-      ReporteS,
-
-    private authService:
-      Auth
-
+    private reporteService: ReporteS,
+    private authService: Auth,
+    private balanzaService: BalanzaS
   ) { }
 
-
-  // ==========================================
-  // INICIAR COMPONENTE
-  // ==========================================
-
   ngOnInit() {
-
     this.cargarTiposReporte();
-
     this.cargarReportes();
-
   }
-
-
-  // ==========================================
-  // CARGAR TIPOS DE REPORTE
-  // ==========================================
 
   cargarTiposReporte() {
-
-    this.reporteService
-      .obtenerTiposReporte()
-      .subscribe({
-
-        next: (respuesta) => {
-
-          console.log(
-            '📋 TIPOS DE REPORTE:',
-            respuesta
-          );
-
-
-          this.tiposReporte =
-            respuesta.data || [];
-
-        },
-
-
-        error: (err) => {
-
-          console.error(
-            '❌ ERROR CARGANDO TIPOS:',
-            err
-          );
-
-        }
-
-      });
-
+    this.reporteService.obtenerTiposReporte().subscribe({
+      next: (respuesta) => {
+        this.tiposReporte = respuesta.data || [];
+      },
+      error: (err) => console.error('❌ ERROR CARGANDO TIPOS:', err)
+    });
   }
-
-
-  // ==========================================
-  // CARGAR REPORTES PENDIENTES
-  // ==========================================
 
   cargarReportes() {
-
-    const idUsuario =
-      this.authService
-        .obtenerIdUsuario();
-
-
-    console.log(
-      '👤 ID USUARIO LOGUEADO:',
-      idUsuario
-    );
-
-
-    // ========================================
-    // VALIDAR USUARIO
-    // ========================================
-
+    const idUsuario = this.authService.obtenerIdUsuario();
     if (!idUsuario) {
-
       this.error = true;
-
-      this.mensaje =
-        'No se pudo identificar al usuario.';
-
+      this.mensaje = 'No se pudo identificar al usuario.';
       this.reportes = [];
-
       this.gruposEspecies = [];
-
       return;
-
     }
-
-
-    // ========================================
-    // INICIAR CARGA
-    // ========================================
 
     this.cargando = true;
-
     this.error = false;
-
     this.mensaje = '';
 
+    this.reporteService.obtenerReportesPendientesHoy(idUsuario).subscribe({
+      next: (respuesta) => {
+        this.usuario = respuesta.usuario || null;
+        this.reportes = respuesta.data || [];
+        this.resumen = respuesta.resumen || {
+          total_registros: 0,
+          peso_total: 0,
+          confianza_promedio: 0
+        };
 
-    // ========================================
-    // CONSULTAR BACKEND
-    // ========================================
-
-    this.reporteService
-      .obtenerReportesPendientesHoy(
-        idUsuario
-      )
-      .subscribe({
-
-        next: (respuesta) => {
-
-          console.log(
-            '📄 REPORTES PENDIENTES:',
-            respuesta
-          );
-
-
-          // ==================================
-          // USUARIO
-          // ==================================
-
-          this.usuario =
-            respuesta.usuario || null;
-
-
-          // ==================================
-          // REPORTES ORIGINALES
-          // ==================================
-
-          this.reportes =
-            respuesta.data || [];
-
-
-          // ==================================
-          // RESUMEN GENERAL
-          // ==================================
-
-          this.resumen =
-            respuesta.resumen || {
-
-              total_registros: 0,
-
-              peso_total: 0,
-
-              confianza_promedio: 0
-
-            };
-
-
-          // ==================================
-          // AGRUPAR POR ESPECIE
-          // ==================================
-
-          this.agruparReportesPorEspecie();
-
-
-          // ==================================
-          // FINALIZAR CARGA
-          // ==================================
-
-          this.cargando = false;
-
-
-          console.log(
-            '🐟 GRUPOS POR ESPECIE:',
-            this.gruposEspecies
-          );
-
-        },
-
-
-        error: (err) => {
-
-          console.error(
-            '❌ ERROR AL CARGAR REPORTES:',
-            err
-          );
-
-
-          this.cargando = false;
-
-          this.error = true;
-
-          this.reportes = [];
-
-          this.gruposEspecies = [];
-
-
-          this.mensaje =
-            err.error?.mensaje ||
-            'No se pudieron cargar los reportes del día.';
-
-        }
-
-      });
-
+        this.agruparReportesPorEspecie();
+        this.cargando = false;
+      },
+      error: (err) => {
+        console.error('❌ ERROR AL CARGAR REPORTES:', err);
+        this.cargando = false;
+        this.error = true;
+        this.reportes = [];
+        this.gruposEspecies = [];
+        this.mensaje = err.error?.mensaje || 'No se pudieron cargar los reportes del día.';
+      }
+    });
   }
-
-
-  // ==========================================
-  // AGRUPAR REPORTES POR ESPECIE
-  // ==========================================
 
   agruparReportesPorEspecie() {
+    const mapa = new Map<number, any>();
 
-    const mapa =
-      new Map<number, any>();
+    for (const reporte of this.reportes) {
+      const idEspecie = Number(reporte.id_especie);
 
-
-    // ========================================
-    // RECORRER REPORTES
-    // ========================================
-
-    for (
-      const reporte
-      of this.reportes
-    ) {
-
-      const idEspecie =
-        Number(
-          reporte.id_especie
-        );
-
-
-      // ======================================
-      // CREAR GRUPO SI NO EXISTE
-      // ======================================
-
-      if (
-        !mapa.has(idEspecie)
-      ) {
-
-        mapa.set(
-          idEspecie,
-          {
-
-            // ================================
-            // ESPECIE
-            // ================================
-
-            id_especie:
-              idEspecie,
-
-            especie:
-              reporte.especie,
-
-            nombre_cientifico:
-              reporte.nombre_cientifico,
-
-
-            // ================================
-            // IMAGEN DE REFERENCIA
-            // ================================
-
-            imagen_url:
-              reporte.imagen_url || null,
-
-
-            // ================================
-            // CAPTURAS
-            // ================================
-
-            capturas: [],
-
-
-            // ================================
-            // IDENTIFICADORES DE REPORTES
-            // ================================
-
-            ids_reportes: [],
-
-
-            // ================================
-            // RESUMEN
-            // ================================
-
-            total_capturas: 0,
-
-            peso_total: 0,
-
-            confianza_promedio: 0,
-
-
-            // ================================
-            // FORMULARIO
-            // ================================
-
-            tipoSeleccionado: null,
-
-            tituloReporte: '',
-
-
-            // ================================
-            // ESTADO DE ARCHIVOS
-            // ================================
-
-            pdfGenerado: false,
-
-            csvGenerado: false,
-
-
-            // ================================
-            // ESTADOS DE PROCESO
-            // ================================
-
-            generandoPDF: false,
-
-            generandoCSV: false,
-
-            enviando: false
-
-          }
-        );
-
+      if (!mapa.has(idEspecie)) {
+        mapa.set(idEspecie, {
+          id_especie: idEspecie,
+          especie: reporte.especie,
+          nombre_cientifico: reporte.nombre_cientifico,
+          imagen_url: reporte.imagen_url || null,
+          capturas: [],
+          ids_reportes: [],
+          total_capturas: 0,
+          peso_total: 0,
+          confianza_promedio: 0,
+          tipoSeleccionado: null,
+          tituloReporte: '',
+          pdfGenerado: false,
+          csvGenerado: false,
+          generandoPDF: false,
+          generandoCSV: false,
+          enviando: false
+        });
       }
 
+      const grupo = mapa.get(idEspecie);
+      grupo.capturas.push(reporte);
+      grupo.ids_reportes.push(reporte.id_reporte);
 
-      // ======================================
-      // OBTENER GRUPO
-      // ======================================
-
-      const grupo =
-        mapa.get(idEspecie);
-
-
-      // ======================================
-      // AGREGAR CAPTURA
-      // ======================================
-
-      grupo.capturas.push(
-        reporte
-      );
-
-
-      // ======================================
-      // AGREGAR ID REPORTE
-      // ======================================
-
-      grupo.ids_reportes.push(
-        reporte.id_reporte
-      );
-
-
-      // ======================================
-      // IMAGEN DE REFERENCIA
-      // ======================================
-
-      if (
-        !grupo.imagen_url &&
-        reporte.imagen_url
-      ) {
-
-        grupo.imagen_url =
-          reporte.imagen_url;
-
+      if (!grupo.imagen_url && reporte.imagen_url) {
+        grupo.imagen_url = reporte.imagen_url;
       }
-
     }
 
+    this.gruposEspecies = Array.from(mapa.values()).map((grupo: any) => {
+      grupo.total_capturas = grupo.capturas.length;
+      grupo.peso_total = grupo.capturas.reduce((total: number, c: any) => total + Number(c.peso || 0), 0);
+      const sumaConfianza = grupo.capturas.reduce((total: number, c: any) => total + Number(c.porcentaje || 0), 0);
+      grupo.confianza_promedio = grupo.total_capturas > 0 ? (sumaConfianza / grupo.total_capturas) : 0;
 
-    // ========================================
-    // CONVERTIR MAP EN ARRAY
-    // ========================================
+      grupo.pdfGenerado = grupo.capturas.length > 0 && grupo.capturas.every((c: any) => Number(c.archivo_pdf) === 1);
+      grupo.csvGenerado = grupo.capturas.length > 0 && grupo.capturas.every((c: any) => Number(c.archivo_csv) === 1);
+      grupo.tituloReporte = `Reporte de capturas - ${grupo.especie}`;
 
-    this.gruposEspecies =
-      Array.from(
-        mapa.values()
-      );
+      return grupo;
+    });
 
-
-    // ========================================
-    // CALCULAR RESUMEN POR ESPECIE
-    // ========================================
-
-    this.gruposEspecies =
-      this.gruposEspecies.map(
-        (grupo: any) => {
-
-
-          // ==================================
-          // TOTAL CAPTURAS
-          // ==================================
-
-          grupo.total_capturas =
-            grupo.capturas.length;
-
-
-          // ==================================
-          // PESO TOTAL
-          // ==================================
-
-          grupo.peso_total =
-            grupo.capturas.reduce(
-
-              (
-                total: number,
-                captura: any
-              ) => {
-
-                return (
-                  total +
-                  Number(
-                    captura.peso || 0
-                  )
-                );
-
-              },
-
-              0
-
-            );
-
-
-          // ==================================
-          // SUMA DE CONFIANZA
-          // ==================================
-
-          const sumaConfianza =
-            grupo.capturas.reduce(
-
-              (
-                total: number,
-                captura: any
-              ) => {
-
-                return (
-                  total +
-                  Number(
-                    captura.porcentaje || 0
-                  )
-                );
-
-              },
-
-              0
-
-            );
-
-
-          // ==================================
-          // CONFIANZA PROMEDIO
-          // ==================================
-
-          grupo.confianza_promedio =
-            grupo.total_capturas > 0
-
-              ? (
-                sumaConfianza /
-                grupo.total_capturas
-              )
-
-              : 0;
-
-
-          // ==================================
-          // VERIFICAR PDF
-          // ==================================
-          //
-          // Solo se considera generado si
-          // TODOS los registros del grupo
-          // tienen archivo_pdf = 1.
-          // ==================================
-
-          grupo.pdfGenerado =
-            grupo.capturas.length > 0 &&
-            grupo.capturas.every(
-              (captura: any) =>
-                Number(
-                  captura.archivo_pdf
-                ) === 1
-            );
-
-
-          // ==================================
-          // VERIFICAR CSV
-          // ==================================
-
-          grupo.csvGenerado =
-            grupo.capturas.length > 0 &&
-            grupo.capturas.every(
-              (captura: any) =>
-                Number(
-                  captura.archivo_csv
-                ) === 1
-            );
-
-
-          // ==================================
-          // TÍTULO SUGERIDO
-          // ==================================
-
-          grupo.tituloReporte =
-            `Reporte de capturas - ${grupo.especie}`;
-
-
-          return grupo;
-
-        }
-      );
-
-
-    // ========================================
-    // ORDENAR POR NOMBRE DE ESPECIE
-    // ========================================
-
-    this.gruposEspecies.sort(
-      (
-        a: any,
-        b: any
-      ) => {
-
-        return String(
-          a.especie || ''
-        ).localeCompare(
-          String(
-            b.especie || ''
-          )
-        );
-
-      }
-    );
-
-
-    console.log(
-      '======================================'
-    );
-
-    console.log(
-      '🐟 REPORTES AGRUPADOS POR ESPECIE'
-    );
-
-
-    for (
-      const grupo
-      of this.gruposEspecies
-    ) {
-
-      console.log(
-        grupo.especie,
-        '| Capturas:',
-        grupo.total_capturas,
-        '| Reportes:',
-        grupo.ids_reportes,
-        '| Peso:',
-        grupo.peso_total,
-        '| Confianza:',
-        grupo.confianza_promedio
-      );
-
-    }
-
-
-    console.log(
-      '======================================'
-    );
-
+    this.gruposEspecies.sort((a: any, b: any) => String(a.especie || '').localeCompare(String(b.especie || '')));
   }
 
-
   // ==========================================
-  // GENERAR PDF DEL GRUPO
+  // ANULAR CAPTURA PENDIENTE
   // ==========================================
+  anularCaptura(captura: any) {
+    const confirmacion = confirm(`¿Estás seguro de anular la captura #${captura.id_captura} (${captura.especie})? Esta acción removerá el registro de la faena.`);
+    if (!confirmacion) return;
 
-  // ==========================================
-  // GENERAR PDF DEL GRUPO
-  // ==========================================
+    const idUsuario = this.authService.obtenerIdUsuario();
+    if (!idUsuario) return;
 
-  generarPDF(
-    grupo: any
-  ) {
+    this.balanzaService.anularCaptura(captura.id_captura, idUsuario).subscribe({
+      next: (res) => {
+        if (res.estado === 1) {
+          alert('✅ Captura anulada correctamente.');
+          this.cargarReportes();
+        } else {
+          alert(res.mensaje || 'No se pudo anular la captura.');
+        }
+      },
+      error: (err) => {
+        console.error('Error al anular captura:', err);
+        alert(err.error?.mensaje || 'Error al comunicarse con el servidor.');
+      }
+    });
+  }
 
-    // ========================================
-    // VALIDAR TIPO DE REPORTE
-    // ========================================
-
+  generarPDF(grupo: any) {
     if (!grupo.tipoSeleccionado) {
-
-      alert(
-        'Seleccione un tipo de reporte antes de generar el PDF.'
-      );
-
+      alert('Seleccione un tipo de reporte antes de generar el PDF.');
       return;
-
     }
 
-
-    // ========================================
-    // VALIDAR TÍTULO
-    // ========================================
-
-    if (
-      !grupo.tituloReporte ||
-      !grupo.tituloReporte.trim()
-    ) {
-
-      alert(
-        'Ingrese un título para el reporte antes de generar el PDF.'
-      );
-
+    if (!grupo.tituloReporte?.trim()) {
+      alert('Ingrese un título para el reporte antes de generar el PDF.');
       return;
-
     }
 
-
-    // ========================================
-    // OBTENER USUARIO
-    // ========================================
-
-    const idUsuario =
-      this.authService
-        .obtenerIdUsuario();
-
-
+    const idUsuario = this.authService.obtenerIdUsuario();
     if (!idUsuario) {
-
-      alert(
-        'No se pudo identificar al usuario.'
-      );
-
+      alert('No se pudo identificar al usuario.');
       return;
-
     }
-
-
-    // ========================================
-    // VALIDAR REPORTES
-    // ========================================
-
-    if (
-      !grupo.ids_reportes ||
-      grupo.ids_reportes.length === 0
-    ) {
-
-      alert(
-        'No existen registros para generar el PDF.'
-      );
-
-      return;
-
-    }
-
-
-    // ========================================
-    // ACTIVAR ESTADO DE CARGA
-    // ========================================
 
     grupo.generandoPDF = true;
 
-
-    console.log(
-      '======================================'
-    );
-
-    console.log(
-      '📄 GENERANDO PDF'
-    );
-
-    console.log(
-      '🐟 Especie:',
-      grupo.especie
-    );
-
-    console.log(
-      '📋 Reportes:',
-      grupo.ids_reportes
-    );
-
-
-    // ========================================
-    // PREPARAR DATOS
-    // ========================================
-
     const datos = {
-
-      id_usuario:
-        idUsuario,
-
-      id_especie:
-        Number(
-          grupo.id_especie
-        ),
-
-      ids_reportes:
-        grupo.ids_reportes.map(
-          (id: any) =>
-            Number(id)
-        ),
-
-      id_tipo_reporte:
-        Number(
-          grupo.tipoSeleccionado
-        ),
-
-      titulo:
-        grupo.tituloReporte.trim()
-
+      id_usuario: idUsuario,
+      id_especie: Number(grupo.id_especie),
+      ids_reportes: grupo.ids_reportes.map((id: any) => Number(id)),
+      id_tipo_reporte: Number(grupo.tipoSeleccionado),
+      titulo: grupo.tituloReporte.trim()
     };
 
-
-    // ========================================
-    // SOLICITAR PDF AL BACKEND
-    // ========================================
-
-    this.reporteService
-      .generarPDFEspecie(
-        datos
-      )
-      .subscribe({
-
-        next: (blob: Blob) => {
-
-          console.log(
-            '📦 PDF recibido:',
-            blob
-          );
-
-
-          // ==================================
-          // VALIDAR ARCHIVO
-          // ==================================
-
-          if (
-            !blob ||
-            blob.size === 0
-          ) {
-
-            grupo.generandoPDF = false;
-
-            alert(
-              'El archivo PDF recibido está vacío.'
-            );
-
-            return;
-
-          }
-
-
-          // ==================================
-          // CREAR URL TEMPORAL
-          // ==================================
-
-          const url =
-            window.URL
-              .createObjectURL(
-                blob
-              );
-
-
-          // ==================================
-          // CREAR ENLACE DE DESCARGA
-          // ==================================
-
-          const enlace =
-            document.createElement(
-              'a'
-            );
-
-
-          enlace.href = url;
-
-
-          // ==================================
-          // NOMBRE SEGURO DE ESPECIE
-          // ==================================
-
-          const especie =
-            String(
-              grupo.especie ||
-              'especie'
-            )
-              .trim()
-              .replace(
-                /\s+/g,
-                '_'
-              )
-              .replace(
-                /[^a-zA-Z0-9áéíóúÁÉÍÓÚñÑ_-]/g,
-                ''
-              );
-
-
-          // ==================================
-          // FECHA
-          // ==================================
-
-          const fecha =
-            this.obtenerFechaActual();
-
-
-          // ==================================
-          // NOMBRE DEL ARCHIVO
-          // ==================================
-
-          enlace.download =
-            `reporte_${especie}_${fecha}.pdf`;
-
-
-          // ==================================
-          // DESCARGAR
-          // ==================================
-
-          document.body
-            .appendChild(
-              enlace
-            );
-
-
-          enlace.click();
-
-
-          document.body
-            .removeChild(
-              enlace
-            );
-
-
-          // ==================================
-          // LIBERAR URL
-          // ==================================
-
-          window.URL
-            .revokeObjectURL(
-              url
-            );
-
-
-          // ==================================
-          // ACTUALIZAR ESTADO LOCAL
-          // ==================================
-
-          grupo.pdfGenerado = true;
-
+    this.reporteService.generarPDFEspecie(datos).subscribe({
+      next: (blob: Blob) => {
+        if (!blob || blob.size === 0) {
           grupo.generandoPDF = false;
-
-
-          // ==================================
-          // ACTUALIZAR CAPTURAS LOCALMENTE
-          // ==================================
-
-          for (
-            const captura
-            of grupo.capturas
-          ) {
-
-            captura.archivo_pdf = 1;
-
-          }
-
-
-          console.log(
-            '✅ PDF generado correctamente'
-          );
-
-          console.log(
-            '======================================'
-          );
-
-        },
-
-
-        error: (err) => {
-
-          console.error(
-            '❌ ERROR GENERANDO PDF:',
-            err
-          );
-
-
-          grupo.generandoPDF = false;
-
-
-          this.mostrarErrorBlob(
-            err,
-            'No se pudo generar el archivo PDF.'
-          );
-
+          alert('El archivo PDF recibido está vacío.');
+          return;
         }
 
-      });
+        const url = window.URL.createObjectURL(blob);
+        const enlace = document.createElement('a');
+        enlace.href = url;
+        const especie = String(grupo.especie || 'especie').trim().replace(/\s+/g, '_').replace(/[^a-zA-Z0-9áéíóúÁÉÍÓÚñÑ_-]/g, '');
+        enlace.download = `reporte_${especie}_${this.obtenerFechaActual()}.pdf`;
+        document.body.appendChild(enlace);
+        enlace.click();
+        document.body.removeChild(enlace);
+        window.URL.revokeObjectURL(url);
 
+        grupo.pdfGenerado = true;
+        grupo.generandoPDF = false;
+        grupo.capturas.forEach((c: any) => c.archivo_pdf = 1);
+      },
+      error: (err) => {
+        grupo.generandoPDF = false;
+        this.mostrarErrorBlob(err, 'No se pudo generar el archivo PDF.');
+      }
+    });
   }
 
-  // ==========================================
-  // GENERAR CSV DEL GRUPO
-  // ==========================================
-
-  // ==========================================
-  // GENERAR CSV DEL GRUPO
-  // ==========================================
-
-  generarCSV(
-    grupo: any
-  ) {
-
-    // ========================================
-    // VALIDAR TIPO
-    // ========================================
-
+  generarCSV(grupo: any) {
     if (!grupo.tipoSeleccionado) {
-
-      alert(
-        'Seleccione un tipo de reporte antes de generar el CSV.'
-      );
-
+      alert('Seleccione un tipo de reporte antes de generar el CSV.');
       return;
-
     }
 
-
-    // ========================================
-    // VALIDAR TÍTULO
-    // ========================================
-
-    if (
-      !grupo.tituloReporte ||
-      !grupo.tituloReporte.trim()
-    ) {
-
-      alert(
-        'Ingrese un título para el reporte antes de generar el CSV.'
-      );
-
+    if (!grupo.tituloReporte?.trim()) {
+      alert('Ingrese un título para el reporte antes de generar el CSV.');
       return;
-
     }
 
-
-    // ========================================
-    // OBTENER USUARIO
-    // ========================================
-
-    const idUsuario =
-      this.authService
-        .obtenerIdUsuario();
-
-
+    const idUsuario = this.authService.obtenerIdUsuario();
     if (!idUsuario) {
-
-      alert(
-        'No se pudo identificar al usuario.'
-      );
-
+      alert('No se pudo identificar al usuario.');
       return;
-
     }
-
-
-    // ========================================
-    // VALIDAR REPORTES
-    // ========================================
-
-    if (
-      !grupo.ids_reportes ||
-      grupo.ids_reportes.length === 0
-    ) {
-
-      alert(
-        'No existen registros para generar el CSV.'
-      );
-
-      return;
-
-    }
-
-
-    // ========================================
-    // ACTIVAR CARGA
-    // ========================================
 
     grupo.generandoCSV = true;
 
-
-    console.log(
-      '======================================'
-    );
-
-    console.log(
-      '📊 GENERANDO CSV'
-    );
-
-    console.log(
-      '🐟 Especie:',
-      grupo.especie
-    );
-
-    console.log(
-      '📋 Reportes:',
-      grupo.ids_reportes
-    );
-
-
-    // ========================================
-    // DATOS
-    // ========================================
-
     const datos = {
-
-      id_usuario:
-        idUsuario,
-
-      id_especie:
-        Number(
-          grupo.id_especie
-        ),
-
-      ids_reportes:
-        grupo.ids_reportes.map(
-          (id: any) =>
-            Number(id)
-        ),
-
-      id_tipo_reporte:
-        Number(
-          grupo.tipoSeleccionado
-        ),
-
-      titulo:
-        grupo.tituloReporte.trim()
-
+      id_usuario: idUsuario,
+      id_especie: Number(grupo.id_especie),
+      ids_reportes: grupo.ids_reportes.map((id: any) => Number(id)),
+      id_tipo_reporte: Number(grupo.tipoSeleccionado),
+      titulo: grupo.tituloReporte.trim()
     };
 
-
-    // ========================================
-    // SOLICITAR CSV
-    // ========================================
-
-    this.reporteService
-      .generarCSVEspecie(
-        datos
-      )
-      .subscribe({
-
-        next: (blob: Blob) => {
-
-          console.log(
-            '📦 CSV recibido:',
-            blob
-          );
-
-
-          // ==================================
-          // VALIDAR
-          // ==================================
-
-          if (
-            !blob ||
-            blob.size === 0
-          ) {
-
-            grupo.generandoCSV = false;
-
-            alert(
-              'El archivo CSV recibido está vacío.'
-            );
-
-            return;
-
-          }
-
-
-          // ==================================
-          // URL TEMPORAL
-          // ==================================
-
-          const url =
-            window.URL
-              .createObjectURL(
-                blob
-              );
-
-
-          // ==================================
-          // ENLACE
-          // ==================================
-
-          const enlace =
-            document.createElement(
-              'a'
-            );
-
-
-          enlace.href = url;
-
-
-          // ==================================
-          // ESPECIE
-          // ==================================
-
-          const especie =
-            String(
-              grupo.especie ||
-              'especie'
-            )
-              .trim()
-              .replace(
-                /\s+/g,
-                '_'
-              )
-              .replace(
-                /[^a-zA-Z0-9áéíóúÁÉÍÓÚñÑ_-]/g,
-                ''
-              );
-
-
-          // ==================================
-          // FECHA
-          // ==================================
-
-          const fecha =
-            this.obtenerFechaActual();
-
-
-          // ==================================
-          // NOMBRE
-          // ==================================
-
-          enlace.download =
-            `reporte_${especie}_${fecha}.csv`;
-
-
-          // ==================================
-          // DESCARGAR
-          // ==================================
-
-          document.body
-            .appendChild(
-              enlace
-            );
-
-
-          enlace.click();
-
-
-          document.body
-            .removeChild(
-              enlace
-            );
-
-
-          // ==================================
-          // LIBERAR URL
-          // ==================================
-
-          window.URL
-            .revokeObjectURL(
-              url
-            );
-
-
-          // ==================================
-          // ACTUALIZAR ESTADO
-          // ==================================
-
-          grupo.csvGenerado = true;
-
+    this.reporteService.generarCSVEspecie(datos).subscribe({
+      next: (blob: Blob) => {
+        if (!blob || blob.size === 0) {
           grupo.generandoCSV = false;
-
-
-          // ==================================
-          // ACTUALIZAR CAPTURAS
-          // ==================================
-
-          for (
-            const captura
-            of grupo.capturas
-          ) {
-
-            captura.archivo_csv = 1;
-
-          }
-
-
-          console.log(
-            '✅ CSV generado correctamente'
-          );
-
-          console.log(
-            '======================================'
-          );
-
-        },
-
-
-        error: (err) => {
-
-          console.error(
-            '❌ ERROR GENERANDO CSV:',
-            err
-          );
-
-
-          grupo.generandoCSV = false;
-
-
-          this.mostrarErrorBlob(
-            err,
-            'No se pudo generar el archivo CSV.'
-          );
-
+          alert('El archivo CSV recibido está vacío.');
+          return;
         }
 
-      });
+        const url = window.URL.createObjectURL(blob);
+        const enlace = document.createElement('a');
+        enlace.href = url;
+        const especie = String(grupo.especie || 'especie').trim().replace(/\s+/g, '_').replace(/[^a-zA-Z0-9áéíóúÁÉÍÓÚñÑ_-]/g, '');
+        enlace.download = `reporte_${especie}_${this.obtenerFechaActual()}.csv`;
+        document.body.appendChild(enlace);
+        enlace.click();
+        document.body.removeChild(enlace);
+        window.URL.revokeObjectURL(url);
 
+        grupo.csvGenerado = true;
+        grupo.generandoCSV = false;
+        grupo.capturas.forEach((c: any) => c.archivo_csv = 1);
+      },
+      error: (err) => {
+        grupo.generandoCSV = false;
+        this.mostrarErrorBlob(err, 'No se pudo generar el archivo CSV.');
+      }
+    });
   }
-  // ==========================================
-  // OBTENER FECHA ACTUAL
-  // ==========================================
 
   private obtenerFechaActual(): string {
-
-    const fecha =
-      new Date();
-
-
-    const anio =
-      fecha.getFullYear();
-
-
-    const mes =
-      String(
-        fecha.getMonth() + 1
-      ).padStart(
-        2,
-        '0'
-      );
-
-
-    const dia =
-      String(
-        fecha.getDate()
-      ).padStart(
-        2,
-        '0'
-      );
-
-
+    const fecha = new Date();
+    const anio = fecha.getFullYear();
+    const mes = String(fecha.getMonth() + 1).padStart(2, '0');
+    const dia = String(fecha.getDate()).padStart(2, '0');
     return `${anio}-${mes}-${dia}`;
-
   }
 
-
-  // ==========================================
-  // MOSTRAR ERROR DEVUELTO COMO BLOB
-  // ==========================================
-
-  private mostrarErrorBlob(
-    err: any,
-    mensajeDefecto: string
-  ) {
-
-    // ========================================
-    // CUANDO HTTPCLIENT ESPERA BLOB,
-    // LOS ERRORES JSON TAMBIÉN PUEDEN
-    // LLEGAR COMO BLOB
-    // ========================================
-
-    if (
-      err?.error instanceof Blob
-    ) {
-
-      const lector =
-        new FileReader();
-
-
+  private mostrarErrorBlob(err: any, mensajeDefecto: string) {
+    if (err?.error instanceof Blob) {
+      const lector = new FileReader();
       lector.onload = () => {
-
         try {
-
-          const contenido =
-            String(
-              lector.result || ''
-            );
-
-
-          const respuesta =
-            JSON.parse(
-              contenido
-            );
-
-
-          alert(
-            respuesta.mensaje ||
-            mensajeDefecto
-          );
-
+          const respuesta = JSON.parse(String(lector.result || ''));
+          alert(respuesta.mensaje || mensajeDefecto);
+        } catch {
+          alert(mensajeDefecto);
         }
-
-        catch {
-
-          alert(
-            mensajeDefecto
-          );
-
-        }
-
       };
-
-
-      lector.onerror = () => {
-
-        alert(
-          mensajeDefecto
-        );
-
-      };
-
-
-      lector.readAsText(
-        err.error
-      );
-
-
+      lector.readAsText(err.error);
       return;
-
     }
-
-
-    // ========================================
-    // ERROR JSON NORMAL
-    // ========================================
-
-    alert(
-      err?.error?.mensaje ||
-      mensajeDefecto
-    );
-
+    alert(err?.error?.mensaje || mensajeDefecto);
   }
-
-  // ==========================================
-  // ENVIAR REPORTE DEL GRUPO
-  // ==========================================
 
   enviarReporte(grupo: any) {
     if (!grupo.tipoSeleccionado) {
@@ -1460,27 +337,13 @@ export class CrearReporteComponent
       return;
     }
 
-    if (!grupo.pdfGenerado) {
-      alert('Debe generar el PDF antes de enviar el reporte.');
-      return;
-    }
-
-    if (!grupo.csvGenerado) {
-      alert('Debe generar el CSV antes de enviar el reporte.');
+    if (!grupo.pdfGenerado || !grupo.csvGenerado) {
+      alert('Debe generar el PDF y CSV antes de enviar el reporte.');
       return;
     }
 
     const idUsuario = this.authService.obtenerIdUsuario();
-
-    if (!idUsuario) {
-      alert('No se pudo identificar al usuario.');
-      return;
-    }
-
-    if (!grupo.ids_reportes?.length) {
-      alert('No existen registros para enviar.');
-      return;
-    }
+    if (!idUsuario) return;
 
     const datos = {
       id_usuario: idUsuario,
@@ -1490,38 +353,18 @@ export class CrearReporteComponent
       titulo: grupo.tituloReporte.trim()
     };
 
-    console.log('📤 ENVIANDO REPORTE:', datos);
-
     grupo.enviando = true;
 
     this.reporteService.enviarReporteEspecie(datos).subscribe({
       next: (respuesta) => {
         grupo.enviando = false;
-
-        console.log('✅ REPORTE ENVIADO:', respuesta);
-
-        alert(
-          respuesta.mensaje ||
-          'Reporte enviado correctamente.'
-        );
-
-        // Recargamos los pendientes.
-        // Como estos registros ya tienen id_tipo_reporte,
-        // ya no deberían volver a aparecer.
+        alert(respuesta.mensaje || 'Reporte enviado correctamente.');
         this.cargarReportes();
       },
-
       error: (err) => {
         grupo.enviando = false;
-
-        console.error('❌ ERROR ENVIANDO REPORTE:', err);
-
-        alert(
-          err?.error?.mensaje ||
-          'No se pudo enviar el reporte.'
-        );
+        alert(err?.error?.mensaje || 'No se pudo enviar el reporte.');
       }
     });
   }
-
 }
