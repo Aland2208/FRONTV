@@ -28,7 +28,6 @@
     padding: 28px;
     background: var(--foam);
     color: var(--ink);
-    /* Previniendo el desborde general en móviles */
     overflow-x: hidden; 
 }
 
@@ -397,8 +396,9 @@
     border-radius: 10px;
     background: #fff;
     box-shadow: 0 3px 12px rgba(10, 31, 51, .035);
-    min-width: 0;
+    min-width: 0; 
     width: 100%;
+    overflow: hidden; /* Esto asegura que el layout de la tarjeta no se rompa */
 }
 
 .grafico-header {
@@ -442,27 +442,28 @@
     font-size: 18px;
 }
 
-/* 
-   =============================================
-   CONTENEDOR SCROLL HORIZONTAL (LA SOLUCIÓN)
-   =============================================
-   Envolvemos los gráficos de línea y barra para que si son
-   muy anchos, el usuario pueda desplazarlos con el dedo en móviles.
-*/
+/* WRAPPER PARA EL SCROLL HORIZONTAL */
 .grafico-scroll-wrapper {
     width: 100%;
     overflow-x: auto;
     overflow-y: hidden;
-    /* Suaviza el scroll en iOS */
     -webkit-overflow-scrolling: touch;
+    padding-bottom: 8px; /* Pequeño espacio extra para el scroll nativo */
 }
 
-/* Este es el contenedor real del canvas */
+/* Scrollbar personalizada en navegadores compatibles */
+.grafico-scroll-wrapper::-webkit-scrollbar {
+    height: 6px;
+}
+.grafico-scroll-wrapper::-webkit-scrollbar-thumb {
+    background: rgba(18, 150, 158, 0.4);
+    border-radius: 4px;
+}
+
 .grafico-canvas {
     position: relative;
-    /* En escritorio ocupa el 100% de la tarjeta */
     width: 100%;
-    min-width: 0; 
+    min-width: 0;
 }
 
 .grafico-veedores {
@@ -1022,38 +1023,35 @@
         grid-template-columns: 1fr;
     }
 
-    /* Ajustes en Donas para móvil */
+    /* Ajustes estrictos en Donas para móvil */
     .grafico-dona-contenido,
     .reportes-grafico-contenido {
         align-items: center;
     }
     
     .grafico-dona {
-        width: 160px !important;
-        height: 160px !important;
+        width: 170px !important;
+        height: 170px !important;
     }
     
     .reportes-dona {
-        width: 140px !important;
-        height: 140px !important;
+        width: 150px !important;
+        height: 150px !important;
     }
     
     .centro-dona strong {
         font-size: 16px;
     }
 
-    /* CONFIGURACIÓN CRUCIAL: EL SCROLL HORIZONTAL PARA MÓVILES */
-    /* Le damos a todos los canvas un ancho mínimo fijo grande para forzar el scroll,
-       pero solo en móviles. */
-    .grafico-canvas canvas {
-        min-width: 500px !important;
+    /* EL SECRETO DEL SCROLL: Darle el min-width al contenedor DIV, no al Canvas */
+    .grafico-scroll-wrapper .grafico-canvas {
+        min-width: 550px !important; 
     }
 
     .grafico-veedores,
     .grafico-linea,
     .grafico-barras {
-        /* Reducimos la altura general del contenedor en celular */
-        height: 240px; 
+        height: 250px; 
     }
 
     .panel-header {
