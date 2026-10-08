@@ -306,7 +306,8 @@ export class CamaraComponent implements OnInit, OnDestroy {
       return;
     }
 
-    this.http.get<any>(`${this.BACKEND_URL}/config/url-camara/${idUsuario}`)
+    // Usar el método del servicio Auth para que tome el prefijo correcto de environment.apiUrl
+    this.authService.obtenerUrlCamaraVinculada(idUsuario)
       .subscribe({
         next: (res) => {
           if (res?.estado === 1 && res.url_camara) {
