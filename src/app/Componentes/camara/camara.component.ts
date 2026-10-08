@@ -38,8 +38,8 @@ export class CamaraComponent implements OnInit, OnDestroy {
   /*local
   private readonly PYTHON_API = 'http://192.168.18.10:5000';*/
 
-  //tunel Ngrok
-  private readonly PYTHON_API = 'https://staff-alkaline-suitably.ngrok-free.dev';
+  //tunel cloudflared
+  private readonly PYTHON_API = 'https://condo-thumbzilla-row-pack.trycloudflare.com';
 
   urlCamara =
     `${this.PYTHON_API}/video_feed`;
