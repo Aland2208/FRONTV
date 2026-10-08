@@ -35,9 +35,11 @@ export class CamaraComponent implements OnInit, OnDestroy {
   // API PYTHON
   // ==========================================
 
-  private readonly PYTHON_API =
-    'http://192.168.18.10:5000';
+  /*local
+  private readonly PYTHON_API = 'http://192.168.18.10:5000';*/
 
+  //tunel Ngrok
+  private readonly PYTHON_API = 'https://staff-alkaline-suitably.ngrok-free.dev';
 
   urlCamara =
     `${this.PYTHON_API}/video_feed`;
@@ -115,7 +117,7 @@ export class CamaraComponent implements OnInit, OnDestroy {
 
     private authService: Auth
 
-  ) {}
+  ) { }
 
 
   // ==========================================
@@ -459,107 +461,61 @@ export class CamaraComponent implements OnInit, OnDestroy {
 
         };
 
-
-
         // ======================================
         // GUARDAR EN MYSQL
         // ======================================
-
         this.balanzaService
-          .registrarCaptura(
-            datosCaptura
-          )
-          .subscribe({
-
+          .registrarCaptura(datosCaptura).subscribe({
             next: (resBD) => {
-
-
               // ==================================
               // RESULTADO
               // ==================================
-
               this.ultimoResultado = {
-
-                especie:
-                  especieDetectada,
-
-                peso:
-                  pesoRegistro,
-
-                porcentaje:
-                  porcentajeDeteccion,
-
-                hora:
-                  new Date()
-                    .toLocaleTimeString(
-                      [],
-                      {
-                        hour: '2-digit',
-                        minute: '2-digit',
-                        second: '2-digit'
-                      }
-                    ),
-
-                id:
-                  idEspecieDetectada,
-
-                imagen_url:
-                  imagenUrlCloudinary
-
+                especie: especieDetectada,
+                peso: pesoRegistro,
+                porcentaje: porcentajeDeteccion,
+                hora: new Date().toLocaleTimeString([], {
+                  hour: '2-digit',
+                  minute: '2-digit',
+                  second: '2-digit'
+                }
+                ),
+                id: idEspecieDetectada,
+                imagen_url: imagenUrlCloudinary
               };
-
-
               this.mostrarAlerta(
-
                 `✅ Captura registrada (${especieDetectada} - ${porcentajeDeteccion.toFixed(2)}%)`
-
               );
-
             },
 
-
             error: (err) => {
-
               console.error(
                 '❌ ERROR NODE / MYSQL:',
                 err
               );
 
-
               if (err.error?.mensaje) {
-
                 this.mostrarAlerta(
                   `❌ ${err.error.mensaje}`
                 );
-
               }
-
               else {
-
                 this.mostrarAlerta(
                   '❌ Error al guardar en la base de datos'
                 );
-
               }
-
             }
-
           });
-
       },
-
 
       // ========================================
       // ERROR PYTHON
       // ========================================
-
       error: (err) => {
-
         console.error(
           '❌ ERROR PYTHON / CLOUDINARY:',
           err
         );
-
 
         if (err.error?.mensaje) {
 
@@ -568,152 +524,100 @@ export class CamaraComponent implements OnInit, OnDestroy {
           );
 
         }
-
         else {
-
           this.mostrarAlerta(
             '❌ Error al comunicarse con Python'
           );
-
         }
-
       }
-
     });
-
   }
-
 
   // ==========================================
   // OBTENER ÚLTIMO PESO
   // ==========================================
-
   obtenerUltimoPeso() {
-
     if (this.modoPruebaSinBalanza) {
-
       this.peso =
         this.pesoPrueba;
-
 
       this.fecha =
         new Date()
           .toLocaleString();
-
-
       return;
-
     }
 
-
     this.balanzaService
-      .obtenerUltimoPeso()
-      .subscribe({
-
+      .obtenerUltimoPeso().subscribe({
         next: (respuesta) => {
-
           if (
-            respuesta.estado == 1
-          ) {
-
+            respuesta.estado == 1) {
             this.peso =
               Number(
                 respuesta.data.peso
               );
-
-
             this.fecha =
               respuesta.data.fecha_hora;
-
           }
-
         },
-
-
         error: (error) => {
-
           console.error(
             error
           );
-
         }
-
       });
-
   }
-
 
   // ==========================================
   // MENSAJES
   // ==========================================
-
   mostrarAlerta(
     texto: string
   ) {
-
     this.mensaje =
       texto;
 
-
     this.mostrarMensaje =
       true;
-
 
     clearTimeout(
       this.temporizadorMensaje
     );
 
-
     this.temporizadorMensaje =
       setTimeout(() => {
-
         this.mostrarMensaje =
           false;
-
       }, 3000);
-
   }
-
 
   // ==========================================
   // CÁMARA
   // ==========================================
-
   alCargarCamara() {
-
     this.camaraConectada =
       true;
-
   }
-
 
   errorCamara() {
-
     this.camaraConectada =
       false;
-
   }
-
 
   // ==========================================
   // DESTRUIR
   // ==========================================
 
   ngOnDestroy() {
-
     clearTimeout(
       this.temporizadorConexion
     );
-
 
     clearTimeout(
       this.temporizadorMensaje
     );
 
-
     this.socketService
       .desconectar();
-
   }
-
 }
