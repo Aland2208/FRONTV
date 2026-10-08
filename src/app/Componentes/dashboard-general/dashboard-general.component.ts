@@ -565,7 +565,7 @@ export class DashboardGeneralComponent implements OnInit,AfterViewInit,OnDestroy
      cutout:'68%',
      plugins:{
       legend:{
-       display:true,
+       display:false,
        position:'bottom'
       },
       tooltip:{
