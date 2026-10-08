@@ -20,7 +20,7 @@ import { Auth } from '../../servicios/auth';
 export class ConfigurarCamaraComponent implements OnInit {
 
   // URL del backend desplegado en Render (o localhost si pruebas en local)
-  private readonly BACKEND_URL = 'https://tu-backend.onrender.com';
+  private readonly BACKEND_URL = 'https://veedores.onrender.com';
 
   urlActual: string | null = null;
   fechaActualizacion: string | null = null;
