@@ -57,12 +57,26 @@ export class RegistroPage implements OnInit {
   ];
 
   // ========================================================
-  // LISTA BLANCA DE DOMINIOS DE CORREO RECONOCIDOS
+  // LISTA ESTRICTA DE PROVEEDORES DE CORREO PERMITIDOS
+  // Cualquier dominio fuera de esta lista se rechaza de inmediato
   // ========================================================
-  private dominiosValidos = [
-    'gmail.com', 'outlook.com', 'hotmail.com', 'yahoo.com', 'yahoo.es',
-    'icloud.com', 'live.com', 'msn.com', 'upse.edu.ec', 'ug.edu.ec',
-    'espe.edu.ec', 'epn.edu.ec', 'outlook.es', 'protonmail.com', 'mail.com'
+  private dominiosPermitidos = [
+    'gmail.com',
+    'outlook.com',
+    'outlook.es',
+    'hotmail.com',
+    'hotmail.es',
+    'yahoo.com',
+    'yahoo.es',
+    'icloud.com',
+    'live.com',
+    'msn.com',
+    'upse.edu.ec',
+    'ug.edu.ec',
+    'espe.edu.ec',
+    'epn.edu.ec',
+    'protonmail.com',
+    'mail.com'
   ];
 
   // ========================================================
@@ -115,11 +129,12 @@ export class RegistroPage implements OnInit {
   }
 
   // ========================================================
-  // VALIDACIÓN ESTRICTA DE CORREO ELECTRÓNICO (ANTIFRAUDE)
+  // VALIDACIÓN ESTRICTA DE CORREO ELECTRÓNICO (SOLO DOMINIOS REALES)
   // ========================================================
   private validarCorreoElectronico(correo: string): boolean {
     const limpio = (correo || '').trim().toLowerCase();
 
+    // 1. Estructura básica RFC
     const regexEmail = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
     if (!regexEmail.test(limpio)) return false;
 
@@ -129,21 +144,12 @@ export class RegistroPage implements OnInit {
     const usuario = partes[0];
     const dominio = partes[1];
 
-    if (usuario.length < 3 || usuario.length > 40) return false;
-    if (/(.)\1\1\1/.test(usuario)) return false;
+    // 2. Longitud y caracteres válidos de usuario
+    if (usuario.length < 3 || usuario.length > 35) return false;
+    if (/(.)\1\1\1/.test(usuario)) return false; // Bloquea "aaaa@"
 
-    if (this.dominiosValidos.includes(dominio)) {
-      return true;
-    }
-
-    const nombreDominio = dominio.split('.')[0];
-    if (nombreDominio.length < 3 || nombreDominio.length > 20) return false;
-    if (/[bcdfghjklmnpqrstvwxyz]{4,}/.test(nombreDominio)) return false;
-    if (/[aeiou]{4,}/.test(nombreDominio)) return false;
-    if (/(.)\1\1/.test(nombreDominio)) return false;
-    if (/(fj|jf|hj|jh|eu|ue|uf|fu|eu|ui){3,}/.test(nombreDominio)) return false;
-
-    return true;
+    // 3. OBLIGATORIO: El dominio debe ser uno de los proveedores reales permitidos
+    return this.dominiosPermitidos.includes(dominio);
   }
 
   get nombreValido(): boolean {
@@ -199,7 +205,7 @@ export class RegistroPage implements OnInit {
     }
 
     if (!this.correoValido) {
-      this.mostrarMensaje('Correo no válido (use un proveedor de correo auténtico).', 'warning');
+      this.mostrarMensaje('Correo no válido. Ingrese un correo auténtico (Gmail, Outlook, Hotmail, etc.).', 'warning');
       return;
     }
 
