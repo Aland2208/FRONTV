@@ -49,7 +49,6 @@ export class RegistroPage implements OnInit {
 
   cargando = false;
 
-  // Lista negra de palabras no permitidas (groserías, bromas, roles de sistema o genéricas)
   private palabrasProhibidas = [
     'mama', 'tanga', 'papa', 'culo', 'puta', 'puto', 'mierda', 'verga', 'pito',
     'pendejo', 'pendeja', 'idiota', 'maricon', 'perra', 'perro', 'chucha', 'hdp',
@@ -58,50 +57,53 @@ export class RegistroPage implements OnInit {
   ];
 
   // ========================================================
-  // VALIDACIÓN ESTRICTA Y ANTIFRAUDE DE NOMBRES/APELLIDOS
+  // DETECTOR ESTRICTO DE NOMBRES REALES Y TECLAZOS
   // ========================================================
   private validarCadenaNombre(texto: string): boolean {
-    const limpio = (texto || '').trim();
+    const limpio = (texto || '').trim().replace(/\s+/g, ' ');
 
-    // 1. Longitud total permitida (mínimo 2, máximo 30 caracteres)
+    // 1. Longitud básica razonable
     if (limpio.length < 2 || limpio.length > 30) return false;
 
     // 2. Solo letras del español y espacios simples
     const regexLetras = /^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ]+(?: [a-zA-ZáéíóúÁÉÍÓÚñÑüÜ]+)*$/;
     if (!regexLetras.test(limpio)) return false;
 
-    // 3. Máximo 2 palabras por campo (ej. "Juan Carlos" o "Perez Ortiz")
+    // 3. Máximo 2 palabras por campo
     const palabras = limpio.split(' ');
     if (palabras.length > 2) return false;
 
     for (const palabra of palabras) {
       if (palabra.length < 2 || palabra.length > 15) return false;
 
-      // Normalizar quitando tildes para evaluar la lista negra
-      const pSinTildes = palabra.toLowerCase()
-        .normalize('NFD')
-        .replace(/[\u0300-\u036f]/g, '');
+      const pLower = palabra.toLowerCase();
+      const pSinTildes = pLower.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
 
-      // 4. Comprobar si la palabra está en la lista de términos no admitidos
+      // 4. Lista negra
       if (this.palabrasProhibidas.includes(pSinTildes)) return false;
 
-      // 5. Bloquear 3 o más letras iguales seguidas (ej: "aaa", "lll", "fff")
-      if (/([a-záéíóúñü])\1\1/i.test(palabra)) return false;
+      // 5. Bloquear 3 letras iguales seguidas
+      if (/([a-záéíóúñü])\1\1/i.test(pLower)) return false;
 
       // 6. Debe tener al menos una vocal
-      if (!/[aeiouáéíóúü]/i.test(palabra)) return false;
+      if (!/[aeiouáéíóúü]/i.test(pLower)) return false;
 
-      // 7. Bloquear 4 o más consonantes seguidas sin vocales
-      if (/[bcdfghjklmnñpqrstvwxyz]{4,}/i.test(palabra)) return false;
+      // 7. Bloquear 3 o más vocales consecutivas raras (ej: "uie", "iee")
+      if (/[aeiouáéíóúü]{3,}/i.test(pLower)) return false;
 
-      // 8. Bloquear 4 o más vocales seguidas
-      if (/[aeiouáéíóúü]{4,}/i.test(palabra)) return false;
+      // 8. Bloquear 3 o más consonantes seguidas
+      if (/[bcdfghjklmnñpqrstvwxyz]{3,}/i.test(pLower)) return false;
 
-      // 9. Bloquear combinaciones de teclado arbitrarias
-      if (/(jd|dj|qj|xj|zx|jk|kj|wq|qw|fg|gf|vb|bv)/i.test(palabra)) return false;
+      // 9. Combinaciones imposibles en español (bloquea "bf", "fb", "ubf", "fub")
+      if (/(bf|fb|ubf|fub|bbu|ffu|jd|dj|qj|xj|zx|jk|kj|wq|qw|fg|gf|vb|bv|bp|pb|fn|nf)/i.test(pLower)) return false;
 
-      // 10. Bloquear bucles repetidos
-      if (/(.{2,4})\1\1/i.test(palabra)) return false;
+      // 10. Repetición excesiva de la misma consonante en una palabra corta
+      const conteoB = (pLower.match(/b/g) || []).length;
+      const conteoF = (pLower.match(/f/g) || []).length;
+      if (conteoB >= 3 || conteoF >= 3) return false;
+
+      // 11. Bucles repetitivos de 2 a 4 caracteres
+      if (/(.{2,4})\1\1/i.test(pLower)) return false;
     }
 
     return true;
@@ -152,12 +154,12 @@ export class RegistroPage implements OnInit {
     }
 
     if (!this.nombreValido) {
-      this.mostrarMensaje('Nombre no válido. Ingrese un nombre formal y auténtico.', 'warning');
+      this.mostrarMensaje('Nombre no válido. Ingrese un nombre auténtico.', 'warning');
       return;
     }
 
     if (!this.apellidoValido) {
-      this.mostrarMensaje('Apellido no válido. Ingrese un apellido formal y auténtico.', 'warning');
+      this.mostrarMensaje('Apellido no válido. Ingrese un apellido auténtico.', 'warning');
       return;
     }
 
@@ -178,9 +180,13 @@ export class RegistroPage implements OnInit {
 
     this.cargando = true;
 
+    // Formatear mayúscula inicial en cada palabra
+    const formatearPalabra = (str: string) =>
+      str.split(' ').map(p => p.charAt(0).toUpperCase() + p.slice(1).toLowerCase()).join(' ');
+
     const datosEnviar = {
-      nombre: nombreLimpio,
-      apellido: apellidoLimpio,
+      nombre: formatearPalabra(nombreLimpio),
+      apellido: formatearPalabra(apellidoLimpio),
       correo: correoLimpio,
       password: this.usuario.password,
       id_rol: this.usuario.id_rol
