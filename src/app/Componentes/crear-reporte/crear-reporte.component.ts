@@ -1,28 +1,25 @@
 import { Component, OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { IonIcon, IonSpinner } from '@ionic/angular/standalone';
+import { addIcons } from 'ionicons';
 import {
-  CommonModule
-} from '@angular/common';
+  personOutline,
+  warningOutline,
+  documentTextOutline,
+  imageOutline,
+  trashOutline,
+  checkmarkCircleOutline,
+  documentOutline,
+  gridOutline,
+  sendOutline,
+  closeCircleOutline,
+  informationCircleOutline
+} from 'ionicons/icons';
 
-import {
-  FormsModule
-} from '@angular/forms';
-
-import {
-  IonIcon,
-  IonSpinner
-} from '@ionic/angular/standalone';
-
-import {
-  ReporteS
-} from '../../servicios/reporte-s';
-
-import {
-  Auth
-} from '../../servicios/auth';
-
-import {
-  BalanzaS
-} from '../../servicios/balanza-s';
+import { ReporteS } from '../../servicios/reporte-s';
+import { Auth } from '../../servicios/auth';
+import { BalanzaS } from '../../servicios/balanza-s';
 
 @Component({
   selector: 'app-crear-reporte',
@@ -53,11 +50,39 @@ export class CrearReporteComponent implements OnInit {
   mensaje = '';
   error = false;
 
+  // Control del modal de anulación
+  mostrarModalAnular = false;
+  capturaSeleccionadaAnular: any = null;
+  anulandoProceso = false;
+
+  // Control del modal de mensajes y avisos
+  modalMensaje = {
+    abierto: false,
+    titulo: '',
+    descripcion: '',
+    tipo: 'info' as 'info' | 'exito' | 'error'
+  };
+
   constructor(
     private reporteService: ReporteS,
     private authService: Auth,
     private balanzaService: BalanzaS
-  ) { }
+  ) {
+    // Registrar explícitamente los iconos de Ionicons para eliminar los errores de consola
+    addIcons({
+      personOutline,
+      warningOutline,
+      documentTextOutline,
+      imageOutline,
+      trashOutline,
+      checkmarkCircleOutline,
+      documentOutline,
+      gridOutline,
+      sendOutline,
+      closeCircleOutline,
+      informationCircleOutline
+    });
+  }
 
   ngOnInit() {
     this.cargarTiposReporte();
@@ -69,7 +94,7 @@ export class CrearReporteComponent implements OnInit {
       next: (respuesta) => {
         this.tiposReporte = respuesta.data || [];
       },
-      error: (err) => console.error('❌ ERROR CARGANDO TIPOS:', err)
+      error: (err) => console.error('Error al cargar tipos de reporte:', err)
     });
   }
 
@@ -101,7 +126,7 @@ export class CrearReporteComponent implements OnInit {
         this.cargando = false;
       },
       error: (err) => {
-        console.error('❌ ERROR AL CARGAR REPORTES:', err);
+        console.error('Error al cargar reportes:', err);
         this.cargando = false;
         this.error = true;
         this.reportes = [];
@@ -164,45 +189,64 @@ export class CrearReporteComponent implements OnInit {
   }
 
   // ==========================================
-  // ANULAR CAPTURA PENDIENTE
+  // MODAL DE ANULACIÓN DE CAPTURA
   // ==========================================
-  anularCaptura(captura: any) {
-    const confirmacion = confirm(`¿Estás seguro de anular la captura #${captura.id_captura} (${captura.especie})? Esta acción removerá el registro de la faena.`);
-    if (!confirmacion) return;
+  abrirModalAnular(captura: any) {
+    this.capturaSeleccionadaAnular = captura;
+    this.mostrarModalAnular = true;
+  }
+
+  cerrarModalAnular() {
+    this.mostrarModalAnular = false;
+    this.capturaSeleccionadaAnular = null;
+    this.anulandoProceso = false;
+  }
+
+  confirmarAnularCaptura() {
+    if (!this.capturaSeleccionadaAnular) return;
 
     const idUsuario = this.authService.obtenerIdUsuario();
     if (!idUsuario) return;
 
-    this.balanzaService.anularCaptura(captura.id_captura, idUsuario).subscribe({
+    this.anulandoProceso = true;
+
+    this.balanzaService.anularCaptura(this.capturaSeleccionadaAnular.id_captura, idUsuario).subscribe({
       next: (res) => {
+        this.anulandoProceso = false;
+        this.cerrarModalAnular();
         if (res.estado === 1) {
-          alert('✅ Captura anulada correctamente.');
+          this.mostrarNotificacion('Captura Anulada', 'El registro se ha retirado exitosamente de la faena.', 'exito');
           this.cargarReportes();
         } else {
-          alert(res.mensaje || 'No se pudo anular la captura.');
+          this.mostrarNotificacion('No se pudo anular', res.mensaje || 'Error al procesar la anulación.', 'error');
         }
       },
       error: (err) => {
+        this.anulandoProceso = false;
+        this.cerrarModalAnular();
         console.error('Error al anular captura:', err);
-        alert(err.error?.mensaje || 'Error al comunicarse con el servidor.');
+        this.mostrarNotificacion('Error del servidor', err.error?.mensaje || 'No se pudo comunicar con el backend.', 'error');
       }
     });
   }
 
+  // ==========================================
+  // GENERAR PDF
+  // ==========================================
   generarPDF(grupo: any) {
     if (!grupo.tipoSeleccionado) {
-      alert('Seleccione un tipo de reporte antes de generar el PDF.');
+      this.mostrarNotificacion('Tipo Requerido', 'Selecciona un tipo de reporte antes de generar el archivo PDF.', 'info');
       return;
     }
 
     if (!grupo.tituloReporte?.trim()) {
-      alert('Ingrese un título para el reporte antes de generar el PDF.');
+      this.mostrarNotificacion('Título Requerido', 'Ingresa un título para el reporte antes de generar el archivo PDF.', 'info');
       return;
     }
 
     const idUsuario = this.authService.obtenerIdUsuario();
     if (!idUsuario) {
-      alert('No se pudo identificar al usuario.');
+      this.mostrarNotificacion('Sesión no válida', 'No se pudo identificar la sesión del usuario.', 'error');
       return;
     }
 
@@ -220,7 +264,7 @@ export class CrearReporteComponent implements OnInit {
       next: (blob: Blob) => {
         if (!blob || blob.size === 0) {
           grupo.generandoPDF = false;
-          alert('El archivo PDF recibido está vacío.');
+          this.mostrarNotificacion('Archivo Vacío', 'El archivo PDF recibido no contiene datos.', 'error');
           return;
         }
 
@@ -245,20 +289,23 @@ export class CrearReporteComponent implements OnInit {
     });
   }
 
+  // ==========================================
+  // GENERAR CSV
+  // ==========================================
   generarCSV(grupo: any) {
     if (!grupo.tipoSeleccionado) {
-      alert('Seleccione un tipo de reporte antes de generar el CSV.');
+      this.mostrarNotificacion('Tipo Requerido', 'Selecciona un tipo de reporte antes de generar el archivo CSV.', 'info');
       return;
     }
 
     if (!grupo.tituloReporte?.trim()) {
-      alert('Ingrese un título para el reporte antes de generar el CSV.');
+      this.mostrarNotificacion('Título Requerido', 'Ingresa un título para el reporte antes de generar el archivo CSV.', 'info');
       return;
     }
 
     const idUsuario = this.authService.obtenerIdUsuario();
     if (!idUsuario) {
-      alert('No se pudo identificar al usuario.');
+      this.mostrarNotificacion('Sesión no válida', 'No se pudo identificar la sesión del usuario.', 'error');
       return;
     }
 
@@ -276,7 +323,7 @@ export class CrearReporteComponent implements OnInit {
       next: (blob: Blob) => {
         if (!blob || blob.size === 0) {
           grupo.generandoCSV = false;
-          alert('El archivo CSV recibido está vacío.');
+          this.mostrarNotificacion('Archivo Vacío', 'El archivo CSV recibido no contiene datos.', 'error');
           return;
         }
 
@@ -301,44 +348,22 @@ export class CrearReporteComponent implements OnInit {
     });
   }
 
-  private obtenerFechaActual(): string {
-    const fecha = new Date();
-    const anio = fecha.getFullYear();
-    const mes = String(fecha.getMonth() + 1).padStart(2, '0');
-    const dia = String(fecha.getDate()).padStart(2, '0');
-    return `${anio}-${mes}-${dia}`;
-  }
-
-  private mostrarErrorBlob(err: any, mensajeDefecto: string) {
-    if (err?.error instanceof Blob) {
-      const lector = new FileReader();
-      lector.onload = () => {
-        try {
-          const respuesta = JSON.parse(String(lector.result || ''));
-          alert(respuesta.mensaje || mensajeDefecto);
-        } catch {
-          alert(mensajeDefecto);
-        }
-      };
-      lector.readAsText(err.error);
-      return;
-    }
-    alert(err?.error?.mensaje || mensajeDefecto);
-  }
-
+  // ==========================================
+  // ENVIAR REPORTE
+  // ==========================================
   enviarReporte(grupo: any) {
     if (!grupo.tipoSeleccionado) {
-      alert('Seleccione un tipo de reporte.');
+      this.mostrarNotificacion('Tipo Requerido', 'Selecciona un tipo de reporte.', 'info');
       return;
     }
 
     if (!grupo.tituloReporte?.trim()) {
-      alert('Ingrese un título para el reporte.');
+      this.mostrarNotificacion('Título Requerido', 'Ingresa un título para el reporte.', 'info');
       return;
     }
 
     if (!grupo.pdfGenerado || !grupo.csvGenerado) {
-      alert('Debe generar el PDF y CSV antes de enviar el reporte.');
+      this.mostrarNotificacion('Archivos Incompletos', 'Debes generar el PDF y CSV antes de enviar el reporte.', 'info');
       return;
     }
 
@@ -358,13 +383,54 @@ export class CrearReporteComponent implements OnInit {
     this.reporteService.enviarReporteEspecie(datos).subscribe({
       next: (respuesta) => {
         grupo.enviando = false;
-        alert(respuesta.mensaje || 'Reporte enviado correctamente.');
+        this.mostrarNotificacion('Reporte Consolidado', respuesta.mensaje || 'Reporte enviado correctamente.', 'exito');
         this.cargarReportes();
       },
       error: (err) => {
         grupo.enviando = false;
-        alert(err?.error?.mensaje || 'No se pudo enviar el reporte.');
+        this.mostrarNotificacion('Error de Envío', err?.error?.mensaje || 'No se pudo enviar el reporte.', 'error');
       }
     });
+  }
+
+  // ==========================================
+  // AVISOS Y NOTIFICACIONES NATIVAS
+  // ==========================================
+  mostrarNotificacion(titulo: string, descripcion: string, tipo: 'info' | 'exito' | 'error') {
+    this.modalMensaje = {
+      abierto: true,
+      titulo,
+      descripcion,
+      tipo
+    };
+  }
+
+  cerrarModalMensaje() {
+    this.modalMensaje.abierto = false;
+  }
+
+  private obtenerFechaActual(): string {
+    const fecha = new Date();
+    const anio = fecha.getFullYear();
+    const mes = String(fecha.getMonth() + 1).padStart(2, '0');
+    const dia = String(fecha.getDate()).padStart(2, '0');
+    return `${anio}-${mes}-${dia}`;
+  }
+
+  private mostrarErrorBlob(err: any, mensajeDefecto: string) {
+    if (err?.error instanceof Blob) {
+      const lector = new FileReader();
+      lector.onload = () => {
+        try {
+          const respuesta = JSON.parse(String(lector.result || ''));
+          this.mostrarNotificacion('Atención', respuesta.mensaje || mensajeDefecto, 'error');
+        } catch {
+          this.mostrarNotificacion('Atención', mensajeDefecto, 'error');
+        }
+      };
+      lector.readAsText(err.error);
+      return;
+    }
+    this.mostrarNotificacion('Atención', err?.error?.mensaje || mensajeDefecto, 'error');
   }
 }

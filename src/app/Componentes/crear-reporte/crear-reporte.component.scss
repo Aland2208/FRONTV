@@ -374,7 +374,7 @@
     }
 }
 
-/* FILAS DE CAPTURAS: 5 COLUMNAS */
+/* FILAS DE TABLA CON 5 COLUMNAS */
 .captura-fila {
     display: grid;
     grid-template-columns: 1fr 1fr 1fr 1.2fr 0.8fr;
@@ -403,7 +403,11 @@
     font-weight: 700;
 }
 
-/* BOTÓN ELIMINAR/ANULAR */
+.text-center {
+    text-align: center;
+}
+
+/* BOTÓN ANULAR CAPTURA */
 .btn-eliminar-captura {
     background: transparent;
     border: none;
@@ -661,6 +665,170 @@
     color: var(--danger);
 }
 
+/* ========================================================
+   MODALES FLOTANTES CON PALETA VIGÍA
+   ======================================================== */
+.modal-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    background: rgba(10, 31, 51, 0.78);
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+    box-sizing: border-box;
+}
+
+.modal-card {
+    width: 100%;
+    max-width: 440px;
+    background: var(--surface);
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.35);
+    animation: slideUp 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+
+    &--mensaje {
+        max-width: 400px;
+    }
+}
+
+.modal-header {
+    padding: 22px 20px 12px;
+    text-align: center;
+
+    .modal-icono {
+        width: 50px;
+        height: 50px;
+        margin: 0 auto 12px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 26px;
+
+        &--peligro {
+            background: rgba(229, 72, 77, 0.12);
+            color: var(--danger);
+        }
+
+        &--exito {
+            background: rgba(31, 174, 124, 0.12);
+            color: var(--success);
+        }
+
+        &--info {
+            background: rgba(18, 150, 158, 0.12);
+            color: var(--teal);
+        }
+    }
+
+    h3 {
+        margin: 0;
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: var(--abyss);
+    }
+
+    p {
+        margin: 8px 0 0;
+        font-size: 0.85rem;
+        color: var(--slate);
+        line-height: 1.4;
+    }
+}
+
+.modal-body {
+    padding: 10px 20px 16px;
+
+    .datos-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+
+        .dato-box {
+            background: var(--foam);
+            padding: 10px;
+            border-radius: 12px;
+            text-align: center;
+
+            &__label {
+                display: block;
+                font-size: 0.68rem;
+                color: var(--slate);
+                text-transform: uppercase;
+                font-weight: 600;
+                margin-bottom: 2px;
+            }
+
+            &__valor {
+                display: block;
+                font-size: 1.05rem;
+                color: var(--abyss);
+                font-family: inherit;
+                font-weight: 700;
+            }
+        }
+    }
+}
+
+.modal-actions {
+    display: grid;
+    grid-template-columns: 1fr 1.3fr;
+    gap: 10px;
+    padding: 16px 20px 22px;
+
+    &--single {
+        grid-template-columns: 1fr;
+    }
+
+    .btn-modal {
+        padding: 12px;
+        border-radius: 12px;
+        border: none;
+        font-weight: 700;
+        font-size: 0.88rem;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        transition: opacity 0.2s ease, transform 0.1s ease;
+
+        &:active {
+            transform: scale(0.98);
+        }
+    }
+
+    .btn-cancelar {
+        background: #eef2f5;
+        color: var(--slate);
+        &:hover { background: #e2e8ed; }
+    }
+
+    .btn-peligro {
+        background: var(--danger);
+        color: #ffffff;
+        box-shadow: 0 4px 12px rgba(229, 72, 77, 0.3);
+        &:hover { opacity: 0.92; }
+    }
+
+    .btn-primario {
+        background: var(--teal);
+        color: #ffffff;
+        box-shadow: 0 4px 12px rgba(18, 150, 158, 0.3);
+        &:hover { opacity: 0.92; }
+    }
+}
+
+@keyframes slideUp {
+    from { opacity: 0; transform: translateY(18px) scale(0.97); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
 @media (max-width: 700px) {
     .resumen-grid, .resumen-especie, .archivos-reporte, .botones-archivos {
         grid-template-columns: 1fr;
@@ -670,8 +838,12 @@
 @media (max-width: 480px) {
     .captura-fila {
         grid-template-columns: 1fr 1fr;
+        row-gap: 8px;
     }
     .captura-cabecera {
         display: none;
+    }
+    .modal-actions {
+        grid-template-columns: 1fr;
     }
 }

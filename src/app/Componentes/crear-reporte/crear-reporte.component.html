@@ -1,8 +1,6 @@
 <div class="crear-reporte-container">
 
-  <!-- ========================================= -->
   <!-- ENCABEZADO -->
-  <!-- ========================================= -->
   <section class="reporte-header">
     <div>
       <span class="eyebrow">Reportes</span>
@@ -11,9 +9,7 @@
     </div>
   </section>
 
-  <!-- ========================================= -->
   <!-- USUARIO -->
-  <!-- ========================================= -->
   <section class="usuario-card" *ngIf="usuario">
     <div class="usuario-icon">
       <ion-icon name="person-outline"></ion-icon>
@@ -24,26 +20,20 @@
     </div>
   </section>
 
-  <!-- ========================================= -->
   <!-- CARGANDO -->
-  <!-- ========================================= -->
   <div class="estado-container" *ngIf="cargando">
     <ion-spinner name="crescent"></ion-spinner>
     <p>Cargando capturas del día...</p>
   </div>
 
-  <!-- ========================================= -->
   <!-- ERROR -->
-  <!-- ========================================= -->
   <div class="estado-container estado-error" *ngIf="!cargando && error">
     <ion-icon name="warning-outline"></ion-icon>
     <h3>No se pudieron cargar los registros</h3>
     <p>{{ mensaje }}</p>
   </div>
 
-  <!-- ========================================= -->
   <!-- CONTENIDO -->
-  <!-- ========================================= -->
   <ng-container *ngIf="!cargando && !error">
 
     <!-- RESUMEN GENERAL -->
@@ -152,7 +142,7 @@
             <span>Peso</span>
             <span>Confianza</span>
             <span>Hora</span>
-            <span style="text-align: center;">Acción</span>
+            <span class="text-center">Acción</span>
           </div>
 
           <!-- FILAS -->
@@ -161,9 +151,9 @@
             <span>{{ captura.peso | number:'1.2-2' }} g</span>
             <span>{{ captura.porcentaje | number:'1.2-2' }} %</span>
             <span>{{ captura.hora_captura }}</span>
-            <span style="text-align: center;">
+            <span class="text-center">
               <button type="button" class="btn-eliminar-captura" title="Descartar captura errónea"
-                (click)="anularCaptura(captura)">
+                (click)="abrirModalAnular(captura)">
                 <ion-icon name="trash-outline"></ion-icon>
               </button>
             </span>
@@ -251,4 +241,77 @@
       </article>
     </section>
   </ng-container>
+
+  <!-- ======================================================== -->
+  <!-- MODAL DE ANULACIÓN DE CAPTURA (ESTILO VIGÍA) -->
+  <!-- ======================================================== -->
+  <div class="modal-backdrop" *ngIf="mostrarModalAnular">
+    <div class="modal-card">
+      <header class="modal-header">
+        <div class="modal-icono modal-icono--peligro">
+          <ion-icon name="trash-outline"></ion-icon>
+        </div>
+        <h3>Anular Captura</h3>
+        <p>¿Deseas remover este registro de tus capturas pendientes de hoy?</p>
+      </header>
+
+      <div class="modal-body" *ngIf="capturaSeleccionadaAnular">
+        <div class="datos-grid">
+          <div class="dato-box">
+            <span class="dato-box__label">Registro</span>
+            <strong class="dato-box__valor">#{{ capturaSeleccionadaAnular.id_captura }}</strong>
+          </div>
+          <div class="dato-box">
+            <span class="dato-box__label">Especie</span>
+            <strong class="dato-box__valor">{{ capturaSeleccionadaAnular.especie }}</strong>
+          </div>
+          <div class="dato-box">
+            <span class="dato-box__label">Peso registrado</span>
+            <strong class="dato-box__valor">{{ capturaSeleccionadaAnular.peso | number:'1.2-2' }} g</strong>
+          </div>
+          <div class="dato-box">
+            <span class="dato-box__label">Hora</span>
+            <strong class="dato-box__valor">{{ capturaSeleccionadaAnular.hora_captura }}</strong>
+          </div>
+        </div>
+      </div>
+
+      <footer class="modal-actions">
+        <button type="button" class="btn-modal btn-cancelar" (click)="cerrarModalAnular()">
+          <ion-icon name="close-circle-outline"></ion-icon>
+          Cancelar
+        </button>
+        <button type="button" class="btn-modal btn-peligro" [disabled]="anulandoProceso"
+          (click)="confirmarAnularCaptura()">
+          <ion-spinner *ngIf="anulandoProceso" name="crescent"></ion-spinner>
+          <ion-icon *ngIf="!anulandoProceso" name="trash-outline"></ion-icon>
+          {{ anulandoProceso ? 'Anulando...' : 'Sí, anular captura' }}
+        </button>
+      </footer>
+    </div>
+  </div>
+
+  <!-- ======================================================== -->
+  <!-- MODAL DE AVISO / NOTIFICACIÓN (ESTILO VIGÍA) -->
+  <!-- ======================================================== -->
+  <div class="modal-backdrop" *ngIf="modalMensaje.abierto">
+    <div class="modal-card modal-card--mensaje">
+      <header class="modal-header">
+        <div class="modal-icono"
+          [ngClass]="modalMensaje.tipo === 'exito' ? 'modal-icono--exito' : modalMensaje.tipo === 'error' ? 'modal-icono--peligro' : 'modal-icono--info'">
+          <ion-icon
+            [name]="modalMensaje.tipo === 'exito' ? 'checkmark-circle-outline' : modalMensaje.tipo === 'error' ? 'warning-outline' : 'information-circle-outline'"></ion-icon>
+        </div>
+        <h3>{{ modalMensaje.titulo }}</h3>
+        <p>{{ modalMensaje.descripcion }}</p>
+      </header>
+
+      <footer class="modal-actions modal-actions--single">
+        <button type="button" class="btn-modal btn-primario" (click)="cerrarModalMensaje()">
+          Entendido
+        </button>
+      </footer>
+    </div>
+  </div>
+
 </div>
