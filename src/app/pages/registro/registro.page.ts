@@ -49,31 +49,54 @@ export class RegistroPage implements OnInit {
 
   cargando = false;
 
-  // Expresión regular para nombres y apellidos reales en español:
-  // Permite letras (a-z, A-Z), acentos (á, é, í, ó, ú, Á, É, Í, Ó, Ú), ü/Ü, ñ/Ñ y espacios simples.
-  // Mínimo 2 caracteres, máximo 60.
-  private regexTextoValido = /^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ]{2,}(?: [a-zA-ZáéíóúÁÉÍÓÚñÑüÜ]{2,})*$/;
+  // ========================================================
+  // VALIDACIÓN ESTRICTA DE NOMBRES Y APELLIDOS REALES
+  // ========================================================
+  private validarCadenaNombre(texto: string): boolean {
+    const limpio = (texto || '').trim();
 
-  // Validación de nombre
+    // 1. Longitud total
+    if (limpio.length < 2 || limpio.length > 35) return false;
+
+    // 2. Solo letras y espacios simples
+    const regexLetras = /^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ]+(?: [a-zA-ZáéíóúÁÉÍÓÚñÑüÜ]+)*$/;
+    if (!regexLetras.test(limpio)) return false;
+
+    const palabras = limpio.split(' ');
+
+    for (const palabra of palabras) {
+      if (palabra.length < 2 || palabra.length > 20) return false;
+
+      // Bloquear 3 o más letras iguales seguidas (ej: "fff", "ddd", "aaa")
+      if (/([a-zA-ZáéíóúÁÉÍÓÚñÑüÜ])\1\1/i.test(palabra)) return false;
+
+      // Debe contener al menos una vocal
+      if (!/[aeiouáéíóúüAEIOUÁÉÍÓÚÜ]/i.test(palabra)) return false;
+
+      // Bloquear 4 o más consonantes seguidas sin vocales (detector de teclazo)
+      if (/[bcdfghjklmnñpqrstvwxyzBCDFGHJKLMNÑPQRSTVWXYZ]{4,}/i.test(palabra)) return false;
+
+      // Bloquear 4 o más vocales seguidas
+      if (/[aeiouáéíóúüAEIOUÁÉÍÓÚÜ]{4,}/i.test(palabra)) return false;
+    }
+
+    return true;
+  }
+
   get nombreValido(): boolean {
-    const val = this.usuario.nombre.trim();
-    return val.length >= 2 && this.regexTextoValido.test(val);
+    return this.validarCadenaNombre(this.usuario.nombre);
   }
 
-  // Validación de apellido
   get apellidoValido(): boolean {
-    const val = this.usuario.apellido.trim();
-    return val.length >= 2 && this.regexTextoValido.test(val);
+    return this.validarCadenaNombre(this.usuario.apellido);
   }
 
-  // Validación de correo electrónico
   get correoValido(): boolean {
-    const val = this.usuario.correo.trim().toLowerCase();
+    const val = (this.usuario.correo || '').trim().toLowerCase();
     const regexEmail = /^[^\s@]+@[^\s@]+\.[a-zA-Z]{2,}$/;
     return regexEmail.test(val);
   }
 
-  // Validación de requisitos de contraseña
   get requisitosPassword() {
     return validarPassword(this.usuario.password);
   }
@@ -99,37 +122,31 @@ export class RegistroPage implements OnInit {
     const apellidoLimpio = this.usuario.apellido.trim();
     const correoLimpio = this.usuario.correo.trim().toLowerCase();
 
-    // 1. Validar campos vacíos
     if (!nombreLimpio || !apellidoLimpio || !correoLimpio || !this.usuario.password) {
-      this.mostrarMensaje('Por favor completa todos los campos obligatorios.', 'warning');
+      this.mostrarMensaje('Por favor completa todos los campos.', 'warning');
       return;
     }
 
-    // 2. Validar que el nombre sea auténtico
     if (!this.nombreValido) {
-      this.mostrarMensaje('Nombre no válido. Debe contener solo letras y al menos 2 caracteres.', 'warning');
+      this.mostrarMensaje('Nombre no válido. Ingrese un nombre real sin caracteres repetitivos.', 'warning');
       return;
     }
 
-    // 3. Validar que el apellido sea auténtico
     if (!this.apellidoValido) {
-      this.mostrarMensaje('Apellido no válido. Debe contener solo letras y al menos 2 caracteres.', 'warning');
+      this.mostrarMensaje('Apellido no válido. Ingrese un apellido real sin caracteres repetitivos.', 'warning');
       return;
     }
 
-    // 4. Validar formato de correo
     if (!this.correoValido) {
-      this.mostrarMensaje('Por favor ingresa un correo electrónico válido.', 'warning');
+      this.mostrarMensaje('Ingrese un correo electrónico válido.', 'warning');
       return;
     }
 
-    // 5. Validar requisitos de contraseña
     if (!this.requisitosPassword.valida) {
       this.mostrarMensaje('La contraseña no cumple con los requisitos de seguridad.', 'warning');
       return;
     }
 
-    // 6. Validar tipo de cuenta
     if (this.usuario.id_rol !== 1 && this.usuario.id_rol !== 2) {
       this.mostrarMensaje('Selecciona el tipo de cuenta: Administrador u Observador.', 'warning');
       return;
