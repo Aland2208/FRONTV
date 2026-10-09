@@ -9,8 +9,18 @@ import { HttpClient } from '@angular/common/http';
 
 import {
   IonButton,
-  IonIcon
+  IonIcon,
+  IonSpinner
 } from '@ionic/angular/standalone';
+
+import { addIcons } from 'ionicons';
+import {
+  cameraOutline,
+  warningOutline,
+  checkmarkCircleOutline,
+  checkmarkDoneCircleOutline,
+  closeCircleOutline
+} from 'ionicons/icons';
 
 import { BalanzaS } from '../../servicios/balanza-s';
 import { SocketS } from '../../servicios/socket-s';
@@ -24,7 +34,8 @@ import { Auth } from '../../servicios/auth';
   imports: [
     CommonModule,
     IonButton,
-    IonIcon
+    IonIcon,
+    IonSpinner
   ]
 })
 export class CamaraComponent implements OnInit, OnDestroy {
@@ -33,16 +44,25 @@ export class CamaraComponent implements OnInit, OnDestroy {
   urlCamara: string = '';
   camaraConectada: boolean = false;
   mensajeEstadoCamara: string = 'Conectando con la cámara...';
+  procesandoIA: boolean = false;
 
   // ==========================================
-  // MODO PRUEBA SIN BALANZA
+  // MODAL DE CONFIRMACIÓN
+  // ==========================================
+  mostrarModalVerificacion: boolean = false;
+  datosPendientesVerificacion: {
+    id_especie: number;
+    especie: string;
+    peso: number;
+    imagen_url: string;
+    porcentaje: number;
+  } | null = null;
+
+  // ==========================================
+  // BALANZA Y PRUEBA
   // ==========================================
   modoPruebaSinBalanza = true;
   pesoPrueba = 250.00;
-
-  // ==========================================
-  // VARIABLES BALANZA
-  // ==========================================
   peso: number = 0;
   fecha: string = '';
   conexion = false;
@@ -50,9 +70,6 @@ export class CamaraComponent implements OnInit, OnDestroy {
   mostrarMensaje = false;
   realizandoTara = false;
 
-  // ==========================================
-  // ÚLTIMO RESULTADO
-  // ==========================================
   ultimoResultado: {
     especie: string;
     peso: number;
@@ -62,9 +79,6 @@ export class CamaraComponent implements OnInit, OnDestroy {
     imagen_url?: string;
   } | null = null;
 
-  // ==========================================
-  // TEMPORIZADORES
-  // ==========================================
   private temporizadorConexion: any;
   private temporizadorMensaje: any;
   private intervaloMonitorCamara: any;
@@ -74,20 +88,22 @@ export class CamaraComponent implements OnInit, OnDestroy {
     private socketService: SocketS,
     private http: HttpClient,
     private authService: Auth
-  ) { }
+  ) {
+    // Registrar explícitamente los iconos de Ionic para prevenir advertencias en la consola
+    addIcons({
+      cameraOutline,
+      warningOutline,
+      checkmarkCircleOutline,
+      checkmarkDoneCircleOutline,
+      closeCircleOutline
+    });
+  }
 
   ngOnInit() {
     this.cargarUrlCamaraAsignada();
-
     this.peso = 0;
     this.fecha = '';
 
-    if (this.modoPruebaSinBalanza) {
-      console.warn('🧪 MODO PRUEBA SIN BALANZA ACTIVADO');
-      console.warn(`⚖️ Peso simulado: ${this.pesoPrueba} g`);
-    }
-
-    // Sockets Balanza
     this.socketService.conectado(() => {
       console.log('🔌 Socket balanza conectado');
     });
@@ -132,9 +148,6 @@ export class CamaraComponent implements OnInit, OnDestroy {
     });
   }
 
-  // ==========================================
-  // CÁMARA: CARGAR Y VIGILAR ESTADO
-  // ==========================================
   cargarUrlCamaraAsignada() {
     const idUsuario = this.authService.obtenerIdUsuario();
     if (!idUsuario) {
@@ -198,7 +211,7 @@ export class CamaraComponent implements OnInit, OnDestroy {
   }
 
   // ==========================================
-  // GUARDAR CAPTURA CON VERIFICACIÓN PREVIA
+  // DISPARO DE INFERENCIA
   // ==========================================
   guardarCapturaWeb() {
     if (!this.camaraConectada || !this.PYTHON_API) {
@@ -209,72 +222,85 @@ export class CamaraComponent implements OnInit, OnDestroy {
     const pesoRegistro = this.modoPruebaSinBalanza ? this.pesoPrueba : this.peso;
 
     if (!this.modoPruebaSinBalanza && pesoRegistro <= 0) {
-      this.mostrarAlerta('⚠️ No hay peso válido en la balanza para guardar');
+      this.mostrarAlerta('⚠️ No hay peso válido en la balanza para registrar.');
       return;
     }
 
+    this.procesandoIA = true;
     this.mostrarAlerta('⏳ Procesando captura con IA...');
 
-    // 1. Obtener predicción de Python sin guardar todavía en BD
     this.http.post<any>(`${this.PYTHON_API}/api-local/subir-cloudinary`, {}).subscribe({
       next: (resPython) => {
-        const idEspecieDetectada = Number(resPython.id_deteccion);
-        const especieDetectada = resPython.especie;
-        const imagenUrlCloudinary = resPython.imagen_url;
-        const porcentajeDeteccion = Number(resPython.porcentaje);
+        this.procesandoIA = false;
+        const idEspecie = Number(resPython.id_deteccion);
+        const especie = resPython.especie;
+        const imagenUrl = resPython.imagen_url;
+        const porcentaje = Number(resPython.porcentaje);
 
-        if (!idEspecieDetectada || !imagenUrlCloudinary || Number.isNaN(porcentajeDeteccion)) {
-          this.mostrarAlerta('❌ Python no devolvió los datos necesarios');
+        if (!idEspecie || !imagenUrl || Number.isNaN(porcentaje)) {
+          this.mostrarAlerta('❌ Python no devolvió los datos requeridos.');
           return;
         }
 
-        // 2. VENTANA DE VERIFICACIÓN / CONFIRMACIÓN
-        const confirmacion = confirm(
-          `🔍 VERIFICACIÓN DE CAPTURA:\n\n` +
-          `• Especie: ${especieDetectada} (${porcentajeDeteccion.toFixed(1)}%)\n` +
-          `• Peso balanza: ${pesoRegistro.toFixed(2)} g\n\n` +
-          `¿Los datos son correctos para registrarlos en la faena?`
-        );
-
-        if (!confirmacion) {
-          this.mostrarAlerta('↩️ Captura descartada. Puedes reintentar.');
-          return;
-        }
-
-        // 3. Si confirma, se inserta en MySQL
-        const idUsuario = this.authService.obtenerIdUsuario();
-        if (!idUsuario) {
-          this.mostrarAlerta('❌ No se pudo identificar al usuario');
-          return;
-        }
-
-        const datosCaptura = {
-          id_especie: idEspecieDetectada,
-          id_usuario: idUsuario,
+        // Abrir el modal con diseño de VIGÍA
+        this.datosPendientesVerificacion = {
+          id_especie: idEspecie,
+          especie: especie,
           peso: pesoRegistro,
-          imagen_url: imagenUrlCloudinary,
-          porcentaje: porcentajeDeteccion
+          imagen_url: imagenUrl,
+          porcentaje: porcentaje
         };
-
-        this.balanzaService.registrarCaptura(datosCaptura).subscribe({
-          next: () => {
-            this.ultimoResultado = {
-              especie: especieDetectada,
-              peso: pesoRegistro,
-              porcentaje: porcentajeDeteccion,
-              hora: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' }),
-              id: idEspecieDetectada,
-              imagen_url: imagenUrlCloudinary
-            };
-            this.mostrarAlerta(`✅ Captura confirmada y registrada (${especieDetectada})`);
-          },
-          error: (err) => {
-            this.mostrarAlerta(err.error?.mensaje ? `❌ ${err.error.mensaje}` : '❌ Error al guardar en base de datos');
-          }
-        });
+        this.mostrarModalVerificacion = true;
       },
       error: (err) => {
-        this.mostrarAlerta(err.error?.mensaje ? `⚠️ ${err.error.mensaje}` : '❌ Error al comunicarse con Python');
+        this.procesandoIA = false;
+        console.error(err);
+        this.mostrarAlerta('❌ Error de comunicación con el motor de IA.');
+      }
+    });
+  }
+
+  descartarCapturaModal() {
+    this.mostrarModalVerificacion = false;
+    this.datosPendientesVerificacion = null;
+    this.mostrarAlerta('↩️ Captura descartada. Puedes reintentar.');
+  }
+
+  confirmarCapturaModal() {
+    if (!this.datosPendientesVerificacion) return;
+
+    const idUsuario = this.authService.obtenerIdUsuario();
+    if (!idUsuario) {
+      this.mostrarAlerta('❌ No se pudo identificar al usuario.');
+      return;
+    }
+
+    const datos = {
+      id_especie: this.datosPendientesVerificacion.id_especie,
+      id_usuario: idUsuario,
+      peso: this.datosPendientesVerificacion.peso,
+      imagen_url: this.datosPendientesVerificacion.imagen_url,
+      porcentaje: this.datosPendientesVerificacion.porcentaje
+    };
+
+    const respaldoVisual = { ...this.datosPendientesVerificacion };
+    this.mostrarModalVerificacion = false;
+    this.datosPendientesVerificacion = null;
+
+    this.balanzaService.registrarCaptura(datos).subscribe({
+      next: () => {
+        this.ultimoResultado = {
+          especie: respaldoVisual.especie,
+          peso: respaldoVisual.peso,
+          porcentaje: respaldoVisual.porcentaje,
+          hora: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' }),
+          id: respaldoVisual.id_especie,
+          imagen_url: respaldoVisual.imagen_url
+        };
+        this.mostrarAlerta(`✅ Captura registrada (${respaldoVisual.especie})`);
+      },
+      error: (err) => {
+        this.mostrarAlerta(err.error?.mensaje || '❌ Error al guardar en base de datos.');
       }
     });
   }
