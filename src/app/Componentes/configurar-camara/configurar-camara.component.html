@@ -20,6 +20,44 @@
         </div>
       </div>
 
+      <!-- SECCIÓN: VEEDORES VINCULADOS CON ACCESO DIRECTO -->
+      <div class="veedores-box">
+        <div class="veedores-header">
+          <div>
+            <span class="veedores-label">EQUIPO DE VEEDORES VINCULADOS</span>
+            <strong class="veedores-count">{{ totalVeedores }} {{ totalVeedores === 1 ? 'veedor con acceso' : 'veedores
+              con acceso' }}</strong>
+          </div>
+          <span class="chip-total" [class.chip-total--cero]="totalVeedores === 0">
+            <ion-icon name="people-outline"></ion-icon>
+            {{ totalVeedores }}
+          </span>
+        </div>
+
+        <!-- LISTA DE VEEDORES ACTIVOS -->
+        <div class="veedores-lista" *ngIf="veedoresVinculados.length > 0">
+          <div class="veedor-item" *ngFor="let veedor of veedoresVinculados">
+            <div class="veedor-avatar">
+              <ion-icon name="person-outline"></ion-icon>
+            </div>
+            <div class="veedor-info">
+              <strong>{{ veedor.nombre }} {{ veedor.apellido }}</strong>
+              <small>{{ veedor.correo }}</small>
+            </div>
+            <span class="veedor-badge" [class.veedor-badge--activo]="veedor.estado === 1">
+              {{ veedor.estado === 1 ? 'Habilitado' : 'Inactivo' }}
+            </span>
+          </div>
+        </div>
+
+        <!-- MENSAJE SI NO TIENE VEEDORES -->
+        <div class="veedores-vacio" *ngIf="veedoresVinculados.length === 0">
+          <ion-icon name="information-circle-outline"></ion-icon>
+          <span>Actualmente no tienes veedores vinculados a tu cuenta. Los observadores que vincules verán la cámara
+            automáticamente.</span>
+        </div>
+      </div>
+
       <!-- URL ACTUAL GUARDADA -->
       <div class="info-url" *ngIf="urlActual">
         <span class="info-url__label">Enlace activo:</span>

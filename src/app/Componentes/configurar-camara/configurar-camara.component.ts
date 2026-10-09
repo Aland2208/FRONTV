@@ -24,6 +24,10 @@ export class ConfigurarCamaraComponent implements OnInit {
   cargando: boolean = false;
   idAdministrador: number | null = null;
 
+  // Variables para la lista y recuento de veedores
+  veedoresVinculados: any[] = [];
+  totalVeedores: number = 0;
+
   constructor(
     private authService: Auth,
     private toastCtrl: ToastController
@@ -44,9 +48,11 @@ export class ConfigurarCamaraComponent implements OnInit {
     this.authService.obtenerUrlCamaraVinculada(this.idAdministrador)
       .subscribe({
         next: (res) => {
-          if (res?.estado === 1 && res.url_camara) {
-            this.urlActual = res.url_camara;
-            this.fechaActualizacion = res.fecha_actualizacion;
+          if (res?.estado === 1) {
+            this.urlActual = res.url_camara || null;
+            this.fechaActualizacion = res.fecha_actualizacion || null;
+            this.veedoresVinculados = res.veedores || [];
+            this.totalVeedores = res.total_veedores || 0;
           }
         },
         error: (err) => console.error('Error al cargar configuración:', err)
@@ -82,8 +88,9 @@ export class ConfigurarCamaraComponent implements OnInit {
           this.cargando = false;
           if (res?.estado === 1) {
             this.urlActual = urlLimpia;
+            this.fechaActualizacion = new Date().toLocaleString('es-EC');
             this.nuevaUrl = '';
-            this.mostrarToast('✅ Cámara habilitada para todos los veedores.', 'success');
+            this.mostrarToast(`✅ Cámara habilitada para tus ${this.totalVeedores} veedores.`, 'success');
           } else {
             this.mostrarToast(res?.mensaje || 'Error al guardar.', 'danger');
           }
