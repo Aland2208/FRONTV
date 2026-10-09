@@ -140,7 +140,7 @@
  text-transform:uppercase;
 }
 
-/* INPUTS */
+/* INPUTS CON CONTORNO ROJO CUANDO HAY ERROR */
 .field__box{
  --background:rgba(7,22,39,.55);
  --color:var(--white);
@@ -156,11 +156,12 @@
 
  &.field__box--error {
    border-color: var(--danger);
-   background: rgba(248, 113, 113, 0.08);
+   box-shadow: 0 0 0 2px rgba(248, 113, 113, 0.25);
+   background: rgba(248, 113, 113, 0.06);
  }
 }
 
-.field__box.item-has-focus{
+.field__box.item-has-focus:not(.field__box--error){
  border-color:var(--teal-glow);
  background:rgba(7,22,39,.8);
  box-shadow:0 0 0 3px rgba(94,234,212,.18);
@@ -175,27 +176,18 @@
  font-weight:600;
 }
 
-/* MENSAJE DE ERROR DEBAJO DEL INPUT */
+/* MENSAJE CORTO */
 .field__error {
- display: flex;
- align-items: center;
- gap: 5px;
- margin-top: 6px;
+ display: block;
+ margin-top: 5px;
  margin-left: 4px;
  color: var(--danger);
  font-family: var(--font-mono);
  font-size: 0.68rem;
- font-weight: 500;
-
- ion-icon {
-   font-size: 14px;
-   flex-shrink: 0;
- }
+ font-weight: 600;
 }
 
-/* ==========================================
-   REQUISITOS DE CONTRASEÑA
-   ========================================== */
+/* REQUISITOS DE CONTRASEÑA */
 .password-requirements {
     display: flex;
     flex-direction: column;
@@ -230,9 +222,7 @@
     transform: scale(1.1); 
 }
 
-/* ==========================================
-   SELECCIÓN DEL TIPO DE CUENTA
-   ========================================== */
+/* ROLES */
 .roles{
  display:flex;
  flex-direction:column;

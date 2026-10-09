@@ -41,10 +41,9 @@
                         </ion-input>
                     </ion-item>
 
-                    <!-- MENSAJE DE VALIDACIÓN -->
+                    <!-- MENSAJE CORTO -->
                     <small class="field__error" *ngIf="usuario.nombre && !nombreValido">
-                        <ion-icon name="alert-circle-outline"></ion-icon>
-                        Nombre no válido (ingrese un nombre auténtico)
+                        Nombre no válido
                     </small>
                 </div>
 
@@ -61,10 +60,9 @@
                         </ion-input>
                     </ion-item>
 
-                    <!-- MENSAJE DE VALIDACIÓN -->
+                    <!-- MENSAJE CORTO -->
                     <small class="field__error" *ngIf="usuario.apellido && !apellidoValido">
-                        <ion-icon name="alert-circle-outline"></ion-icon>
-                        Apellido no válido (ingrese un apellido auténtico)
+                        Apellido no válido
                     </small>
                 </div>
 
@@ -82,8 +80,7 @@
                     </ion-item>
 
                     <small class="field__error" *ngIf="usuario.correo && !correoValido">
-                        <ion-icon name="alert-circle-outline"></ion-icon>
-                        Correo electrónico no válido
+                        Correo no válido
                     </small>
                 </div>
 
