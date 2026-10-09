@@ -49,46 +49,59 @@ export class RegistroPage implements OnInit {
 
   cargando = false;
 
+  // Lista negra de palabras no permitidas (groserías, bromas, roles de sistema o genéricas)
+  private palabrasProhibidas = [
+    'mama', 'tanga', 'papa', 'culo', 'puta', 'puto', 'mierda', 'verga', 'pito',
+    'pendejo', 'pendeja', 'idiota', 'maricon', 'perra', 'perro', 'chucha', 'hdp',
+    'admin', 'administrador', 'root', 'test', 'prueba', 'usuario', 'null', 'undefined',
+    'anonimo', 'nobody', 'fake', 'bot', 'observador', 'veedor'
+  ];
+
   // ========================================================
   // VALIDACIÓN ESTRICTA Y ANTIFRAUDE DE NOMBRES/APELLIDOS
   // ========================================================
   private validarCadenaNombre(texto: string): boolean {
     const limpio = (texto || '').trim();
 
-    // 1. Longitud total permitida
-    if (limpio.length < 2 || limpio.length > 40) return false;
+    // 1. Longitud total permitida (mínimo 2, máximo 30 caracteres)
+    if (limpio.length < 2 || limpio.length > 30) return false;
 
     // 2. Solo letras del español y espacios simples
     const regexLetras = /^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ]+(?: [a-zA-ZáéíóúÁÉÍÓÚñÑüÜ]+)*$/;
     if (!regexLetras.test(limpio)) return false;
 
+    // 3. Máximo 2 palabras por campo (ej. "Juan Carlos" o "Perez Ortiz")
     const palabras = limpio.split(' ');
+    if (palabras.length > 2) return false;
 
     for (const palabra of palabras) {
-      // Ningún nombre o apellido individual en español supera las 15 letras
       if (palabra.length < 2 || palabra.length > 15) return false;
 
-      const pLower = palabra.toLowerCase();
+      // Normalizar quitando tildes para evaluar la lista negra
+      const pSinTildes = palabra.toLowerCase()
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '');
 
-      // 3. Bloquear 3 o más letras iguales seguidas (ej: "aaa", "lll", "fff")
-      if (/([a-záéíóúñü])\1\1/i.test(pLower)) return false;
+      // 4. Comprobar si la palabra está en la lista de términos no admitidos
+      if (this.palabrasProhibidas.includes(pSinTildes)) return false;
 
-      // 4. Debe tener al menos una vocal
-      if (!/[aeiouáéíóúü]/i.test(pLower)) return false;
+      // 5. Bloquear 3 o más letras iguales seguidas (ej: "aaa", "lll", "fff")
+      if (/([a-záéíóúñü])\1\1/i.test(palabra)) return false;
 
-      // 5. Bloquear 4 o más consonantes seguidas sin vocales intermedias
-      if (/[bcdfghjklmnñpqrstvwxyz]{4,}/i.test(pLower)) return false;
+      // 6. Debe tener al menos una vocal
+      if (!/[aeiouáéíóúü]/i.test(palabra)) return false;
 
-      // 6. Bloquear 4 o más vocales seguidas
-      if (/[aeiouáéíóúü]{4,}/i.test(pLower)) return false;
+      // 7. Bloquear 4 o más consonantes seguidas sin vocales
+      if (/[bcdfghjklmnñpqrstvwxyz]{4,}/i.test(palabra)) return false;
 
-      // 7. Bloquear combinaciones imposibles de teclado común en español
-      // (ej: "jd", "dj", "qj", "xj", "zx", "jk", "kj", "wq")
-      if (/(jd|dj|qj|xj|zx|jk|kj|wq|qw|fg|gf|vb|bv)/i.test(pLower)) return false;
+      // 8. Bloquear 4 o más vocales seguidas
+      if (/[aeiouáéíóúü]{4,}/i.test(palabra)) return false;
 
-      // 8. Detector de bucles repetidos (ej: "aijdaijd", "asdfasdf", "lololo", "lalala")
-      // Detecta secuencias de 2 a 4 caracteres que se repiten 3 o más veces consecutivas
-      if (/(.{2,4})\1\1/i.test(pLower)) return false;
+      // 9. Bloquear combinaciones de teclado arbitrarias
+      if (/(jd|dj|qj|xj|zx|jk|kj|wq|qw|fg|gf|vb|bv)/i.test(palabra)) return false;
+
+      // 10. Bloquear bucles repetidos
+      if (/(.{2,4})\1\1/i.test(palabra)) return false;
     }
 
     return true;
@@ -139,12 +152,12 @@ export class RegistroPage implements OnInit {
     }
 
     if (!this.nombreValido) {
-      this.mostrarMensaje('Nombre no válido. Ingrese un nombre real.', 'warning');
+      this.mostrarMensaje('Nombre no válido. Ingrese un nombre formal y auténtico.', 'warning');
       return;
     }
 
     if (!this.apellidoValido) {
-      this.mostrarMensaje('Apellido no válido. Ingrese un apellido real.', 'warning');
+      this.mostrarMensaje('Apellido no válido. Ingrese un apellido formal y auténtico.', 'warning');
       return;
     }
 
