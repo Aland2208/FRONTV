@@ -1,6 +1,7 @@
-import { Component, EventEmitter, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, OnInit, OnDestroy, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
+import { Subscription } from 'rxjs';
 
 import {
   IonMenu,
@@ -17,11 +18,11 @@ import {
 import { Auth } from '../../servicios/auth';
 
 @Component({
-  selector:'app-menu-usuario',
-  templateUrl:'./menu-usuario.component.html',
-  styleUrls:['./menu-usuario.component.scss'],
-  standalone:true,
-  imports:[
+  selector: 'app-menu-usuario',
+  templateUrl: './menu-usuario.component.html',
+  styleUrls: ['./menu-usuario.component.scss'],
+  standalone: true,
+  imports: [
     CommonModule,
     IonMenu,
     IonHeader,
@@ -33,44 +34,71 @@ import { Auth } from '../../servicios/auth';
     IonLabel
   ]
 })
-export class MenuUsuarioComponent implements OnInit {
+export class MenuUsuarioComponent implements OnInit, OnDestroy {
 
-  @Output() cambiarVista=new EventEmitter<string>();
+  @Output() cambiarVista = new EventEmitter<string>();
 
-  nombre='';
-  idRol:number|null=null;
-  nombreRol='';
+  nombre = '';
+  idRol: number | null = null;
+  nombreRol = '';
+
+  // Suscripción reactiva para liberar memoria
+  private subNombre!: Subscription;
 
   constructor(
-    private authService:Auth,
-    private router:Router,
-    private menuController:MenuController
-  ) {}
+    private authService: Auth,
+    private router: Router,
+    private menuController: MenuController
+  ) { }
 
-  ngOnInit(){
-    this.idRol=this.authService.obtenerRol();
-    this.nombre=this.authService.obtenerNombre() ?? '';
+  ngOnInit() {
+    this.idRol = this.authService.obtenerRol();
     this.cargarNombreRol();
+
+    // ==========================================
+    // ESCUCHA REACTIVA DEL NOMBRE
+    // Actualiza el nombre en el menú al instante al editar el perfil
+    // ==========================================
+    this.subNombre = this.authService.obtenerNombreObservable().subscribe({
+      next: (nombreActualizado) => {
+        this.nombre = nombreActualizado || (this.authService.obtenerNombre() ?? '');
+      }
+    });
   }
 
-  cargarNombreRol(){
-    if(this.idRol===1) this.nombreRol='Administrador';
-    else if(this.idRol===2) this.nombreRol='Veedor';
-    else this.nombreRol='';
+  // ==========================================
+  // ASIGNAR ETIQUETA SEGÚN ROL
+  // ==========================================
+  cargarNombreRol() {
+    if (this.idRol === 1) this.nombreRol = 'Administrador';
+    else if (this.idRol === 2) this.nombreRol = 'Veedor';
+    else this.nombreRol = '';
   }
 
-  async cerrarMenu(){
+  // ==========================================
+  // GESTIÓN DE ACCIONES Y NAVEGACIÓN
+  // ==========================================
+  async cerrarMenu() {
     await this.menuController.close('menuUsuario');
   }
 
-  async abrirVista(vista:string){
+  async abrirVista(vista: string) {
     await this.menuController.close('menuUsuario');
     this.cambiarVista.emit(vista);
   }
 
-  async cerrarSesion(){
+  async cerrarSesion() {
     await this.menuController.close('menuUsuario');
     this.authService.cerrarSesion();
-    await this.router.navigate(['/login'],{replaceUrl:true});
+    await this.router.navigate(['/login'], { replaceUrl: true });
+  }
+
+  // ==========================================
+  // DESTRUCCIÓN DEL COMPONENTE
+  // ==========================================
+  ngOnDestroy() {
+    if (this.subNombre) {
+      this.subNombre.unsubscribe();
+    }
   }
 }

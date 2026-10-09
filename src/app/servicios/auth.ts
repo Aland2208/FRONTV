@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, BehaviorSubject } from 'rxjs';
 import { environment } from '../../environments/environment';
 
 @Injectable({
@@ -9,7 +9,80 @@ import { environment } from '../../environments/environment';
 export class Auth {
     private apiUrl = `${environment.apiUrl}auth`;
 
+    // ==========================================
+    // FLUJO REACTIVO DE USUARIO
+    // Emite el nombre en tiempo real a los componentes
+    // ==========================================
+    private nombreUsuario$ = new BehaviorSubject<string>(
+        sessionStorage.getItem('veedor_nombre') || ''
+    );
+
     constructor(private http: HttpClient) { }
+
+    // ==========================================
+    // OBSERVABLE PÚBLICO
+    // Permite que el menú lateral escuche los cambios al instante
+    // ==========================================
+    obtenerNombreObservable(): Observable<string> {
+        return this.nombreUsuario$.asObservable();
+    }
+
+    // ==========================================
+    // ACTUALIZAR NOMBRE EN SESIÓN Y EMITIR EVENTO
+    // ==========================================
+    actualizarNombre(nuevoNombre: string): void {
+        sessionStorage.setItem('veedor_nombre', nuevoNombre);
+        this.nombreUsuario$.next(nuevoNombre); // Notifica a todos los componentes suscritos
+    }
+
+    // ==========================================
+    // MANEJO DEL TOKEN Y SESIÓN
+    // ==========================================
+    guardarSesion(token: string, idUsuario: number, nombre: string, idRol: number): void {
+        sessionStorage.setItem('veedor_token', token);
+        sessionStorage.setItem('veedor_id', idUsuario.toString());
+        sessionStorage.setItem('veedor_nombre', nombre);
+        sessionStorage.setItem('veedor_rol', idRol.toString());
+        this.nombreUsuario$.next(nombre); // Emite el nombre al iniciar sesión
+    }
+
+    obtenerToken(): string | null {
+        return sessionStorage.getItem('veedor_token');
+    }
+
+    obtenerIdUsuario(): number | null {
+        const id = sessionStorage.getItem('veedor_id');
+        return id ? Number(id) : null;
+    }
+
+    obtenerNombre(): string | null {
+        return sessionStorage.getItem('veedor_nombre');
+    }
+
+    obtenerRol(): number | null {
+        const rol = sessionStorage.getItem('veedor_rol');
+        return rol ? Number(rol) : null;
+    }
+
+    cerrarSesion(): void {
+        // Sesión actual
+        sessionStorage.removeItem('veedor_token');
+        sessionStorage.removeItem('veedor_id');
+        sessionStorage.removeItem('veedor_nombre');
+        sessionStorage.removeItem('veedor_rol');
+
+        // Limpia sesiones residuales en localStorage
+        localStorage.removeItem('veedor_token');
+        localStorage.removeItem('veedor_id');
+        localStorage.removeItem('veedor_nombre');
+        localStorage.removeItem('veedor_rol');
+
+        this.nombreUsuario$.next(''); // Limpia el nombre en el flujo reactivo
+    }
+
+    estaAutenticado(): boolean {
+        return !!this.obtenerToken();
+    }
 
     // ==========================================
     // AUTENTICACIÓN
@@ -75,62 +148,6 @@ export class Auth {
                 nuevaPassword
             }
         );
-    }
-
-    // ==========================================
-    // MANEJO DEL TOKEN Y SESIÓN
-    // ==========================================
-
-    guardarSesion(
-        token: string,
-        idUsuario: number,
-        nombre: string,
-        idRol: number
-    ): void {
-        sessionStorage.setItem('veedor_token', token);
-        sessionStorage.setItem('veedor_id', idUsuario.toString());
-        sessionStorage.setItem('veedor_nombre', nombre);
-        sessionStorage.setItem('veedor_rol', idRol.toString());
-    }
-
-    obtenerToken(): string | null {
-        return sessionStorage.getItem('veedor_token');
-    }
-
-    obtenerIdUsuario(): number | null {
-        const id = sessionStorage.getItem('veedor_id');
-        return id ? Number(id) : null;
-    }
-
-    obtenerNombre(): string | null {
-        return sessionStorage.getItem('veedor_nombre');
-    }
-
-    obtenerRol(): number | null {
-        const rol = sessionStorage.getItem('veedor_rol');
-        return rol ? Number(rol) : null;
-    }
-
-    actualizarNombre(nombre: string): void {
-        sessionStorage.setItem('veedor_nombre', nombre);
-    }
-
-    cerrarSesion(): void {
-        // Sesión actual
-        sessionStorage.removeItem('veedor_token');
-        sessionStorage.removeItem('veedor_id');
-        sessionStorage.removeItem('veedor_nombre');
-        sessionStorage.removeItem('veedor_rol');
-
-        // Limpia sesiones antiguas que quedaron en localStorage
-        localStorage.removeItem('veedor_token');
-        localStorage.removeItem('veedor_id');
-        localStorage.removeItem('veedor_nombre');
-        localStorage.removeItem('veedor_rol');
-    }
-
-    estaAutenticado(): boolean {
-        return !!this.obtenerToken();
     }
 
     // ==========================================
@@ -301,6 +318,7 @@ export class Auth {
             `${environment.apiUrl}administrador/${idAdministrador}/veedores/${idUsuario}/reportes`
         );
     }
+
     validarTokenRecuperacion(token: string) {
         return this.http.get<any>(
             `${environment.apiUrl}auth/validar-reset/${encodeURIComponent(token)}`
@@ -308,7 +326,7 @@ export class Auth {
     }
 
     // ==========================================
-    // CONFIGURACIÓN DE CÁMARA
+    // CONFIGURACIÓN DE CÁMARA (CLOUDFLARE TUNNEL)
     // ==========================================
 
     guardarUrlCamara(idAdministrador: number, urlCamara: string): Observable<any> {
