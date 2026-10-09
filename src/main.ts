@@ -93,6 +93,7 @@ import {
   informationCircleOutline,
   alertCircleOutline,
   warningOutline,
+  checkmarkDoneCircleOutline,
 
   downloadOutline,
   cloudDownloadOutline,
@@ -110,13 +111,21 @@ import {
   imagesOutline,
   imageOutline,
   videocamOutline,
+  videocamOffOutline,
 
   checkmarkOutline,
   terminalOutline,
-  cloudUploadOutline
+  cloudUploadOutline,
+
+  // ==========================================
+  // ICONOS AGREGADOS QUE FALTABAN
+  // ==========================================
+  gridOutline,
+  sendOutline
 } from 'ionicons/icons';
 
 addIcons({
+  'checkmark-done-circle-outline': checkmarkDoneCircleOutline,
   'cloud-upload-outline': cloudUploadOutline,
   'terminal-outline': terminalOutline,
   'star': star,
@@ -147,6 +156,7 @@ addIcons({
   'pie-chart-outline': pieChartOutline,
   'trending-up-outline': trendingUpOutline,
   'videocam-outline': videocamOutline,
+  'videocam-off-outline': videocamOffOutline,
 
   'cube-outline': cubeOutline,
   'cart-outline': cartOutline,
@@ -222,7 +232,13 @@ addIcons({
   'list-outline': listOutline,
   'images-outline': imagesOutline,
   'image-outline': imageOutline,
-  "checkmark-outline": checkmarkOutline
+  'checkmark-outline': checkmarkOutline,
+
+  // ==========================================
+  // REGISTRO DE LOS ICONOS QUE FALTABAN
+  // ==========================================
+  'grid-outline': gridOutline,
+  'send-outline': sendOutline
 });
 
 bootstrapApplication(AppComponent, {
