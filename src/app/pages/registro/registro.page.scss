@@ -153,6 +153,11 @@
  border:1.5px solid rgba(94,234,212,.25);
  border-radius:12px;
  transition:border-color .15s ease,box-shadow .15s ease,background .15s ease;
+
+ &.field__box--error {
+   border-color: var(--danger);
+   background: rgba(248, 113, 113, 0.08);
+ }
 }
 
 .field__box.item-has-focus{
@@ -168,6 +173,24 @@
  font-family:var(--font-mono);
  font-size:.95rem;
  font-weight:600;
+}
+
+/* MENSAJE DE ERROR DEBAJO DEL INPUT */
+.field__error {
+ display: flex;
+ align-items: center;
+ gap: 5px;
+ margin-top: 6px;
+ margin-left: 4px;
+ color: var(--danger);
+ font-family: var(--font-mono);
+ font-size: 0.68rem;
+ font-weight: 500;
+
+ ion-icon {
+   font-size: 14px;
+   flex-shrink: 0;
+ }
 }
 
 /* ==========================================
@@ -198,7 +221,6 @@
     transition: color 0.2s ease, transform 0.2s ease;
 }
 
-/* Estado válido (cuando se cumple el requisito) */
 .password-requirements span.valido {
     color: var(--success);
 }
@@ -211,7 +233,6 @@
 /* ==========================================
    SELECCIÓN DEL TIPO DE CUENTA
    ========================================== */
-
 .roles{
  display:flex;
  flex-direction:column;
@@ -247,14 +268,12 @@
  border-color:rgba(94,234,212,.5);
 }
 
-/* ROL SELECCIONADO */
 .rol-card.rol-activo{
  background:rgba(23,184,172,.12);
  border-color:var(--teal-glow);
  box-shadow:0 0 0 2px rgba(94,234,212,.1);
 }
 
-/* ICONO IZQUIERDO */
 .rol-icon{
  width:42px;
  height:42px;
@@ -276,7 +295,6 @@
  background:rgba(94,234,212,.14);
 }
 
-/* INFORMACIÓN DEL ROL */
 .rol-info{
  min-width:0;
  display:flex;
@@ -306,7 +324,6 @@
  white-space:normal;
 }
 
-/* CHECK DERECHO */
 .rol-check{
  display:block;
  justify-self:end;
@@ -318,7 +335,6 @@
  color:var(--teal-glow);
 }
 
-/* ACCESIBILIDAD DEL BOTÓN */
 .rol-card:focus-visible{
  border-color:var(--teal-glow);
  box-shadow:0 0 0 3px rgba(94,234,212,.15);
@@ -363,6 +379,7 @@
  color:var(--teal-glow);
  font-weight:800;
  text-decoration:none;
+ cursor:pointer;
 }
 
 .registro-login a:hover{
@@ -375,66 +392,52 @@
   justify-content:flex-start;
   padding:20px 18px 40px;
  }
-
  .registro-hero{
   margin-bottom:20px;
  }
-
  .registro-icon{
   width:58px;
   height:58px;
  }
-
  .registro-icon ion-icon{
   font-size:26px;
  }
-
  .registro-hero h1{
   font-size:1.55rem;
  }
-
  .registro-card{
   padding:20px 18px;
  }
-
  .rol-card{
   min-height:66px;
   padding:10px;
   grid-template-columns:40px minmax(0,1fr) 20px;
   gap:10px;
  }
-
  .rol-icon{
   width:40px;
   height:40px;
  }
-
  .rol-icon ion-icon{
   font-size:20px;
  }
-
  .rol-info strong{
   font-size:.78rem;
  }
-
  .rol-info span{
   font-size:.56rem;
  }
-
  .rol-check{
   font-size:19px;
  }
- 
  .password-requirements {
-     margin-top: 12px;
-     gap: 6px;
+  margin-top: 12px;
+  gap: 6px;
  }
-
  .password-requirements span {
-     font-size: 0.62rem;
+  font-size: 0.62rem;
  }
-
  .password-requirements span ion-icon {
-     font-size: 14px;
+  font-size: 14px;
  }
 }

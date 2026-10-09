@@ -28,42 +28,66 @@
 
             <div class="registro-card">
 
+                <!-- CAMPO NOMBRE -->
                 <div class="field">
                     <label class="field__label" for="nombre">
                         Nombre
                     </label>
 
-                    <ion-item lines="none" class="field__box">
+                    <ion-item lines="none" class="field__box"
+                        [class.field__box--error]="usuario.nombre && !nombreValido">
                         <ion-input id="nombre" name="nombre" type="text" [(ngModel)]="usuario.nombre"
-                            placeholder="Ej. Juan" autocomplete="given-name" required>
+                            placeholder="Ej. Juan Carlos" autocomplete="given-name" required>
                         </ion-input>
                     </ion-item>
+
+                    <!-- MENSAJE DE VALIDACIÓN -->
+                    <small class="field__error" *ngIf="usuario.nombre && !nombreValido">
+                        <ion-icon name="alert-circle-outline"></ion-icon>
+                        Nombre no válido (solo letras y mínimo 2 caracteres)
+                    </small>
                 </div>
 
+                <!-- CAMPO APELLIDO -->
                 <div class="field">
                     <label class="field__label" for="apellido">
                         Apellido
                     </label>
 
-                    <ion-item lines="none" class="field__box">
+                    <ion-item lines="none" class="field__box"
+                        [class.field__box--error]="usuario.apellido && !apellidoValido">
                         <ion-input id="apellido" name="apellido" type="text" [(ngModel)]="usuario.apellido"
-                            placeholder="Ej. Pérez" autocomplete="family-name" required>
+                            placeholder="Ej. Pérez Loor" autocomplete="family-name" required>
                         </ion-input>
                     </ion-item>
+
+                    <!-- MENSAJE DE VALIDACIÓN -->
+                    <small class="field__error" *ngIf="usuario.apellido && !apellidoValido">
+                        <ion-icon name="alert-circle-outline"></ion-icon>
+                        Apellido no válido (solo letras y mínimo 2 caracteres)
+                    </small>
                 </div>
 
+                <!-- CAMPO CORREO -->
                 <div class="field">
                     <label class="field__label" for="correo">
                         Correo electrónico
                     </label>
 
-                    <ion-item lines="none" class="field__box">
+                    <ion-item lines="none" class="field__box"
+                        [class.field__box--error]="usuario.correo && !correoValido">
                         <ion-input id="correo" name="correo" type="email" [(ngModel)]="usuario.correo"
                             placeholder="ejemplo@correo.com" autocomplete="email" required>
                         </ion-input>
                     </ion-item>
+
+                    <small class="field__error" *ngIf="usuario.correo && !correoValido">
+                        <ion-icon name="alert-circle-outline"></ion-icon>
+                        Correo electrónico no válido
+                    </small>
                 </div>
 
+                <!-- CAMPO CONTRASEÑA -->
                 <div class="field">
                     <label class="field__label" for="password">
                         Contraseña
@@ -76,126 +100,79 @@
                     </ion-item>
 
                     <div class="password-requirements">
-
                         <span [class.valido]="requisitosPassword.longitud">
-                            <ion-icon [name]="requisitosPassword.longitud
-                    ? 'checkmark-circle'
-                    : 'ellipse-outline'">
-                            </ion-icon>
-
+                            <ion-icon
+                                [name]="requisitosPassword.longitud ? 'checkmark-circle' : 'ellipse-outline'"></ion-icon>
                             Mínimo 8 caracteres
                         </span>
-
                         <span [class.valido]="requisitosPassword.mayuscula">
-                            <ion-icon [name]="requisitosPassword.mayuscula
-                    ? 'checkmark-circle'
-                    : 'ellipse-outline'">
-                            </ion-icon>
-
+                            <ion-icon
+                                [name]="requisitosPassword.mayuscula ? 'checkmark-circle' : 'ellipse-outline'"></ion-icon>
                             Una letra mayúscula
                         </span>
-
                         <span [class.valido]="requisitosPassword.minuscula">
-                            <ion-icon [name]="requisitosPassword.minuscula
-                    ? 'checkmark-circle'
-                    : 'ellipse-outline'">
-                            </ion-icon>
-
+                            <ion-icon
+                                [name]="requisitosPassword.minuscula ? 'checkmark-circle' : 'ellipse-outline'"></ion-icon>
                             Una letra minúscula
                         </span>
-
                         <span [class.valido]="requisitosPassword.numero">
-                            <ion-icon [name]="requisitosPassword.numero
-                    ? 'checkmark-circle'
-                    : 'ellipse-outline'">
-                            </ion-icon>
-
+                            <ion-icon
+                                [name]="requisitosPassword.numero ? 'checkmark-circle' : 'ellipse-outline'"></ion-icon>
                             Un número
                         </span>
-
                         <span [class.valido]="requisitosPassword.especial">
-                            <ion-icon [name]="requisitosPassword.especial
-                    ? 'checkmark-circle'
-                    : 'ellipse-outline'">
-                            </ion-icon>
-
+                            <ion-icon
+                                [name]="requisitosPassword.especial ? 'checkmark-circle' : 'ellipse-outline'"></ion-icon>
                             Un carácter especial
                         </span>
-
                     </div>
                 </div>
 
+                <!-- TIPO DE CUENTA -->
                 <div class="field">
                     <label class="field__label">
                         Tipo de cuenta
                     </label>
 
                     <div class="roles">
-
                         <button type="button" class="rol-card" [class.rol-activo]="usuario.id_rol===2"
                             (click)="seleccionarRol(2)">
-
                             <div class="rol-icon">
                                 <ion-icon name="binoculars-outline"></ion-icon>
                             </div>
-
                             <div class="rol-info">
                                 <strong>Observador</strong>
                                 <span>Registra capturas y reportes de pesca.</span>
                             </div>
-
-                            <ion-icon class="rol-check" [name]="usuario.id_rol===2
-         ?'checkmark-circle'
-         :'ellipse-outline'">
-                            </ion-icon>
-
+                            <ion-icon class="rol-check"
+                                [name]="usuario.id_rol===2 ? 'checkmark-circle' : 'ellipse-outline'"></ion-icon>
                         </button>
 
                         <button type="button" class="rol-card" [class.rol-activo]="usuario.id_rol===1"
                             (click)="seleccionarRol(1)">
-
                             <div class="rol-icon">
                                 <ion-icon name="shield-checkmark-outline"></ion-icon>
                             </div>
-
                             <div class="rol-info">
                                 <strong>Administrador</strong>
-                                <span>
-                                    Gestiona observadores y supervisa información.
-                                </span>
+                                <span>Gestiona observadores y supervisa información.</span>
                             </div>
-
-                            <ion-icon class="rol-check" [name]="usuario.id_rol===1
-         ?'checkmark-circle'
-         :'ellipse-outline'">
-                            </ion-icon>
-
+                            <ion-icon class="rol-check"
+                                [name]="usuario.id_rol===1 ? 'checkmark-circle' : 'ellipse-outline'"></ion-icon>
                         </button>
-
                     </div>
                 </div>
 
             </div>
 
             <!-- BOTÓN OCULTO PARA ENTER -->
-            <button type="submit" tabindex="-1" aria-hidden="true" style="
-     position:absolute;
-     width:1px;
-     height:1px;
-     opacity:0;
-     pointer-events:none;">
-            </button>
+            <button type="submit" tabindex="-1" aria-hidden="true"
+                style="position:absolute; width:1px; height:1px; opacity:0; pointer-events:none;"></button>
 
             <!-- BOTÓN VISIBLE -->
             <ion-button type="submit" expand="block" shape="round" class="btn-registro" [disabled]="cargando">
-
-                <span *ngIf="!cargando">
-                    Registrarse
-                </span>
-
-                <ion-spinner *ngIf="cargando" name="crescent">
-                </ion-spinner>
-
+                <span *ngIf="!cargando">Registrarse</span>
+                <ion-spinner *ngIf="cargando" name="crescent"></ion-spinner>
             </ion-button>
 
         </form>
