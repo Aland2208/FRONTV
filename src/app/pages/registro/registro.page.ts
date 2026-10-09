@@ -57,6 +57,15 @@ export class RegistroPage implements OnInit {
   ];
 
   // ========================================================
+  // LISTA BLANCA DE DOMINIOS DE CORREO RECONOCIDOS
+  // ========================================================
+  private dominiosValidos = [
+    'gmail.com', 'outlook.com', 'hotmail.com', 'yahoo.com', 'yahoo.es',
+    'icloud.com', 'live.com', 'msn.com', 'upse.edu.ec', 'ug.edu.ec',
+    'espe.edu.ec', 'epn.edu.ec', 'outlook.es', 'protonmail.com', 'mail.com'
+  ];
+
+  // ========================================================
   // FILTRO ESTRUCTURAL DE NOMBRES REALES Y TECLAZOS
   // ========================================================
   private validarCadenaNombre(texto: string): boolean {
@@ -64,58 +73,75 @@ export class RegistroPage implements OnInit {
 
     if (limpio.length < 2 || limpio.length > 30) return false;
 
-    // Solo letras y espacios simples
     const regexLetras = /^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ]+(?: [a-zA-ZáéíóúÁÉÍÓÚñÑüÜ]+)*$/;
     if (!regexLetras.test(limpio)) return false;
 
     const palabras = limpio.split(' ');
-    // Máximo 2 palabras por campo
     if (palabras.length > 2) return false;
 
     for (const palabra of palabras) {
-      // Longitud por palabra realista (ej. "Constantinopla" = 14)
       if (palabra.length < 2 || palabra.length > 14) return false;
 
       const pLower = palabra.toLowerCase();
       const pSinTildes = pLower.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
 
-      // 1. Lista de términos no admitidos
       if (this.palabrasProhibidas.includes(pSinTildes)) return false;
-
-      // 2. Bloquear repetición de 3 letras iguales seguidas
       if (/([a-záéíóúñü])\1\1/i.test(pLower)) return false;
 
-      // 3. Debe tener al menos una vocal
       const vocales = pLower.match(/[aeiouáéíóúü]/g) || [];
       if (vocales.length === 0) return false;
 
-      // 4. Proporción vocales vs longitud total
-      // Si la palabra tiene más de 6 letras, las vocales deben representar al menos el 25% y no más del 70%
       if (palabra.length >= 6) {
         const porcentajeVocales = vocales.length / palabra.length;
         if (porcentajeVocales < 0.25 || porcentajeVocales > 0.70) return false;
       }
 
-      // 5. Bloquear 3 consonantes o 3 vocales consecutivas no comunes
       if (/[bcdfghjklmnñpqrstvwxyz]{3,}/i.test(pLower)) return false;
       if (/[aeiouáéíóúü]{3,}/i.test(pLower)) return false;
-
-      // 6. Combinaciones de teclado comunes en teclazos
       if (/(jd|dj|jn|nj|dn|nd|ed|fn|nf|bf|fb|ubf|fub|bbu|ffu|qj|xj|zx|jk|kj|wq|qw|fg|gf|vb|bv|bp|pb)/i.test(pLower)) return false;
 
-      // 7. Repetición excesiva de cualquier consonante individual (máximo 2 veces la misma letra consonante)
-      // En 'ijnidnindinoed', 'n' se repite 4 veces y 'd' 3 veces
       const conteoLetras: { [char: string]: number } = {};
       for (const char of pLower) {
         if (!'aeiouáéíóúü'.includes(char)) {
           conteoLetras[char] = (conteoLetras[char] || 0) + 1;
-          if (conteoLetras[char] >= 3) return false; // Bloquea si la misma consonante se repite 3 o más veces
+          if (conteoLetras[char] >= 3) return false;
         }
       }
 
-      // 8. Detección de bucles o sílabas repetitivas (ej: "idnindin", "dinoed")
       if (/(.{2,4})\1/i.test(pLower) && palabra.length > 8) return false;
     }
+
+    return true;
+  }
+
+  // ========================================================
+  // VALIDACIÓN ESTRICTA DE CORREO ELECTRÓNICO (ANTIFRAUDE)
+  // ========================================================
+  private validarCorreoElectronico(correo: string): boolean {
+    const limpio = (correo || '').trim().toLowerCase();
+
+    const regexEmail = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    if (!regexEmail.test(limpio)) return false;
+
+    const partes = limpio.split('@');
+    if (partes.length !== 2) return false;
+
+    const usuario = partes[0];
+    const dominio = partes[1];
+
+    if (usuario.length < 3 || usuario.length > 40) return false;
+    if (/(.)\1\1\1/.test(usuario)) return false;
+
+    if (this.dominiosValidos.includes(dominio)) {
+      return true;
+    }
+
+    const nombreDominio = dominio.split('.')[0];
+    if (nombreDominio.length < 3 || nombreDominio.length > 20) return false;
+    if (/[bcdfghjklmnpqrstvwxyz]{4,}/.test(nombreDominio)) return false;
+    if (/[aeiou]{4,}/.test(nombreDominio)) return false;
+    if (/(.)\1\1/.test(nombreDominio)) return false;
+    if (/(fj|jf|hj|jh|eu|ue|uf|fu|eu|ui){3,}/.test(nombreDominio)) return false;
 
     return true;
   }
@@ -129,9 +155,7 @@ export class RegistroPage implements OnInit {
   }
 
   get correoValido(): boolean {
-    const val = (this.usuario.correo || '').trim().toLowerCase();
-    const regexEmail = /^[^\s@]+@[^\s@]+\.[a-zA-Z]{2,}$/;
-    return regexEmail.test(val);
+    return this.validarCorreoElectronico(this.usuario.correo);
   }
 
   get requisitosPassword() {
@@ -175,7 +199,7 @@ export class RegistroPage implements OnInit {
     }
 
     if (!this.correoValido) {
-      this.mostrarMensaje('Correo no válido.', 'warning');
+      this.mostrarMensaje('Correo no válido (use un proveedor de correo auténtico).', 'warning');
       return;
     }
 
