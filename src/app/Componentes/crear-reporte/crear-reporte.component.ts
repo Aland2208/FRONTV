@@ -254,7 +254,7 @@ export class CrearReporteComponent implements OnInit {
       }
     }
 
-    this.gruposEspecies = Array.from(mapa.values()).map((grupo: any) => {
+    const grupos = Array.from(mapa.values()).map((grupo: any) => {
       grupo.total_capturas = grupo.capturas.length;
       grupo.peso_total = grupo.capturas.reduce((total: number, c: any) => total + Number(c.peso || 0), 0);
       const sumaConfianza = grupo.capturas.reduce((total: number, c: any) => total + Number(c.porcentaje || 0), 0);
@@ -267,7 +267,7 @@ export class CrearReporteComponent implements OnInit {
       return grupo;
     });
 
-    return Array.from(mapa.values()).sort((a: any, b: any) => {
+    return grupos.sort((a: any, b: any) => {
       const fechaOrden = String(b.fecha_reporte || '').localeCompare(String(a.fecha_reporte || ''));
       return fechaOrden || String(a.especie || '').localeCompare(String(b.especie || ''));
     });

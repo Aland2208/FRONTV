@@ -36,26 +36,6 @@
   <!-- CONTENIDO -->
   <ng-container *ngIf="!cargando && !error">
 
-    <!-- RESUMEN GENERAL -->
-    <section class="resumen-grid">
-      <div class="resumen-card">
-        <span class="resumen-label">Capturas</span>
-        <strong class="resumen-value">{{ resumen.total_registros }}</strong>
-      </div>
-      <div class="resumen-card">
-        <span class="resumen-label">Peso total</span>
-        <strong class="resumen-value">
-          {{ resumen.peso_total | number:'1.2-2' }} <small>g</small>
-        </strong>
-      </div>
-      <div class="resumen-card">
-        <span class="resumen-label">Confianza promedio</span>
-        <strong class="resumen-value">
-          {{ resumen.confianza_promedio | number:'1.2-2' }} <small>%</small>
-        </strong>
-      </div>
-    </section>
-
     <ng-template #grupoReporte let-grupo="grupo">
       <article class="grupo-especie">
 
@@ -222,36 +202,63 @@
       </article>
     </ng-template>
 
-    <!-- SIN REGISTROS -->
-    <section class="sin-registros" *ngIf="gruposEspecies.length === 0">
-      <ion-icon name="document-text-outline"></ion-icon>
-      <h2>Sin capturas pendientes</h2>
-      <p>No existen capturas pendientes para generar reportes durante el día de hoy.</p>
-    </section>
-
-    <!-- LISTA DE ESPECIES -->
-    <section class="lista-reportes" *ngIf="gruposEspecies.length > 0">
-
-      <div class="lista-header">
+    <section class="seccion-pendientes seccion-hoy">
+      <div class="encabezado-seccion-pendientes">
         <div>
-          <span class="eyebrow">Capturas del día</span>
-          <h2>Especies detectadas</h2>
+          <span class="eyebrow">Primero</span>
+          <h2>Pendientes de hoy</h2>
+          <p>Genera y envía reportes de las capturas registradas durante el día actual.</p>
         </div>
         <span class="cantidad-chip">{{ gruposEspecies.length }}</span>
       </div>
 
-      <ng-container *ngFor="let grupo of gruposEspecies">
-        <ng-container *ngTemplateOutlet="grupoReporte; context: { grupo: grupo }"></ng-container>
-      </ng-container>
+      <section class="resumen-grid">
+        <div class="resumen-card">
+          <span class="resumen-label">Capturas de hoy</span>
+          <strong class="resumen-value">{{ resumen.total_registros }}</strong>
+        </div>
+        <div class="resumen-card">
+          <span class="resumen-label">Peso total</span>
+          <strong class="resumen-value">
+            {{ resumen.peso_total | number:'1.2-2' }} <small>g</small>
+          </strong>
+        </div>
+        <div class="resumen-card">
+          <span class="resumen-label">Confianza promedio</span>
+          <strong class="resumen-value">
+            {{ resumen.confianza_promedio | number:'1.2-2' }} <small>%</small>
+          </strong>
+        </div>
+      </section>
+
+      <div class="sin-registros" *ngIf="gruposEspecies.length === 0">
+        <ion-icon name="document-text-outline"></ion-icon>
+        <h2>Sin pendientes de hoy</h2>
+        <p>No hay capturas del día actual que necesiten generar un reporte.</p>
+      </div>
+
+      <section class="lista-reportes" *ngIf="gruposEspecies.length > 0">
+        <div class="lista-header">
+          <div>
+            <span class="eyebrow">Capturas del día</span>
+            <h2>Especies detectadas</h2>
+          </div>
+        </div>
+
+        <ng-container *ngFor="let grupo of gruposEspecies">
+          <ng-container *ngTemplateOutlet="grupoReporte; context: { grupo: grupo }"></ng-container>
+        </ng-container>
+      </section>
     </section>
 
-    <section class="lista-reportes pendientes-anteriores">
+    <section class="lista-reportes pendientes-anteriores seccion-pendientes">
       <div class="lista-header">
         <div>
-          <span class="eyebrow">Historial pendiente</span>
-          <h2>Pendientes anteriores</h2>
+          <span class="eyebrow">Segundo</span>
+          <h2>Pendientes de días anteriores</h2>
           <p>Capturas activas que todavía no forman parte de un reporte finalizado.</p>
         </div>
+        <span class="cantidad-chip">{{ gruposEspeciesAnteriores.length }}</span>
       </div>
 
       <div class="filtros-pendientes">
