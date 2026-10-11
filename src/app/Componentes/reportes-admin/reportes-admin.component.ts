@@ -153,10 +153,7 @@ export class ReportesAdminComponent implements OnInit {
           this.cdr.detectChanges();
         },
         error: (error: any) => {
-          console.error(
-            'Error cargando reportes:',
-            error
-          );
+          
 
           this.reportes = [];
           this.total = 0;
@@ -185,10 +182,7 @@ export class ReportesAdminComponent implements OnInit {
         this.cdr.detectChanges();
       },
       error: (error: any) => {
-        console.error(
-          'Error cargando tipos de reporte:',
-          error
-        );
+        
 
         this.tiposReporte = [];
 
@@ -343,10 +337,7 @@ export class ReportesAdminComponent implements OnInit {
           this.cargarReportes();
         },
         error: (error: any) => {
-          console.error(
-            'Error editando reporte:',
-            error
-          );
+          
 
           this.guardando = false;
 
@@ -491,10 +482,7 @@ export class ReportesAdminComponent implements OnInit {
           this.cdr.detectChanges();
         },
         error: (error: any) => {
-          console.error(
-            'Error generando PDF:',
-            error
-          );
+          
 
           this.generandoPDF = false;
 
@@ -573,10 +561,7 @@ export class ReportesAdminComponent implements OnInit {
           this.cdr.detectChanges();
         },
         error: (error: any) => {
-          console.error(
-            'Error generando CSV:',
-            error
-          );
+          
 
           this.generandoCSV = false;
 

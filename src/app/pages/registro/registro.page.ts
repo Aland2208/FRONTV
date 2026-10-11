@@ -17,6 +17,7 @@ import {
 } from '@ionic/angular/standalone';
 
 import { validarPassword } from '../../utilidades/password-validator';
+import { validarCorreoElectronico } from '../../utilidades/correo-validator';
 
 @Component({
   selector: 'app-registro',
@@ -54,29 +55,6 @@ export class RegistroPage implements OnInit {
     'pendejo', 'pendeja', 'idiota', 'maricon', 'perra', 'perro', 'chucha', 'hdp',
     'admin', 'administrador', 'root', 'test', 'prueba', 'usuario', 'null', 'undefined',
     'anonimo', 'nobody', 'fake', 'bot', 'observador', 'veedor', 'tonto', 'bobo', 'loco'
-  ];
-
-  // ========================================================
-  // LISTA ESTRICTA DE PROVEEDORES DE CORREO PERMITIDOS
-  // Cualquier dominio fuera de esta lista se rechaza de inmediato
-  // ========================================================
-  private dominiosPermitidos = [
-    'gmail.com',
-    'outlook.com',
-    'outlook.es',
-    'hotmail.com',
-    'hotmail.es',
-    'yahoo.com',
-    'yahoo.es',
-    'icloud.com',
-    'live.com',
-    'msn.com',
-    'upse.edu.ec',
-    'ug.edu.ec',
-    'espe.edu.ec',
-    'epn.edu.ec',
-    'protonmail.com',
-    'mail.com'
   ];
 
   // ========================================================
@@ -128,30 +106,6 @@ export class RegistroPage implements OnInit {
     return true;
   }
 
-  // ========================================================
-  // VALIDACIÓN ESTRICTA DE CORREO ELECTRÓNICO (SOLO DOMINIOS REALES)
-  // ========================================================
-  private validarCorreoElectronico(correo: string): boolean {
-    const limpio = (correo || '').trim().toLowerCase();
-
-    // 1. Estructura básica RFC
-    const regexEmail = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-    if (!regexEmail.test(limpio)) return false;
-
-    const partes = limpio.split('@');
-    if (partes.length !== 2) return false;
-
-    const usuario = partes[0];
-    const dominio = partes[1];
-
-    // 2. Longitud y caracteres válidos de usuario
-    if (usuario.length < 3 || usuario.length > 35) return false;
-    if (/(.)\1\1\1/.test(usuario)) return false; // Bloquea "aaaa@"
-
-    // 3. OBLIGATORIO: El dominio debe ser uno de los proveedores reales permitidos
-    return this.dominiosPermitidos.includes(dominio);
-  }
-
   get nombreValido(): boolean {
     return this.validarCadenaNombre(this.usuario.nombre);
   }
@@ -161,7 +115,7 @@ export class RegistroPage implements OnInit {
   }
 
   get correoValido(): boolean {
-    return this.validarCorreoElectronico(this.usuario.correo);
+    return validarCorreoElectronico(this.usuario.correo);
   }
 
   get requisitosPassword() {
@@ -236,7 +190,10 @@ export class RegistroPage implements OnInit {
       next: () => {
         this.cargando = false;
         const rol = this.usuario.id_rol === 1 ? 'Administrador' : 'Observador';
-        this.mostrarMensaje(`Cuenta de ${rol} creada correctamente.`, 'success');
+        this.mostrarMensaje(
+          `Cuenta de ${rol} creada. Revisa tu correo y confirma el enlace para activarla.`,
+          'success'
+        );
 
         this.usuario = {
           nombre: '',

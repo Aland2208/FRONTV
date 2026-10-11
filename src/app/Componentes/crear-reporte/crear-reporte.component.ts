@@ -94,7 +94,15 @@ export class CrearReporteComponent implements OnInit {
       next: (respuesta) => {
         this.tiposReporte = respuesta.data || [];
       },
-      error: (err) => console.error('Error al cargar tipos de reporte:', err)
+      error: () => {
+        this.tiposReporte = [];
+        this.modalMensaje = {
+          abierto: true,
+          titulo: 'No se pudo cargar la información',
+          descripcion: 'Intenta nuevamente más tarde.',
+          tipo: 'error'
+        };
+      }
     });
   }
 
@@ -126,7 +134,7 @@ export class CrearReporteComponent implements OnInit {
         this.cargando = false;
       },
       error: (err) => {
-        console.error('Error al cargar reportes:', err);
+        
         this.cargando = false;
         this.error = true;
         this.reportes = [];
@@ -224,7 +232,7 @@ export class CrearReporteComponent implements OnInit {
       error: (err) => {
         this.anulandoProceso = false;
         this.cerrarModalAnular();
-        console.error('Error al anular captura:', err);
+        
         this.mostrarNotificacion('Error del servidor', err.error?.mensaje || 'No se pudo comunicar con el backend.', 'error');
       }
     });

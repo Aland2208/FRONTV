@@ -60,12 +60,12 @@ export class RestablecerPasswordPage implements OnInit {
 
   ionViewWillEnter() {
 
-    console.log('ENTRANDO A RESTABLECER PASSWORD');
+    
 
     this.token =
       this.route.snapshot.queryParamMap.get('token') || '';
 
-    console.log('TOKEN:', this.token);
+    
 
     if (!this.token) {
       this.regresarLogin();
@@ -77,10 +77,7 @@ export class RestablecerPasswordPage implements OnInit {
 
   validarToken() {
 
-    console.log(
-      'LLAMANDO VALIDAR TOKEN:',
-      this.token
-    );
+    
 
     this.validandoToken = true;
     this.tokenValido = false;
@@ -91,10 +88,7 @@ export class RestablecerPasswordPage implements OnInit {
 
         next: (res) => {
 
-          console.log(
-            'TOKEN VÁLIDO:',
-            res
-          );
+          
 
           this.tokenValido = true;
           this.validandoToken = false;
@@ -102,10 +96,7 @@ export class RestablecerPasswordPage implements OnInit {
 
         error: (err) => {
 
-          console.log(
-            'TOKEN INVÁLIDO:',
-            err
-          );
+          
 
           this.tokenValido = false;
           this.validandoToken = false;

@@ -35,7 +35,7 @@ export class ConfigurarCamaraComponent implements OnInit {
 
   ngOnInit() {
     this.idAdministrador = this.authService.obtenerIdUsuario();
-    console.log('🔑 ID Administrador obtenido:', this.idAdministrador);
+    
 
     if (this.idAdministrador) {
       this.cargarConfiguracionActual();
@@ -55,7 +55,9 @@ export class ConfigurarCamaraComponent implements OnInit {
             this.totalVeedores = res.total_veedores || 0;
           }
         },
-        error: (err) => console.error('Error al cargar configuración:', err)
+        error: () => {
+          this.mostrarToast('No se pudo cargar la configuración de la cámara.', 'danger');
+        }
       });
   }
 
@@ -97,7 +99,7 @@ export class ConfigurarCamaraComponent implements OnInit {
         },
         error: (err) => {
           this.cargando = false;
-          console.error('Error al guardar:', err);
+          
           const msg = err.error?.mensaje || 'Error de comunicación con el servidor.';
           this.mostrarToast(`❌ ${msg}`, 'danger');
         }

@@ -182,7 +182,7 @@ export class DashboardGeneralComponent implements OnInit,AfterViewInit,OnDestroy
     },100);
    },
    error:(err:any)=>{
-    console.error('❌ Error dashboard general:',err);
+    
 
     this.cargando=false;
 

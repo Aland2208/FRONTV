@@ -98,6 +98,13 @@ export class Auth {
         return this.http.post(`${this.apiUrl}/registro`, datos);
     }
 
+    verificarCorreo(token: string): Observable<{ estado: number; mensaje: string }> {
+        return this.http.post<{ estado: number; mensaje: string }>(
+            `${this.apiUrl}/verificar-correo`,
+            { token }
+        );
+    }
+
     // 3. SOLICITAR RECUPERACIÓN
     solicitarRecuperacion(correo: string): Observable<any> {
         return this.http.post(`${this.apiUrl}/recuperar`, { correo });

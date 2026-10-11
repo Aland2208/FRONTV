@@ -71,7 +71,7 @@ export class MenuComponent implements OnInit {
 
     this.idRol = this.authService.obtenerRol();
 
-    console.log('Rol desde menú:', this.idRol);
+    
 
     this.cargarMenu();
   }
@@ -188,7 +188,7 @@ export class MenuComponent implements OnInit {
 
   seleccionarVista(vista: string) {
 
-    console.log('Menú seleccionó:', vista);
+    
 
     this.cambiarVista.emit(vista);
   }

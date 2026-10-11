@@ -24,6 +24,10 @@ export const routes: Routes = [
         canActivate: [guestGuard]
     },
     {
+        path: 'verificar-correo',
+        loadComponent: () => import('./pages/verificar-correo/verificar-correo.page').then(m => m.VerificarCorreoPage)
+    },
+    {
         path: 'recuperar',
         loadComponent: () => import('./pages/recuperar/recuperar.page').then(m => m.RecuperarPage),
         canActivate: [guestGuard]

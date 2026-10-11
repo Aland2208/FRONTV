@@ -73,13 +73,13 @@ export class HomePage implements OnInit {
   ngOnInit(){
     this.idRol=this.authService.obtenerRol();
 
-    console.log('Rol del usuario:',this.idRol);
+    
 
     this.vistaActual='inicio';
   }
 
   cambiarVista(vista:string){
-    console.log('Vista seleccionada:',vista);
+    
     this.vistaActual=vista;
   }
 }

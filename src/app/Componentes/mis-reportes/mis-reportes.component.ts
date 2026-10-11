@@ -104,11 +104,11 @@ export class MisReportesComponent implements OnInit {
 
         this.cargando = false;
 
-        console.log('📚 Historial:', this.reportes);
+        
       },
 
       error: (err) => {
-        console.error('❌ Error cargando historial:', err);
+        
 
         this.reportes = [];
         this.totalReportes = 0;
@@ -133,11 +133,11 @@ export class MisReportesComponent implements OnInit {
       next: (respuesta) => {
         this.especies = respuesta.data || [];
 
-        console.log('🐟 Especies:', this.especies);
+        
       },
 
       error: (err) => {
-        console.error('❌ Error cargando especies:', err);
+        
         this.especies = [];
       }
     });
@@ -152,11 +152,11 @@ export class MisReportesComponent implements OnInit {
       next: (respuesta) => {
         this.tiposReporte = respuesta.data || [];
 
-        console.log('📄 Tipos de reporte:', this.tiposReporte);
+        
       },
 
       error: (err) => {
-        console.error('❌ Error cargando tipos:', err);
+        
         this.tiposReporte = [];
       }
     });
@@ -243,10 +243,10 @@ export class MisReportesComponent implements OnInit {
       next: (respuesta) => {
         this.reporteDetalle = respuesta.data;
         this.cargandoDetalle = false;
-        console.log('📋 Detalle reporte:', this.reporteDetalle);
+        
       },
       error: (err) => {
-        console.error('❌ Error obteniendo detalle:', err);
+        
         this.cargandoDetalle = false;
         this.errorDetalle = err?.error?.mensaje || 'No se pudo cargar el detalle del reporte.';
       }

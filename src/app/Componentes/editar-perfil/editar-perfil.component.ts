@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { IonicModule } from '@ionic/angular';
 import { Auth } from '../../servicios/auth';
+import { validarCorreoElectronico } from '../../utilidades/correo-validator';
 
 @Component({
   selector: 'app-editar-perfil',
@@ -55,7 +56,7 @@ export class EditarPerfilComponent implements OnInit {
         this.cargando = false;
       },
       error: (err) => {
-        console.error('❌ Error cargando perfil:', err);
+        
         this.error = err?.error?.mensaje || 'No se pudo cargar la información del perfil.';
         this.cargando = false;
       }
@@ -89,8 +90,7 @@ export class EditarPerfilComponent implements OnInit {
       return;
     }
 
-    const correoValido = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!correoValido.test(correo)) {
+    if (!validarCorreoElectronico(correo)) {
       this.error = 'Ingrese un correo electrónico válido.';
       return;
     }
@@ -122,7 +122,7 @@ export class EditarPerfilComponent implements OnInit {
         this.guardando = false;
       },
       error: (err) => {
-        console.error('❌ Error actualizando perfil:', err);
+        
         this.error = err?.error?.mensaje || 'No se pudo actualizar la información.';
         this.guardando = false;
       }

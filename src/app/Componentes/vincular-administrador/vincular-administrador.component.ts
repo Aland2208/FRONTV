@@ -53,14 +53,14 @@ export class VincularAdministradorComponent implements OnInit{
 
     this.authService.obtenerAdministradorActual(idUsuario).subscribe({
       next:(respuesta:any)=>{
-        console.log('Administrador actual:',respuesta);
+        
 
         this.administradorActual=respuesta.vinculado ? respuesta.data : null;
         this.cargandoActual=false;
         this.cdr.detectChanges();
       },
       error:(error)=>{
-        console.error('Error obteniendo administrador actual:',error);
+        
 
         this.administradorActual=null;
         this.cargandoActual=false;
@@ -119,7 +119,7 @@ export class VincularAdministradorComponent implements OnInit{
           this.mensaje=error.error?.mensaje||'No se pudo buscar el administrador.';
         }
 
-        console.error('Error buscando administrador:',error);
+        
         this.cdr.detectChanges();
       }
     });
@@ -180,7 +180,7 @@ export class VincularAdministradorComponent implements OnInit{
 
     this.authService.asignarAdministrador(idAdministrador,idUsuario).subscribe({
       next:async(respuesta:any)=>{
-        console.log('Vinculación realizada:',respuesta);
+        
 
         this.vinculando=false;
         this.administrador=null;
@@ -198,7 +198,7 @@ export class VincularAdministradorComponent implements OnInit{
         this.cargarAdministradorActual();
       },
       error:async(error)=>{
-        console.error('Error vinculando administrador:',error);
+        
 
         this.vinculando=false;
         this.cdr.detectChanges();
@@ -247,7 +247,7 @@ export class VincularAdministradorComponent implements OnInit{
       idAdministrador
     ).subscribe({
       next:async(respuesta:any)=>{
-        console.log('Reasignación realizada:',respuesta);
+        
 
         this.vinculando=false;
         this.administrador=null;
@@ -265,7 +265,7 @@ export class VincularAdministradorComponent implements OnInit{
         this.cargarAdministradorActual();
       },
       error:async(error)=>{
-        console.error('Error reasignando administrador:',error);
+        
 
         this.vinculando=false;
         this.cdr.detectChanges();

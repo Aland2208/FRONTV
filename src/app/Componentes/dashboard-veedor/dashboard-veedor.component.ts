@@ -83,10 +83,10 @@ export class DashboardVeedorComponent implements OnInit,AfterViewInit,OnDestroy 
   cargarDashboard(){
     const idUsuario=this.authService.obtenerIdUsuario();
 
-    console.log('====================================');
-    console.log('📊 CARGANDO DASHBOARD');
-    console.log('👤 ID usuario:',idUsuario);
-    console.log('====================================');
+    
+    
+    
+    
 
     if(!idUsuario){
       this.error='No se pudo identificar al usuario.';
@@ -99,11 +99,11 @@ export class DashboardVeedorComponent implements OnInit,AfterViewInit,OnDestroy 
 
     this.dashboardService.obtenerDashboardVeedor(idUsuario).subscribe({
       next:(respuesta)=>{
-        console.log('✅ RESPUESTA COMPLETA DASHBOARD:',respuesta);
-        console.log('📊 DATA:',respuesta?.data);
-        console.log('📌 RESUMEN:',respuesta?.data?.resumen);
-        console.log('🐟 ESPECIES:',respuesta?.data?.especies);
-        console.log('⏰ ACTIVIDAD:',respuesta?.data?.actividad);
+        
+        
+        
+        
+        
 
         const resumenApi=respuesta?.data?.resumen;
 
@@ -128,9 +128,9 @@ export class DashboardVeedorComponent implements OnInit,AfterViewInit,OnDestroy 
           peso_total:Number(item.peso_total || 0)
         }));
 
-        console.log('📌 RESUMEN PROCESADO:',this.resumen);
-        console.log('🐟 ESPECIES PROCESADAS:',this.especies);
-        console.log('⏰ ACTIVIDAD PROCESADA:',this.actividad);
+        
+        
+        
 
         this.cargando=false;
 
@@ -140,13 +140,13 @@ export class DashboardVeedorComponent implements OnInit,AfterViewInit,OnDestroy 
       },
 
       error:(err)=>{
-        console.error('====================================');
-        console.error('❌ ERROR DASHBOARD');
-        console.error('Status:',err?.status);
-        console.error('Mensaje:',err?.message);
-        console.error('Respuesta API:',err?.error);
-        console.error('Error completo:',err);
-        console.error('====================================');
+        
+        
+        
+        
+        
+        
+        
 
         this.cargando=false;
 
@@ -172,7 +172,7 @@ export class DashboardVeedorComponent implements OnInit,AfterViewInit,OnDestroy 
     this.destruirGraficos();
 
     if(!this.especies.length){
-      console.log('ℹ️ No existen especies para generar gráficos.');
+      
       return;
     }
 
@@ -192,7 +192,7 @@ export class DashboardVeedorComponent implements OnInit,AfterViewInit,OnDestroy 
 
   private crearGraficoEspecies(){
     if(!this.graficoEspecies?.nativeElement){
-      console.warn('⚠️ Canvas de especies no disponible.');
+      
       return;
     }
 
@@ -266,7 +266,7 @@ export class DashboardVeedorComponent implements OnInit,AfterViewInit,OnDestroy 
 
   private crearGraficoPeso(){
     if(!this.graficoPeso?.nativeElement){
-      console.warn('⚠️ Canvas de peso no disponible.');
+      
       return;
     }
 
@@ -348,7 +348,7 @@ export class DashboardVeedorComponent implements OnInit,AfterViewInit,OnDestroy 
 
   private crearGraficoActividad(){
     if(!this.graficoActividad?.nativeElement){
-      console.warn('⚠️ Canvas de actividad no disponible.');
+      
       return;
     }
 

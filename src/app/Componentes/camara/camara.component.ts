@@ -105,7 +105,7 @@ export class CamaraComponent implements OnInit, OnDestroy {
     this.fecha = '';
 
     this.socketService.conectado(() => {
-      console.log('🔌 Socket balanza conectado');
+      
     });
 
     this.socketService.desconectado(() => {
@@ -254,7 +254,7 @@ export class CamaraComponent implements OnInit, OnDestroy {
       },
       error: (err) => {
         this.procesandoIA = false;
-        console.error(err);
+        
         this.mostrarAlerta('❌ Error de comunicación con el motor de IA.');
       }
     });

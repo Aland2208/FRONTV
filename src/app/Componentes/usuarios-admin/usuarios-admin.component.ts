@@ -7,6 +7,8 @@ import {
   ToastController
 } from '@ionic/angular/standalone';
 import { Auth } from '../../servicios/auth';
+import { validarCorreoElectronico } from '../../utilidades/correo-validator';
+import { validarPassword } from '../../utilidades/password-validator';
 
 interface Observador{
   id_usuario:number;
@@ -70,7 +72,7 @@ export class UsuariosAdminComponent implements OnInit{
         this.cdr.detectChanges();
       },
       error:async(error)=>{
-        console.error('Error cargando observadores:',error);
+        
         this.cargando=false;
         this.cdr.detectChanges();
 
@@ -89,21 +91,25 @@ export class UsuariosAdminComponent implements OnInit{
         {
           name:'nombre',
           type:'text',
+          attributes:{maxlength:'100'},
           placeholder:'Nombre'
         },
         {
           name:'apellido',
           type:'text',
+          attributes:{maxlength:'100'},
           placeholder:'Apellido'
         },
         {
           name:'correo',
           type:'email',
+          attributes:{maxlength:'150'},
           placeholder:'Correo electrónico'
         },
         {
           name:'password',
           type:'password',
+          attributes:{maxlength:'72'},
           placeholder:'Contraseña'
         }
       ],
@@ -147,9 +153,9 @@ export class UsuariosAdminComponent implements OnInit{
       return;
     }
 
-    if(password.length<6){
+    if(!validarPassword(password).valida){
       this.mostrarToast(
-        'La contraseña debe tener al menos 6 caracteres.',
+        'La contraseña debe tener entre 8 y 72 bytes e incluir mayúscula, minúscula, número y carácter especial.',
         'danger'
       );
       return;
@@ -170,7 +176,7 @@ export class UsuariosAdminComponent implements OnInit{
         this.cargarObservadores();
       },
       error:async(error)=>{
-        console.error('Error creando observador:',error);
+        
 
         await this.mostrarToast(
           error.error?.mensaje||'No se pudo crear el observador.',
@@ -188,18 +194,21 @@ export class UsuariosAdminComponent implements OnInit{
           name:'nombre',
           type:'text',
           value:usuario.nombre,
+          attributes:{maxlength:'100'},
           placeholder:'Nombre'
         },
         {
           name:'apellido',
           type:'text',
           value:usuario.apellido,
+          attributes:{maxlength:'100'},
           placeholder:'Apellido'
         },
         {
           name:'correo',
           type:'email',
           value:usuario.correo,
+          attributes:{maxlength:'150'},
           placeholder:'Correo electrónico'
         }
       ],
@@ -234,6 +243,11 @@ export class UsuariosAdminComponent implements OnInit{
       return;
     }
 
+    if(nombre.length>100||apellido.length>100){
+      this.mostrarToast('El nombre y el apellido no pueden superar 100 caracteres.','danger');
+      return;
+    }
+
     if(!this.correoValido(correo)){
       this.mostrarToast(
         'Ingresa un correo electrónico válido.',
@@ -259,7 +273,7 @@ export class UsuariosAdminComponent implements OnInit{
         );
       },
       error:async(error)=>{
-        console.error('Error editando observador:',error);
+        
 
         await this.mostrarToast(
           error.error?.mensaje||'No se pudo actualizar el observador.',
@@ -314,7 +328,7 @@ export class UsuariosAdminComponent implements OnInit{
         );
       },
       error:async(error)=>{
-        console.error('Error cambiando estado:',error);
+        
 
         await this.mostrarToast(
           error.error?.mensaje||'No se pudo cambiar el estado.',
@@ -325,7 +339,7 @@ export class UsuariosAdminComponent implements OnInit{
   }
 
   private correoValido(correo:string):boolean{
-    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(correo);
+    return validarCorreoElectronico(correo);
   }
 
   private async mostrarToast(

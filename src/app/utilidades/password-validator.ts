@@ -11,7 +11,7 @@ export function validarPassword(password: string): RequisitosPassword {
   const valor = password || '';
 
   const requisitos: RequisitosPassword = {
-    longitud: valor.length >= 8,
+    longitud: valor.length >= 8 && new TextEncoder().encode(valor).length <= 72,
     minuscula: /[a-z]/.test(valor),
     mayuscula: /[A-Z]/.test(valor),
     numero: /[0-9]/.test(valor),

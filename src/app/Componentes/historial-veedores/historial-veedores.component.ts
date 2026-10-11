@@ -104,7 +104,7 @@ export class HistorialVeedoresComponent implements OnInit{
     this.cdr.detectChanges();
    },
    error:async(error:any)=>{
-    console.error('Error cargando veedores:',error);
+    
     this.veedores=[];
     this.cargando=false;
     await this.mostrarToast(
@@ -209,7 +209,7 @@ export class HistorialVeedoresComponent implements OnInit{
     this.cdr.detectChanges();
    },
    error:async(error:any)=>{
-    console.error('Error cargando reportes:',error);
+    
 
     this.reportes=[];
     this.totalReportes=0;

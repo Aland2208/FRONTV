@@ -20,7 +20,7 @@
             </div>
 
             <h1>Crear Cuenta</h1>
-            <p>Únete al sistema de Observador de Pesca</p>
+            <p>Confirma tu correo para activar tu cuenta después del registro.</p>
         </div>
 
         <!-- FORMULARIO -->
@@ -37,7 +37,7 @@
                     <ion-item lines="none" class="field__box"
                         [class.field__box--error]="usuario.nombre && !nombreValido">
                         <ion-input id="nombre" name="nombre" type="text" [(ngModel)]="usuario.nombre"
-                            placeholder="Ej. Juan Carlos" autocomplete="given-name" required>
+                            placeholder="Ej. Juan Carlos" autocomplete="given-name" maxlength="30" required>
                         </ion-input>
                     </ion-item>
 
@@ -56,7 +56,7 @@
                     <ion-item lines="none" class="field__box"
                         [class.field__box--error]="usuario.apellido && !apellidoValido">
                         <ion-input id="apellido" name="apellido" type="text" [(ngModel)]="usuario.apellido"
-                            placeholder="Ej. Pérez Loor" autocomplete="family-name" required>
+                            placeholder="Ej. Pérez Loor" autocomplete="family-name" maxlength="30" required>
                         </ion-input>
                     </ion-item>
 
@@ -75,7 +75,7 @@
                     <ion-item lines="none" class="field__box"
                         [class.field__box--error]="usuario.correo && !correoValido">
                         <ion-input id="correo" name="correo" type="email" [(ngModel)]="usuario.correo"
-                            placeholder="ejemplo@correo.com" autocomplete="email" required>
+                            placeholder="ejemplo@correo.com" autocomplete="email" maxlength="150" required>
                         </ion-input>
                     </ion-item>
 
@@ -93,7 +93,7 @@
 
                     <ion-item lines="none" class="field__box">
                         <ion-input id="password" name="password" type="password" [(ngModel)]="usuario.password"
-                            placeholder="Ingresa tu contraseña" autocomplete="new-password" required>
+                            placeholder="Ingresa tu contraseña" autocomplete="new-password" maxlength="72" required>
                         </ion-input>
                     </ion-item>
 

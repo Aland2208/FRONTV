@@ -83,6 +83,7 @@
             id="correoAdministrador"
             type="email"
             [(ngModel)]="correo"
+            maxlength="150"
             placeholder="administrador@correo.com"
             autocomplete="email"
             [disabled]="buscando || vinculando"
