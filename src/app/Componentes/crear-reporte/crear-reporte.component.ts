@@ -14,7 +14,8 @@ import {
   gridOutline,
   sendOutline,
   closeCircleOutline,
-  informationCircleOutline
+  informationCircleOutline,
+  calendarOutline
 } from 'ionicons/icons';
 
 import { ReporteS } from '../../servicios/reporte-s';
@@ -37,7 +38,15 @@ export class CrearReporteComponent implements OnInit {
 
   reportes: any[] = [];
   gruposEspecies: any[] = [];
+  gruposEspeciesAnteriores: any[] = [];
   tiposReporte: any[] = [];
+  rangoPendientesAnteriores = {
+    fecha_inicio: '',
+    fecha_fin: ''
+  };
+  fechaMaximaAnterior = '';
+  cargandoAnteriores = false;
+  errorAnteriores = '';
 
   resumen = {
     total_registros: 0,
@@ -80,13 +89,36 @@ export class CrearReporteComponent implements OnInit {
       gridOutline,
       sendOutline,
       closeCircleOutline,
-      informationCircleOutline
+      informationCircleOutline,
+      calendarOutline
     });
   }
 
   ngOnInit() {
+    this.configurarRangoAnterior();
     this.cargarTiposReporte();
     this.cargarReportes();
+    this.cargarPendientesAnteriores();
+  }
+
+  private configurarRangoAnterior(): void {
+    const ayer = new Date();
+    ayer.setDate(ayer.getDate() - 1);
+    const haceTreintaDias = new Date(ayer);
+    haceTreintaDias.setDate(haceTreintaDias.getDate() - 29);
+
+    this.fechaMaximaAnterior = this.formatearFechaLocal(ayer);
+    this.rangoPendientesAnteriores = {
+      fecha_inicio: this.formatearFechaLocal(haceTreintaDias),
+      fecha_fin: this.fechaMaximaAnterior
+    };
+  }
+
+  private formatearFechaLocal(fecha: Date): string {
+    const anio = fecha.getFullYear();
+    const mes = String(fecha.getMonth() + 1).padStart(2, '0');
+    const dia = String(fecha.getDate()).padStart(2, '0');
+    return `${anio}-${mes}-${dia}`;
   }
 
   cargarTiposReporte() {
@@ -144,15 +176,57 @@ export class CrearReporteComponent implements OnInit {
     });
   }
 
-  agruparReportesPorEspecie() {
-    const mapa = new Map<number, any>();
+  cargarPendientesAnteriores(): void {
+    const idUsuario = this.authService.obtenerIdUsuario();
+    const { fecha_inicio, fecha_fin } = this.rangoPendientesAnteriores;
 
-    for (const reporte of this.reportes) {
+    if (!idUsuario) {
+      this.errorAnteriores = 'No se pudo identificar al usuario.';
+      this.gruposEspeciesAnteriores = [];
+      return;
+    }
+
+    if (!fecha_inicio || !fecha_fin || fecha_inicio > fecha_fin || fecha_fin > this.fechaMaximaAnterior) {
+      this.errorAnteriores = 'Selecciona un rango anterior válido.';
+      this.gruposEspeciesAnteriores = [];
+      return;
+    }
+
+    this.cargandoAnteriores = true;
+    this.errorAnteriores = '';
+    this.reporteService.obtenerReportesPendientesAnteriores(
+      idUsuario,
+      fecha_inicio,
+      fecha_fin
+    ).subscribe({
+      next: respuesta => {
+        const pendientes = respuesta.data || [];
+        pendientes.forEach((reporte: any) => reporte.esPendienteAnterior = true);
+        this.gruposEspeciesAnteriores = this.agruparListaReportes(pendientes, true);
+        this.cargandoAnteriores = false;
+      },
+      error: err => {
+        this.gruposEspeciesAnteriores = [];
+        this.cargandoAnteriores = false;
+        this.errorAnteriores =
+          err?.error?.mensaje || 'No se pudieron cargar los pendientes anteriores.';
+      }
+    });
+  }
+
+  private agruparListaReportes(reportes: any[], incluirFecha: boolean): any[] {
+    const mapa = new Map<string, any>();
+
+    for (const reporte of reportes) {
       const idEspecie = Number(reporte.id_especie);
+      const fechaReporte = String(reporte.fecha_reporte || '');
+      const clave = incluirFecha ? `${fechaReporte}-${idEspecie}` : String(idEspecie);
 
-      if (!mapa.has(idEspecie)) {
-        mapa.set(idEspecie, {
+      if (!mapa.has(clave)) {
+        mapa.set(clave, {
           id_especie: idEspecie,
+          fecha_reporte: fechaReporte,
+          fechaReporteVisible: fechaReporte.split('-').reverse().join('/'),
           especie: reporte.especie,
           nombre_cientifico: reporte.nombre_cientifico,
           imagen_url: reporte.imagen_url || null,
@@ -171,7 +245,7 @@ export class CrearReporteComponent implements OnInit {
         });
       }
 
-      const grupo = mapa.get(idEspecie);
+      const grupo = mapa.get(clave);
       grupo.capturas.push(reporte);
       grupo.ids_reportes.push(reporte.id_reporte);
 
@@ -188,12 +262,19 @@ export class CrearReporteComponent implements OnInit {
 
       grupo.pdfGenerado = grupo.capturas.length > 0 && grupo.capturas.every((c: any) => Number(c.archivo_pdf) === 1);
       grupo.csvGenerado = grupo.capturas.length > 0 && grupo.capturas.every((c: any) => Number(c.archivo_csv) === 1);
-      grupo.tituloReporte = `Reporte de capturas - ${grupo.especie}`;
+      grupo.tituloReporte = `Reporte de capturas - ${grupo.especie}${incluirFecha ? ` - ${grupo.fecha_reporte}` : ''}`;
 
       return grupo;
     });
 
-    this.gruposEspecies.sort((a: any, b: any) => String(a.especie || '').localeCompare(String(b.especie || '')));
+    return Array.from(mapa.values()).sort((a: any, b: any) => {
+      const fechaOrden = String(b.fecha_reporte || '').localeCompare(String(a.fecha_reporte || ''));
+      return fechaOrden || String(a.especie || '').localeCompare(String(b.especie || ''));
+    });
+  }
+
+  agruparReportesPorEspecie() {
+    this.gruposEspecies = this.agruparListaReportes(this.reportes, false);
   }
 
   // ==========================================
@@ -221,10 +302,15 @@ export class CrearReporteComponent implements OnInit {
     this.balanzaService.anularCaptura(this.capturaSeleccionadaAnular.id_captura, idUsuario).subscribe({
       next: (res) => {
         this.anulandoProceso = false;
+        const esPendienteAnterior = this.capturaSeleccionadaAnular?.esPendienteAnterior;
         this.cerrarModalAnular();
         if (res.estado === 1) {
           this.mostrarNotificacion('Captura Anulada', 'El registro se ha retirado exitosamente de la faena.', 'exito');
-          this.cargarReportes();
+          if (esPendienteAnterior) {
+            this.cargarPendientesAnteriores();
+          } else {
+            this.cargarReportes();
+          }
         } else {
           this.mostrarNotificacion('No se pudo anular', res.mensaje || 'Error al procesar la anulación.', 'error');
         }
@@ -280,7 +366,7 @@ export class CrearReporteComponent implements OnInit {
         const enlace = document.createElement('a');
         enlace.href = url;
         const especie = String(grupo.especie || 'especie').trim().replace(/\s+/g, '_').replace(/[^a-zA-Z0-9áéíóúÁÉÍÓÚñÑ_-]/g, '');
-        enlace.download = `reporte_${especie}_${this.obtenerFechaActual()}.pdf`;
+        enlace.download = `reporte_${especie}_${grupo.fecha_reporte || this.obtenerFechaActual()}.pdf`;
         document.body.appendChild(enlace);
         enlace.click();
         document.body.removeChild(enlace);
@@ -339,7 +425,7 @@ export class CrearReporteComponent implements OnInit {
         const enlace = document.createElement('a');
         enlace.href = url;
         const especie = String(grupo.especie || 'especie').trim().replace(/\s+/g, '_').replace(/[^a-zA-Z0-9áéíóúÁÉÍÓÚñÑ_-]/g, '');
-        enlace.download = `reporte_${especie}_${this.obtenerFechaActual()}.csv`;
+        enlace.download = `reporte_${especie}_${grupo.fecha_reporte || this.obtenerFechaActual()}.csv`;
         document.body.appendChild(enlace);
         enlace.click();
         document.body.removeChild(enlace);
@@ -393,6 +479,7 @@ export class CrearReporteComponent implements OnInit {
         grupo.enviando = false;
         this.mostrarNotificacion('Reporte Consolidado', respuesta.mensaje || 'Reporte enviado correctamente.', 'exito');
         this.cargarReportes();
+        this.cargarPendientesAnteriores();
       },
       error: (err) => {
         grupo.enviando = false;

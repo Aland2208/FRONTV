@@ -56,25 +56,13 @@
       </div>
     </section>
 
-    <!-- SIN REGISTROS -->
-    <section class="sin-registros" *ngIf="gruposEspecies.length === 0">
-      <ion-icon name="document-text-outline"></ion-icon>
-      <h2>Sin capturas pendientes</h2>
-      <p>No existen capturas pendientes para generar reportes durante el día de hoy.</p>
-    </section>
+    <ng-template #grupoReporte let-grupo="grupo">
+      <article class="grupo-especie">
 
-    <!-- LISTA DE ESPECIES -->
-    <section class="lista-reportes" *ngIf="gruposEspecies.length > 0">
-
-      <div class="lista-header">
-        <div>
-          <span class="eyebrow">Capturas del día</span>
-          <h2>Especies detectadas</h2>
+        <div class="fecha-grupo" *ngIf="grupo.fecha_reporte">
+          <ion-icon name="calendar-outline"></ion-icon>
+          <span>{{ grupo.fechaReporteVisible }}</span>
         </div>
-        <span class="cantidad-chip">{{ gruposEspecies.length }}</span>
-      </div>
-
-      <article class="grupo-especie" *ngFor="let grupo of gruposEspecies">
 
         <!-- CABECERA DE LA ESPECIE -->
         <div class="especie-header">
@@ -136,7 +124,6 @@
             <span>Registros incluidos en este reporte</span>
           </div>
 
-          <!-- CABECERA DE TABLA -->
           <div class="captura-fila captura-cabecera">
             <span>Registro</span>
             <span>Peso</span>
@@ -145,7 +132,6 @@
             <span class="text-center">Acción</span>
           </div>
 
-          <!-- FILAS -->
           <div class="captura-fila" *ngFor="let captura of grupo.capturas">
             <span class="captura-id">#{{ captura.id_captura }}</span>
             <span>{{ captura.peso | number:'1.2-2' }} g</span>
@@ -185,7 +171,6 @@
             <input type="text" [(ngModel)]="grupo.tituloReporte" maxlength="150" placeholder="Ingrese el título">
           </div>
 
-          <!-- ESTADO DE ARCHIVOS -->
           <div class="archivos-reporte">
             <div class="archivo-estado" [class.archivo-generado]="grupo.pdfGenerado">
               <ion-icon [name]="grupo.pdfGenerado ? 'checkmark-circle-outline' : 'document-outline'"></ion-icon>
@@ -204,20 +189,17 @@
             </div>
           </div>
 
-          <!-- BOTONES GENERAR ARCHIVOS -->
           <div class="botones-archivos">
             <button type="button" class="btn-archivo" [disabled]="grupo.generandoPDF" (click)="generarPDF(grupo)">
               <ion-spinner *ngIf="grupo.generandoPDF" name="crescent"></ion-spinner>
               <ion-icon *ngIf="!grupo.generandoPDF" name="document-text-outline"></ion-icon>
-              <span>{{ grupo.generandoPDF ? 'Generando PDF...' : grupo.pdfGenerado ? 'Generar PDF nuevamente' : 'Generar
-                PDF' }}</span>
+              <span>{{ grupo.generandoPDF ? 'Generando PDF...' : grupo.pdfGenerado ? 'Generar PDF nuevamente' : 'Generar PDF' }}</span>
             </button>
 
             <button type="button" class="btn-archivo" [disabled]="grupo.generandoCSV" (click)="generarCSV(grupo)">
               <ion-spinner *ngIf="grupo.generandoCSV" name="crescent"></ion-spinner>
               <ion-icon *ngIf="!grupo.generandoCSV" name="grid-outline"></ion-icon>
-              <span>{{ grupo.generandoCSV ? 'Generando CSV...' : grupo.csvGenerado ? 'Generar CSV nuevamente' : 'Generar
-                CSV' }}</span>
+              <span>{{ grupo.generandoCSV ? 'Generando CSV...' : grupo.csvGenerado ? 'Generar CSV nuevamente' : 'Generar CSV' }}</span>
             </button>
           </div>
 
@@ -237,8 +219,84 @@
             Genere el archivo PDF y CSV para habilitar el envío del reporte.
           </p>
         </div>
-
       </article>
+    </ng-template>
+
+    <!-- SIN REGISTROS -->
+    <section class="sin-registros" *ngIf="gruposEspecies.length === 0">
+      <ion-icon name="document-text-outline"></ion-icon>
+      <h2>Sin capturas pendientes</h2>
+      <p>No existen capturas pendientes para generar reportes durante el día de hoy.</p>
+    </section>
+
+    <!-- LISTA DE ESPECIES -->
+    <section class="lista-reportes" *ngIf="gruposEspecies.length > 0">
+
+      <div class="lista-header">
+        <div>
+          <span class="eyebrow">Capturas del día</span>
+          <h2>Especies detectadas</h2>
+        </div>
+        <span class="cantidad-chip">{{ gruposEspecies.length }}</span>
+      </div>
+
+      <ng-container *ngFor="let grupo of gruposEspecies">
+        <ng-container *ngTemplateOutlet="grupoReporte; context: { grupo: grupo }"></ng-container>
+      </ng-container>
+    </section>
+
+    <section class="lista-reportes pendientes-anteriores">
+      <div class="lista-header">
+        <div>
+          <span class="eyebrow">Historial pendiente</span>
+          <h2>Pendientes anteriores</h2>
+          <p>Capturas activas que todavía no forman parte de un reporte finalizado.</p>
+        </div>
+      </div>
+
+      <div class="filtros-pendientes">
+        <label>
+          Desde
+          <div class="fecha-pendiente-input">
+            <input type="date" [(ngModel)]="rangoPendientesAnteriores.fecha_inicio"
+              [max]="fechaMaximaAnterior" aria-label="Fecha inicial de pendientes anteriores">
+          </div>
+        </label>
+        <label>
+          Hasta
+          <div class="fecha-pendiente-input">
+            <input type="date" [(ngModel)]="rangoPendientesAnteriores.fecha_fin"
+              [max]="fechaMaximaAnterior" aria-label="Fecha final de pendientes anteriores">
+          </div>
+        </label>
+        <button type="button" class="btn-buscar-pendientes" [disabled]="cargandoAnteriores"
+          (click)="cargarPendientesAnteriores()">
+          <ion-spinner *ngIf="cargandoAnteriores" name="crescent"></ion-spinner>
+          <span>{{ cargandoAnteriores ? 'Buscando...' : 'Buscar pendientes' }}</span>
+        </button>
+      </div>
+
+      <div class="estado-container" *ngIf="cargandoAnteriores">
+        <ion-spinner name="crescent"></ion-spinner>
+        <p>Cargando pendientes anteriores...</p>
+      </div>
+
+      <div class="estado-container estado-error" *ngIf="!cargandoAnteriores && errorAnteriores">
+        <ion-icon name="warning-outline"></ion-icon>
+        <p>{{ errorAnteriores }}</p>
+      </div>
+
+      <div class="sin-registros" *ngIf="!cargandoAnteriores && !errorAnteriores && gruposEspeciesAnteriores.length === 0">
+        <ion-icon name="document-text-outline"></ion-icon>
+        <h2>Sin pendientes en este rango</h2>
+        <p>Prueba con otras fechas. Los reportes finalizados no aparecen en esta lista.</p>
+      </div>
+
+      <ng-container *ngIf="!cargandoAnteriores && !errorAnteriores">
+        <ng-container *ngFor="let grupo of gruposEspeciesAnteriores">
+          <ng-container *ngTemplateOutlet="grupoReporte; context: { grupo: grupo }"></ng-container>
+        </ng-container>
+      </ng-container>
     </section>
   </ng-container>
 
@@ -252,7 +310,7 @@
           <ion-icon name="trash-outline"></ion-icon>
         </div>
         <h3>Anular Captura</h3>
-        <p>¿Deseas remover este registro de tus capturas pendientes de hoy?</p>
+        <p>¿Deseas retirar este registro de tus capturas pendientes?</p>
       </header>
 
       <div class="modal-body" *ngIf="capturaSeleccionadaAnular">

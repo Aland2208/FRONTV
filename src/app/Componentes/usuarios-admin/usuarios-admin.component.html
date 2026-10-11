@@ -34,6 +34,90 @@
       <strong>{{ totalInactivos }}</strong>
     </div>
 
+    <div class="resumen-item">
+      <span>Pendientes</span>
+      <strong>{{ totalPendientesVerificacion }}</strong>
+    </div>
+  </div>
+
+  <div class="modal-observador-backdrop" *ngIf="modalObservadorAbierto"
+      (click)="cerrarFormularioObservador()">
+      <section class="modal-observador" role="dialog" aria-modal="true"
+        [attr.aria-labelledby]="'titulo-modal-observador'" (click)="$event.stopPropagation()">
+        <header class="modal-observador-header">
+          <div class="modal-observador-icono">
+            <ion-icon [name]="modoFormulario==='crear' ? 'person-add-outline' : 'create-outline'"></ion-icon>
+          </div>
+          <div>
+            <span class="etiqueta">GESTIÓN DE CUENTAS</span>
+            <h2 id="titulo-modal-observador">
+              {{ modoFormulario==='crear' ? 'Nuevo observador' : 'Editar observador' }}
+            </h2>
+            <p>
+              {{ modoFormulario==='crear'
+                ? 'Registra una nueva cuenta para el equipo de campo.'
+                : 'Actualiza los datos del perfil del observador.'
+              }}
+            </p>
+          </div>
+          <button type="button" class="modal-observador-cerrar" aria-label="Cerrar formulario"
+            [disabled]="guardandoObservador" (click)="cerrarFormularioObservador()">
+            <ion-icon name="close-outline"></ion-icon>
+          </button>
+        </header>
+
+        <form class="formulario-observador" novalidate (ngSubmit)="guardarFormularioObservador()">
+          <div class="formulario-observador-grid">
+            <label class="campo-observador">
+              <span>Nombre</span>
+              <input type="text" name="nombre" [(ngModel)]="formularioObservador.nombre"
+                maxlength="30" minlength="2" autocomplete="given-name" required>
+            </label>
+
+            <label class="campo-observador">
+              <span>Apellido</span>
+              <input type="text" name="apellido" [(ngModel)]="formularioObservador.apellido"
+                maxlength="30" minlength="2" autocomplete="family-name" required>
+            </label>
+
+            <label class="campo-observador campo-observador-completo">
+              <span>Correo electrónico</span>
+              <input type="email" name="correo" [(ngModel)]="formularioObservador.correo"
+                maxlength="150" autocomplete="email" required
+                [readonly]="modoFormulario==='editar'">
+              <small *ngIf="modoFormulario==='editar'">
+                El correo no se modifica desde esta pantalla.
+              </small>
+            </label>
+
+            <label class="campo-observador campo-observador-completo" *ngIf="modoFormulario==='crear'">
+              <span>Contraseña temporal</span>
+              <input type="password" name="password" [(ngModel)]="formularioObservador.password"
+                maxlength="72" minlength="8" autocomplete="new-password" required>
+              <small>Usa mayúsculas, minúsculas, un número y un símbolo.</small>
+            </label>
+          </div>
+
+          <div class="error-formulario-observador" *ngIf="errorFormulario" role="alert">
+            <ion-icon name="warning-outline"></ion-icon>
+            <span>{{ errorFormulario }}</span>
+          </div>
+
+          <footer class="acciones-formulario-observador">
+            <button type="button" class="btn-formulario-cancelar"
+              [disabled]="guardandoObservador" (click)="cerrarFormularioObservador()">
+              Cancelar
+            </button>
+            <button type="submit" class="btn-formulario-guardar" [disabled]="guardandoObservador">
+              <ion-icon [name]="guardandoObservador ? 'hourglass-outline' : 'checkmark-circle-outline'"></ion-icon>
+              {{ guardandoObservador
+                ? 'Guardando...'
+                : (modoFormulario==='crear' ? 'Crear observador' : 'Guardar cambios')
+              }}
+            </button>
+          </footer>
+        </form>
+      </section>
   </div>
 
   <!-- BUSCADOR -->
@@ -120,14 +204,17 @@
           <td>
             <span
               class="estado"
-              [class.activo]="usuario.estado===1"
-              [class.inactivo]="usuario.estado===0">
+              [class.activo]="!usuario.verificacion_pendiente && usuario.estado===1"
+              [class.inactivo]="!usuario.verificacion_pendiente && usuario.estado===0"
+              [class.pendiente]="usuario.verificacion_pendiente">
 
               <span class="punto"></span>
 
-              {{ usuario.estado===1
-                ? 'Activo'
-                : 'Inactivo'
+              {{ usuario.verificacion_pendiente
+                ? 'Pendiente de verificación'
+                : usuario.estado===1
+                  ? 'Activo'
+                  : 'Inactivo'
               }}
             </span>
           </td>
@@ -145,6 +232,7 @@
               </button>
 
               <button
+                *ngIf="!usuario.verificacion_pendiente"
                 type="button"
                 class="btn-accion"
                 [class.desactivar]="usuario.estado===1"

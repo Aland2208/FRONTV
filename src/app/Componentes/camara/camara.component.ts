@@ -5,7 +5,7 @@ import {
 } from '@angular/core';
 
 import { CommonModule } from '@angular/common';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 
 import {
   IonButton,
@@ -82,6 +82,8 @@ export class CamaraComponent implements OnInit, OnDestroy {
   private temporizadorConexion: any;
   private temporizadorMensaje: any;
   private intervaloMonitorCamara: any;
+  private controladorVideo?: AbortController;
+  private urlFrameActual?: string;
 
   constructor(
     private balanzaService: BalanzaS,
@@ -159,8 +161,7 @@ export class CamaraComponent implements OnInit, OnDestroy {
       next: (res) => {
         if (res?.estado === 1 && res.url_camara) {
           this.PYTHON_API = res.url_camara;
-          this.urlCamara = `${this.PYTHON_API}/video_feed`;
-          this.camaraConectada = true;
+          this.iniciarTransmisionCamara();
           this.iniciarMonitoreoConexion();
         } else {
           this.desconectarCamara('El administrador aún no ha habilitado la cámara.');
@@ -178,14 +179,17 @@ export class CamaraComponent implements OnInit, OnDestroy {
     this.intervaloMonitorCamara = setInterval(() => {
       if (!this.PYTHON_API) return;
 
-      this.http.get<any>(`${this.PYTHON_API}/api-local/estado`).subscribe({
+      const token = this.authService.obtenerToken();
+      if (!token) {
+        this.desconectarCamara('La sesión no está disponible. Inicie sesión nuevamente.');
+        return;
+      }
+
+      this.http.get<any>(`${this.PYTHON_API}/api-local/estado`, {
+        headers: new HttpHeaders({ Authorization: `Bearer ${token}` })
+      }).subscribe({
         next: (estado) => {
-          if (estado?.estado === 1) {
-            if (!this.camaraConectada) {
-              this.camaraConectada = true;
-              this.urlCamara = `${this.PYTHON_API}/video_feed?t=${Date.now()}`;
-            }
-          } else {
+          if (estado?.estado !== 1) {
             this.desconectarCamara('Cámara detenida por el sistema.');
           }
         },
@@ -197,9 +201,123 @@ export class CamaraComponent implements OnInit, OnDestroy {
   }
 
   desconectarCamara(motivo: string) {
+    this.controladorVideo?.abort();
+    this.controladorVideo=undefined;
+    this.limpiarFrameActual();
     this.camaraConectada = false;
     this.urlCamara = '';
     this.mensajeEstadoCamara = motivo;
+  }
+
+  private iniciarTransmisionCamara(): void {
+    const token = this.authService.obtenerToken();
+    if (!token || !this.PYTHON_API) {
+      this.desconectarCamara('La sesión no está disponible. Inicie sesión nuevamente.');
+      return;
+    }
+
+    this.controladorVideo?.abort();
+    this.controladorVideo=new AbortController();
+    this.httpVideoFeed(
+      `${this.PYTHON_API}/video_feed`,
+      token,
+      this.controladorVideo.signal
+    ).catch(() => {
+      if (!this.controladorVideo?.signal.aborted) {
+        this.desconectarCamara('No se pudo autenticar la transmisión de video.');
+      }
+    });
+  }
+
+  private async httpVideoFeed(
+    url: string,
+    token: string,
+    signal: AbortSignal
+  ): Promise<void> {
+    const respuesta = await fetch(url, {
+      headers: { Authorization: `Bearer ${token}` },
+      signal
+    });
+    if (!respuesta.ok || !respuesta.body) {
+      throw new Error('No se pudo abrir la transmisión de video.');
+    }
+
+    const lector=respuesta.body.getReader();
+    const separadorCabecera=new Uint8Array([13,10,13,10]);
+    const separadorFrame=new Uint8Array([13,10,45,45,102,114,97,109,101,13,10]);
+    let buffer=new Uint8Array(0);
+
+    while (!signal.aborted) {
+      const {done,value}=await lector.read();
+      if (done) break;
+
+      const siguiente=new Uint8Array(buffer.length+value.length);
+      siguiente.set(buffer);
+      siguiente.set(value,buffer.length);
+      buffer=siguiente;
+
+      while (true) {
+        const finCabecera=this.buscarBytes(buffer,separadorCabecera);
+        if (finCabecera<0) break;
+
+        const inicioFrame=finCabecera+separadorCabecera.length;
+        const finFrame=this.buscarBytes(buffer,separadorFrame,inicioFrame);
+        if (finFrame<0) break;
+
+        if (finFrame>inicioFrame) {
+          const frame=buffer.slice(inicioFrame,finFrame);
+          this.mostrarFrame(frame);
+        }
+
+        buffer=buffer.slice(finFrame+2);
+      }
+
+      if (buffer.length>8*1024*1024) {
+        throw new Error('La transmisión de video es inválida.');
+      }
+    }
+
+    if (!signal.aborted) {
+      throw new Error('La transmisión de video finalizó.');
+    }
+  }
+
+  private buscarBytes(
+    fuente:Uint8Array,
+    patron:Uint8Array,
+    desde=0
+  ):number{
+    for(let inicio=desde;inicio<=fuente.length-patron.length;inicio++){
+      let coincide=true;
+      for(let indice=0;indice<patron.length;indice++){
+        if(fuente[inicio+indice]!==patron[indice]){
+          coincide=false;
+          break;
+        }
+      }
+      if(coincide)return inicio;
+    }
+    return -1;
+  }
+
+  private mostrarFrame(datos:Uint8Array):void{
+    const copia=new Uint8Array(datos.length);
+    copia.set(datos);
+    const nuevaUrl=URL.createObjectURL(new Blob([copia],{type:'image/jpeg'}));
+    const urlAnterior=this.urlFrameActual;
+    this.urlFrameActual=nuevaUrl;
+    this.urlCamara=nuevaUrl;
+    this.camaraConectada=true;
+    if(urlAnterior){
+      setTimeout(()=>URL.revokeObjectURL(urlAnterior),1000);
+    }
+  }
+
+  private limpiarFrameActual():void{
+    if(this.urlFrameActual){
+      URL.revokeObjectURL(this.urlFrameActual);
+      this.urlFrameActual=undefined;
+    }
   }
 
   alCargarCamara() {
@@ -229,7 +347,18 @@ export class CamaraComponent implements OnInit, OnDestroy {
     this.procesandoIA = true;
     this.mostrarAlerta('⏳ Procesando captura con IA...');
 
-    this.http.post<any>(`${this.PYTHON_API}/api-local/subir-cloudinary`, {}).subscribe({
+    const token=this.authService.obtenerToken();
+    if(!token){
+      this.procesandoIA=false;
+      this.mostrarAlerta('La sesión no está disponible. Inicie sesión nuevamente.');
+      return;
+    }
+
+    this.http.post<any>(
+      `${this.PYTHON_API}/api-local/subir-cloudinary`,
+      {},
+      {headers:new HttpHeaders({Authorization:`Bearer ${token}`})}
+    ).subscribe({
       next: (resPython) => {
         this.procesandoIA = false;
         const idEspecie = Number(resPython.id_deteccion);
@@ -318,6 +447,8 @@ export class CamaraComponent implements OnInit, OnDestroy {
     clearInterval(this.intervaloMonitorCamara);
     clearTimeout(this.temporizadorConexion);
     clearTimeout(this.temporizadorMensaje);
+    this.controladorVideo?.abort();
+    this.limpiarFrameActual();
     this.socketService.desconectar();
   }
 }

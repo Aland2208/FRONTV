@@ -13,6 +13,9 @@ export class SocketS {
   constructor() {
 
     this.socket = io(environment.socketUrl, {
+      auth: (callback) => callback({
+        token: sessionStorage.getItem('veedor_token')
+      }),
       reconnection: true,
       reconnectionAttempts: 10,
       reconnectionDelay: 3000

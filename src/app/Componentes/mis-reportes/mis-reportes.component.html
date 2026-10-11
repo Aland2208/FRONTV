@@ -34,18 +34,24 @@
 
       <!-- FECHA INICIO -->
       <div class="campo">
-        <label>Desde</label>
-        <input
-          type="date"
-          [(ngModel)]="filtros.fecha_inicio">
+        <label for="fechaInicioReportes">Desde</label>
+        <div class="fecha-input">
+          <input
+            id="fechaInicioReportes"
+            type="date"
+            [(ngModel)]="filtros.fecha_inicio">
+        </div>
       </div>
 
       <!-- FECHA FIN -->
       <div class="campo">
-        <label>Hasta</label>
-        <input
-          type="date"
-          [(ngModel)]="filtros.fecha_fin">
+        <label for="fechaFinReportes">Hasta</label>
+        <div class="fecha-input">
+          <input
+            id="fechaFinReportes"
+            type="date"
+            [(ngModel)]="filtros.fecha_fin">
+        </div>
       </div>
 
       <!-- ESPECIE -->

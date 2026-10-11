@@ -45,12 +45,16 @@
     <!-- FECHAS PERSONALIZADAS -->
     <section class="fechas-personalizadas" *ngIf="periodo==='personalizado'">
         <div class="fecha-campo">
-            <label>Desde</label>
-            <input type="date" [(ngModel)]="desde">
+            <label for="fechaDesdeDashboard">Desde</label>
+            <div class="fecha-input">
+                <input id="fechaDesdeDashboard" type="date" [(ngModel)]="desde">
+            </div>
         </div>
         <div class="fecha-campo">
-            <label>Hasta</label>
-            <input type="date" [(ngModel)]="hasta">
+            <label for="fechaHastaDashboard">Hasta</label>
+            <div class="fecha-input">
+                <input id="fechaHastaDashboard" type="date" [(ngModel)]="hasta">
+            </div>
         </div>
         <button type="button" class="btn-aplicar" [disabled]="!desde || !hasta || cargando" (click)="aplicarFechas()">
             <ion-icon name="funnel-outline"></ion-icon>

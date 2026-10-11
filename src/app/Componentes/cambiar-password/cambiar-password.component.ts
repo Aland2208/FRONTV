@@ -5,7 +5,10 @@ import { IonicModule, ToastController } from '@ionic/angular';
 import { Auth } from '../../servicios/auth';
 
 // Importamos la utilidad de validación
-import { validarPassword } from '../../utilidades/password-validator';
+import {
+  passwordDentroDelLimite,
+  validarPassword
+} from '../../utilidades/password-validator';
 
 @Component({
   selector: 'app-cambiar-password',
@@ -43,6 +46,11 @@ export class CambiarPasswordComponent {
 
     if (!actual || !nueva || !confirmar) {
       this.mostrarMensaje('Complete todos los campos.', 'warning');
+      return;
+    }
+
+    if (!passwordDentroDelLimite(actual)) {
+      this.mostrarMensaje('La contraseña actual no es válida.', 'warning');
       return;
     }
 

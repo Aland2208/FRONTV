@@ -33,6 +33,22 @@ export class ReporteS {
 
   }
 
+  obtenerReportesPendientesAnteriores(
+    idUsuario: number,
+    fechaInicio: string,
+    fechaFin: string
+  ): Observable<any> {
+    return this.http.get(
+      `${this.api}/pendientes/anteriores/${idUsuario}`,
+      {
+        params: {
+          fecha_inicio: fechaInicio,
+          fecha_fin: fechaFin
+        }
+      }
+    );
+  }
+
 
   // ==========================================
   // OBTENER TODAS LAS CAPTURAS DEL USUARIO

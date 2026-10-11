@@ -16,6 +16,7 @@ interface Observador{
   apellido:string;
   correo:string;
   estado:number;
+  verificacion_pendiente:boolean;
   fecha_creacion?:string;
 }
 
@@ -30,6 +31,17 @@ export class UsuariosAdminComponent implements OnInit{
   observadores:Observador[]=[];
   busqueda='';
   cargando=true;
+  modalObservadorAbierto=false;
+  modoFormulario:'crear'|'editar'='crear';
+  guardandoObservador=false;
+  errorFormulario='';
+  usuarioEnEdicion:Observador|null=null;
+  formularioObservador={
+    nombre:'',
+    apellido:'',
+    correo:'',
+    password:''
+  };
 
   constructor(
     private authService:Auth,
@@ -59,7 +71,13 @@ export class UsuariosAdminComponent implements OnInit{
   }
 
   get totalInactivos():number{
-    return this.observadores.filter(u=>Number(u.estado)===0).length;
+    return this.observadores.filter(
+      u=>!u.verificacion_pendiente&&Number(u.estado)===0
+    ).length;
+  }
+
+  get totalPendientesVerificacion():number{
+    return this.observadores.filter(u=>u.verificacion_pendiente).length;
   }
 
   cargarObservadores(){
@@ -67,7 +85,10 @@ export class UsuariosAdminComponent implements OnInit{
 
     this.authService.getObservadores().subscribe({
       next:(respuesta:any)=>{
-        this.observadores=respuesta.data||[];
+        this.observadores=(respuesta.data||[]).map((usuario:Observador)=>({
+          ...usuario,
+          verificacion_pendiente:Number(usuario.verificacion_pendiente)===1
+        }));
         this.cargando=false;
         this.cdr.detectChanges();
       },
@@ -85,50 +106,11 @@ export class UsuariosAdminComponent implements OnInit{
   }
 
   async nuevoObservador(){
-    const alerta=await this.alertController.create({
-      header:'Nuevo observador',
-      inputs:[
-        {
-          name:'nombre',
-          type:'text',
-          attributes:{maxlength:'100',autocomplete:'given-name'},
-          placeholder:'Nombre'
-        },
-        {
-          name:'apellido',
-          type:'text',
-          attributes:{maxlength:'100',autocomplete:'family-name'},
-          placeholder:'Apellido'
-        },
-        {
-          name:'correo',
-          type:'email',
-          attributes:{maxlength:'150'},
-          placeholder:'Correo electrónico'
-        },
-        {
-          name:'password',
-          type:'password',
-          attributes:{maxlength:'72',autocomplete:'new-password'},
-          placeholder:'Contraseña'
-        }
-      ],
-      buttons:[
-        {
-          text:'Cancelar',
-          role:'cancel'
-        },
-        {
-          text:'Crear',
-          handler:(datos)=>{
-            this.crearObservador(datos);
-            return true;
-          }
-        }
-      ]
-    });
-
-    await alerta.present();
+    this.modoFormulario='crear';
+    this.usuarioEnEdicion=null;
+    this.formularioObservador={nombre:'',apellido:'',correo:'',password:''};
+    this.errorFormulario='';
+    this.modalObservadorAbierto=true;
   }
 
   private crearObservador(datos:any){
@@ -147,7 +129,7 @@ export class UsuariosAdminComponent implements OnInit{
 
     if(!this.nombreValido(nombre)||!this.nombreValido(apellido)){
       this.mostrarToast(
-        'El nombre y el apellido deben tener entre 2 y 100 letras.',
+        'El nombre y el apellido no son válidos.',
         'danger'
       );
       return;
@@ -163,7 +145,7 @@ export class UsuariosAdminComponent implements OnInit{
 
     if(!validarPassword(password).valida){
       this.mostrarToast(
-        'La contraseña debe tener entre 8 y 72 bytes e incluir mayúscula, minúscula, número y carácter especial.',
+        'La contraseña no cumple los requisitos de seguridad.',
         'danger'
       );
       return;
@@ -176,6 +158,8 @@ export class UsuariosAdminComponent implements OnInit{
       password
     }).subscribe({
       next:async(respuesta:any)=>{
+        this.guardandoObservador=false;
+        this.modalObservadorAbierto=false;
         await this.mostrarToast(
           respuesta.mensaje||'Observador creado correctamente.',
           'success'
@@ -184,10 +168,10 @@ export class UsuariosAdminComponent implements OnInit{
         this.cargarObservadores();
       },
       error:async(error)=>{
-        
-
+        this.guardandoObservador=false;
+        this.errorFormulario=error.error?.mensaje||'No se pudo crear el observador.';
         await this.mostrarToast(
-          error.error?.mensaje||'No se pudo crear el observador.',
+          this.errorFormulario,
           'danger'
         );
       }
@@ -195,41 +179,16 @@ export class UsuariosAdminComponent implements OnInit{
   }
 
   async editarObservador(usuario:Observador){
-    const alerta=await this.alertController.create({
-      header:'Editar observador',
-      message:'El correo se muestra como dato de contacto y no puede modificarse desde esta pantalla.',
-      inputs:[
-        {
-          name:'nombre',
-          type:'text',
-          value:usuario.nombre,
-          attributes:{maxlength:'100',autocomplete:'given-name'},
-          placeholder:'Nombre'
-        },
-        {
-          name:'apellido',
-          type:'text',
-          value:usuario.apellido,
-          attributes:{maxlength:'100',autocomplete:'family-name'},
-          placeholder:'Apellido'
-        }
-      ],
-      buttons:[
-        {
-          text:'Cancelar',
-          role:'cancel'
-        },
-        {
-          text:'Guardar',
-          handler:(datos)=>{
-            this.guardarEdicion(usuario,datos);
-            return true;
-          }
-        }
-      ]
-    });
-
-    await alerta.present();
+    this.modoFormulario='editar';
+    this.usuarioEnEdicion=usuario;
+    this.formularioObservador={
+      nombre:usuario.nombre,
+      apellido:usuario.apellido,
+      correo:usuario.correo,
+      password:''
+    };
+    this.errorFormulario='';
+    this.modalObservadorAbierto=true;
   }
 
   private guardarEdicion(usuario:Observador,datos:any){
@@ -246,7 +205,7 @@ export class UsuariosAdminComponent implements OnInit{
 
     if(!this.nombreValido(nombre)||!this.nombreValido(apellido)){
       this.mostrarToast(
-        'El nombre y el apellido deben tener entre 2 y 100 letras.',
+        'El nombre y el apellido no son válidos.',
         'danger'
       );
       return;
@@ -259,7 +218,8 @@ export class UsuariosAdminComponent implements OnInit{
       next:async(respuesta:any)=>{
         usuario.nombre=nombre;
         usuario.apellido=apellido;
-
+        this.guardandoObservador=false;
+        this.modalObservadorAbierto=false;
         this.cdr.detectChanges();
 
         await this.mostrarToast(
@@ -268,14 +228,48 @@ export class UsuariosAdminComponent implements OnInit{
         );
       },
       error:async(error)=>{
-        
-
+        this.guardandoObservador=false;
+        this.errorFormulario=error.error?.mensaje||'No se pudo actualizar el observador.';
         await this.mostrarToast(
-          error.error?.mensaje||'No se pudo actualizar el observador.',
+          this.errorFormulario,
           'danger'
         );
       }
     });
+  }
+
+  cerrarFormularioObservador():void{
+    if(this.guardandoObservador) return;
+    this.modalObservadorAbierto=false;
+    this.usuarioEnEdicion=null;
+    this.errorFormulario='';
+  }
+
+  guardarFormularioObservador():void{
+    if(this.guardandoObservador) return;
+
+    const datos={
+      nombre:this.formularioObservador.nombre.trim(),
+      apellido:this.formularioObservador.apellido.trim(),
+      correo:this.formularioObservador.correo.trim().toLowerCase(),
+      password:this.formularioObservador.password
+    };
+    const error=this.modoFormulario==='crear'
+      ? this.validarDatosNuevoObservador(datos)
+      : this.validarDatosEdicion(datos);
+
+    if(error){
+      this.errorFormulario=error;
+      return;
+    }
+
+    this.errorFormulario='';
+    this.guardandoObservador=true;
+    if(this.modoFormulario==='crear'){
+      this.crearObservador(datos);
+    }else if(this.usuarioEnEdicion){
+      this.guardarEdicion(this.usuarioEnEdicion,datos);
+    }
   }
 
   async cambiarEstado(usuario:Observador){
@@ -337,8 +331,41 @@ export class UsuariosAdminComponent implements OnInit{
     return validarCorreoElectronico(correo);
   }
 
+  private validarDatosNuevoObservador(datos:any):string|null{
+    const nombre=String(datos?.nombre||'').trim();
+    const apellido=String(datos?.apellido||'').trim();
+    const correo=String(datos?.correo||'').trim().toLowerCase();
+    const password=String(datos?.password||'');
+
+    let mensaje='';
+    if(!nombre||!apellido||!correo||!password){
+      mensaje='Todos los campos son obligatorios.';
+    }else if(!this.nombreValido(nombre)||!this.nombreValido(apellido)){
+      mensaje='El nombre y el apellido no son válidos.';
+    }else if(!this.correoValido(correo)){
+      mensaje='Ingresa un correo electrónico válido.';
+    }else if(!validarPassword(password).valida){
+      mensaje='La contraseña no cumple los requisitos de seguridad.';
+    }
+
+    return mensaje||null;
+  }
+
+  private validarDatosEdicion(datos:any):string|null{
+    const nombre=String(datos?.nombre||'').trim();
+    const apellido=String(datos?.apellido||'').trim();
+
+    if(nombre&&apellido&&this.nombreValido(nombre)&&this.nombreValido(apellido)){
+      return null;
+    }
+
+    return !nombre||!apellido
+      ? 'El nombre y el apellido son obligatorios.'
+      : 'El nombre y el apellido no son válidos.';
+  }
+
   private nombreValido(nombre:string):boolean{
-    return nombre.length>=2&&nombre.length<=100&&
+    return nombre.length>=2&&nombre.length<=30&&
       /^[\p{L}]+(?:[ '-][\p{L}]+)*$/u.test(nombre);
   }
 

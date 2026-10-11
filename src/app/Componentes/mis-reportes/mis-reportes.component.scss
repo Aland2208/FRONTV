@@ -140,6 +140,10 @@
   box-sizing: border-box;
 }
 
+.fecha-input {
+  display: block;
+}
+
 .campo input:focus,
 .campo select:focus,
 .busqueda input:focus {

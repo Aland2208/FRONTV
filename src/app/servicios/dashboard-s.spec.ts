@@ -1,8 +1,9 @@
 import { TestBed } from '@angular/core/testing';
-import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 
 import { DashboardS } from './dashboard-s';
+import { authInterceptor } from '../utils/auth.interceptor';
 
 describe('DashboardS', () => {
   let service: DashboardS;
@@ -11,7 +12,10 @@ describe('DashboardS', () => {
   beforeEach(() => {
     sessionStorage.setItem('veedor_token', 'test-token');
     TestBed.configureTestingModule({
-      providers: [provideHttpClient(), provideHttpClientTesting()]
+      providers: [
+        provideHttpClient(withInterceptors([authInterceptor])),
+        provideHttpClientTesting()
+      ]
     });
     service = TestBed.inject(DashboardS);
     httpTesting = TestBed.inject(HttpTestingController);

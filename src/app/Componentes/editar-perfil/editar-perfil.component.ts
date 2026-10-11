@@ -80,13 +80,13 @@ export class EditarPerfilComponent implements OnInit {
       return;
     }
 
-    if (nombre.length > 100 || apellido.length > 100) {
-      this.error = 'El nombre y apellido no pueden superar los 100 caracteres.';
+    if (nombre.length > 30 || apellido.length > 30) {
+      this.error = 'El nombre y apellido no son válidos.';
       return;
     }
 
     if (correo.length > 150) {
-      this.error = 'El correo no puede superar los 150 caracteres.';
+      this.error = 'El correo no es válido.';
       return;
     }
 

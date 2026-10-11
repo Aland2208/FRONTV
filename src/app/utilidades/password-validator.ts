@@ -7,11 +7,17 @@ export interface RequisitosPassword {
   valida: boolean;
 }
 
+export const PASSWORD_MAX_BYTES = 72;
+
+export function passwordDentroDelLimite(password: string): boolean {
+  return new TextEncoder().encode(password || '').length <= PASSWORD_MAX_BYTES;
+}
+
 export function validarPassword(password: string): RequisitosPassword {
   const valor = password || '';
 
   const requisitos: RequisitosPassword = {
-    longitud: valor.length >= 8 && new TextEncoder().encode(valor).length <= 72,
+    longitud: valor.length >= 8 && passwordDentroDelLimite(valor),
     minuscula: /[a-z]/.test(valor),
     mayuscula: /[A-Z]/.test(valor),
     numero: /[0-9]/.test(valor),

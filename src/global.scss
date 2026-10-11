@@ -32,6 +32,47 @@
  * https://ionicframework.com/docs/theming/dark-mode
  */
 
-/* @import "@ionic/angular/css/palettes/dark.always.css"; */
-/* @import "@ionic/angular/css/palettes/dark.class.css"; */
-@import '@ionic/angular/css/palettes/dark.system.css';
+/* Keep the branded light interface readable regardless of the OS/browser theme. */
+:root {
+  color-scheme: light;
+}
+
+ion-alert.vigia-admin-alert {
+  --backdrop-opacity: 0.62;
+  --background: #ffffff;
+  --min-width: min(320px, calc(100% - 24px));
+  --max-width: 500px;
+  --width: calc(100% - 32px);
+  --border-radius: 20px;
+  --ion-font-family: 'IBM Plex Sans', -apple-system, sans-serif;
+  --ion-text-color: #1b2b3a;
+  --ion-color-step-850: #1b2b3a;
+  --ion-color-step-550: #536779;
+  --ion-color-step-150: #dce5ea;
+  --ion-background-color-step-150: #dce5ea;
+  --ion-placeholder-color: #71808c;
+  --ion-color-primary: #0a1f33;
+  --ion-color-primary-rgb: 10, 31, 51;
+  --ion-color-primary-contrast: #ffffff;
+  --ion-color-primary-contrast-rgb: 255, 255, 255;
+  --ion-color-primary-shade: #091b2d;
+  --ion-color-primary-tint: #23354a;
+  font-family: 'IBM Plex Sans', -apple-system, sans-serif;
+}
+
+ion-alert.vigia-admin-alert::part(input) {
+  min-height: 44px;
+  margin-top: 8px;
+  border: 1px solid #dce5ea;
+  border-radius: 8px;
+  background: #fff;
+  color: #1b2b3a;
+  font-family: 'IBM Plex Sans', -apple-system, sans-serif;
+}
+
+@media (max-width: 480px) {
+  ion-alert.vigia-admin-alert {
+    --width: calc(100% - 24px);
+    --max-height: calc(100% - 32px);
+  }
+}

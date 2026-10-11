@@ -237,6 +237,115 @@
     padding: 0 17px;
 }
 
+.tarjeta-actual {
+    max-width: 850px;
+    margin: 0 auto 18px;
+    padding: 22px 26px;
+    background: #fff;
+    color: var(--ink);
+    border: 1px solid #dce5eb;
+    border-radius: 14px;
+    box-shadow: 0 5px 18px rgba(10, 31, 51, .06);
+}
+
+.titulo-actual {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding-bottom: 16px;
+    margin-bottom: 18px;
+    border-bottom: 1px solid #e8eef2;
+}
+
+.icono-actual {
+    width: 42px;
+    height: 42px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    border-radius: 10px;
+    background: rgba(31, 174, 124, .1);
+    color: #1fae7c;
+    font-size: 23px;
+}
+
+.titulo-actual span {
+    display: block;
+    color: #1fae7c;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 1.2px;
+}
+
+.titulo-actual h2 {
+    margin: 3px 0 0;
+    color: var(--abyss);
+    font-size: 18px;
+}
+
+.administrador-actual-info {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.estado-vinculado {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 11px;
+    margin-left: auto;
+    border-radius: 20px;
+    background: rgba(31, 174, 124, .1);
+    color: #1fae7c;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.sin-vinculacion {
+    max-width: 850px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 15px 18px;
+    margin: 0 auto 18px;
+    border: 1px solid #dce5eb;
+    border-radius: 10px;
+    background: #fff;
+    color: var(--slate);
+}
+
+.sin-vinculacion ion-icon {
+    flex-shrink: 0;
+    color: var(--teal);
+    font-size: 22px;
+}
+
+.sin-vinculacion strong,
+.sin-vinculacion span {
+    display: block;
+}
+
+.sin-vinculacion strong {
+    margin-bottom: 2px;
+    color: var(--abyss);
+    font-size: 13px;
+}
+
+.sin-vinculacion span {
+    font-size: 12px;
+}
+
+.estado-cargando {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    color: var(--slate);
+    font-size: 13px;
+}
+
 @media(max-width:700px) {
     .pagina-vinculacion {
         padding: 20px 15px;
@@ -265,113 +374,6 @@
 
     .btn-vincular {
         width: 100%;
-    }
-
-    .tarjeta-actual {
-        max-width: 850px;
-        margin: 0 auto 18px;
-        padding: 22px 26px;
-        background: #fff;
-        border: 1px solid #dce5eb;
-        border-radius: 14px;
-        box-shadow: 0 5px 18px rgba(10, 31, 51, .06);
-    }
-
-    .titulo-actual {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        padding-bottom: 16px;
-        margin-bottom: 18px;
-        border-bottom: 1px solid #e8eef2;
-    }
-
-    .icono-actual {
-        width: 42px;
-        height: 42px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        border-radius: 10px;
-        background: rgba(31, 174, 124, .1);
-        color: #1fae7c;
-        font-size: 23px;
-    }
-
-    .titulo-actual span {
-        display: block;
-        color: #1fae7c;
-        font-family: var(--font-mono);
-        font-size: 10px;
-        font-weight: 700;
-        letter-spacing: 1.2px;
-    }
-
-    .titulo-actual h2 {
-        margin: 3px 0 0;
-        color: var(--abyss);
-        font-size: 18px;
-    }
-
-    .administrador-actual-info {
-        display: flex;
-        align-items: center;
-        gap: 15px;
-    }
-
-    .estado-vinculado {
-        display: flex;
-        align-items: center;
-        gap: 6px;
-        padding: 7px 11px;
-        margin-left: auto;
-        border-radius: 20px;
-        background: rgba(31, 174, 124, .1);
-        color: #1fae7c;
-        font-size: 12px;
-        font-weight: 600;
-    }
-
-    .sin-vinculacion {
-        max-width: 850px;
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        padding: 15px 18px;
-        margin: 0 auto 18px;
-        border: 1px solid #dce5eb;
-        border-radius: 10px;
-        background: #fff;
-        color: var(--slate);
-    }
-
-    .sin-vinculacion ion-icon {
-        flex-shrink: 0;
-        color: var(--teal);
-        font-size: 22px;
-    }
-
-    .sin-vinculacion strong,
-    .sin-vinculacion span {
-        display: block;
-    }
-
-    .sin-vinculacion strong {
-        margin-bottom: 2px;
-        color: var(--abyss);
-        font-size: 13px;
-    }
-
-    .sin-vinculacion span {
-        font-size: 12px;
-    }
-
-    .estado-cargando {
-        display: flex;
-        align-items: center;
-        gap: 9px;
-        color: var(--slate);
-        font-size: 13px;
     }
 
     .tarjeta-busqueda {

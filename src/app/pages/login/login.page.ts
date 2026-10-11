@@ -3,6 +3,7 @@ import {CommonModule} from '@angular/common';
 import {FormsModule} from '@angular/forms';
 import {Router} from '@angular/router';
 import {Auth} from './../../servicios/auth';
+import { passwordDentroDelLimite } from '../../utilidades/password-validator';
 import {
  IonContent,IonItem,IonInput,IonButton,IonSpinner,
  ToastController,IonIcon
@@ -81,6 +82,14 @@ export class LoginPage implements OnInit,OnDestroy{
   if(!this.correo.trim()||!this.password){
    this.mostrarMensaje(
     'Ingresa tu correo y contraseña.',
+    'warning'
+   );
+   return;
+  }
+
+  if(!passwordDentroDelLimite(this.password)){
+   this.mostrarMensaje(
+    'No se pudo iniciar sesión. Revisa tus credenciales.',
     'warning'
    );
    return;
