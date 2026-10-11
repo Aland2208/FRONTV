@@ -216,8 +216,37 @@ form {
 .acciones {
   display:flex;
   justify-content:flex-end;
+  gap:10px;
   padding-top:5px;
   border-top:1px solid #edf1f3;
+}
+
+.btn-cancelar {
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:7px;
+  min-width:120px;
+  min-height:42px;
+  margin-top:16px;
+  padding:0 16px;
+  border:1px solid #d6e0e5;
+  border-radius:9px;
+  background:#fff;
+  color:var(--slate);
+  font-size:11px;
+  font-weight:600;
+  cursor:pointer;
+}
+
+.btn-cancelar:hover {
+  border-color:var(--teal);
+  color:var(--abyss);
+}
+
+.btn-cancelar:disabled {
+  opacity:.6;
+  cursor:not-allowed;
 }
 
 .btn-guardar {
@@ -285,6 +314,10 @@ form {
   }
 
   .btn-guardar {
+    width:100%;
+  }
+
+  .btn-cancelar {
     width:100%;
   }
 }

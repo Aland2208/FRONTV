@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { IonicModule } from '@ionic/angular';
+import { RouterLink } from '@angular/router';
 import { Auth } from '../../servicios/auth';
 import { validarCorreoElectronico } from '../../utilidades/correo-validator';
 import { validarNombre } from '../../utilidades/nombre-validator';
@@ -11,7 +12,7 @@ import { validarNombre } from '../../utilidades/nombre-validator';
   templateUrl: './editar-perfil.component.html',
   styleUrls: ['./editar-perfil.component.scss'],
   standalone: true,
-  imports: [CommonModule, FormsModule, IonicModule]
+  imports: [CommonModule, FormsModule, IonicModule, RouterLink]
 })
 export class EditarPerfilComponent implements OnInit {
 

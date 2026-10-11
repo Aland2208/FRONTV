@@ -1,6 +1,7 @@
 import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { RouterLink } from '@angular/router';
 import { IonIcon, AlertController, ToastController } from '@ionic/angular/standalone';
 import { Auth } from '../../servicios/auth';
 
@@ -18,7 +19,7 @@ interface Administrador{
   templateUrl:'./vincular-administrador.component.html',
   styleUrls:['./vincular-administrador.component.scss'],
   standalone:true,
-  imports:[CommonModule,FormsModule,IonIcon]
+  imports:[CommonModule,FormsModule,IonIcon,RouterLink]
 })
 export class VincularAdministradorComponent implements OnInit{
   correo='';

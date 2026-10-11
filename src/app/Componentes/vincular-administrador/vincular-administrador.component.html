@@ -153,6 +153,17 @@
 
     </div>
 
+    <div class="acciones-pagina">
+      <button
+        type="button"
+        class="btn-cancelar"
+        routerLink="/home"
+        [disabled]="buscando || vinculando">
+        <ion-icon name="close-outline"></ion-icon>
+        Cancelar
+      </button>
+    </div>
+
   </div>
 
 </div>

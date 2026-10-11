@@ -53,6 +53,41 @@
     margin: auto;
 }
 
+.acciones-pagina {
+    max-width: 850px;
+    margin: 14px auto 0;
+    display: flex;
+    justify-content: flex-end;
+}
+
+.btn-cancelar {
+    min-width: 120px;
+    height: 42px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    padding: 0 16px;
+    border: 1px solid #d6e0e5;
+    border-radius: 9px;
+    background: #fff;
+    color: var(--slate);
+    font-family: var(--font-sans);
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.btn-cancelar:hover {
+    border-color: var(--teal);
+    color: var(--abyss);
+}
+
+.btn-cancelar:disabled {
+    opacity: .6;
+    cursor: not-allowed;
+}
+
 .tarjeta-busqueda,
 .tarjeta-administrador {
     padding: 26px;
@@ -360,6 +395,14 @@
     }
 
     .btn-buscar {
+        width: 100%;
+    }
+
+    .acciones-pagina {
+        justify-content: stretch;
+    }
+
+    .btn-cancelar {
         width: 100%;
     }
 

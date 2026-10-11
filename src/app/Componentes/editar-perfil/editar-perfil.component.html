@@ -119,6 +119,15 @@
       <!-- BOTÓN -->
       <div class="acciones">
         <button
+          class="btn-cancelar"
+          type="button"
+          routerLink="/home"
+          [disabled]="guardando">
+          <ion-icon name="close-outline"></ion-icon>
+          Cancelar
+        </button>
+
+        <button
           class="btn-guardar"
           type="submit"
           [disabled]="guardando">
