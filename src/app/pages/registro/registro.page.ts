@@ -18,6 +18,7 @@ import {
 
 import { validarPassword } from '../../utilidades/password-validator';
 import { validarCorreoElectronico } from '../../utilidades/correo-validator';
+import { validarNombre } from '../../utilidades/nombre-validator';
 
 @Component({
   selector: 'app-registro',
@@ -50,68 +51,12 @@ export class RegistroPage implements OnInit {
 
   cargando = false;
 
-  private palabrasProhibidas = [
-    'mama', 'tanga', 'papa', 'culo', 'puta', 'puto', 'mierda', 'verga', 'pito',
-    'pendejo', 'pendeja', 'idiota', 'maricon', 'perra', 'perro', 'chucha', 'hdp',
-    'admin', 'administrador', 'root', 'test', 'prueba', 'usuario', 'null', 'undefined',
-    'anonimo', 'nobody', 'fake', 'bot', 'observador', 'veedor', 'tonto', 'bobo', 'loco'
-  ];
-
-  // ========================================================
-  // FILTRO ESTRUCTURAL DE NOMBRES REALES Y TECLAZOS
-  // ========================================================
-  private validarCadenaNombre(texto: string): boolean {
-    const limpio = (texto || '').trim().replace(/\s+/g, ' ');
-
-    if (limpio.length < 2 || limpio.length > 30) return false;
-
-    const regexLetras = /^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ]+(?: [a-zA-ZáéíóúÁÉÍÓÚñÑüÜ]+)*$/;
-    if (!regexLetras.test(limpio)) return false;
-
-    const palabras = limpio.split(' ');
-    if (palabras.length > 2) return false;
-
-    for (const palabra of palabras) {
-      if (palabra.length < 2 || palabra.length > 14) return false;
-
-      const pLower = palabra.toLowerCase();
-      const pSinTildes = pLower.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
-
-      if (this.palabrasProhibidas.includes(pSinTildes)) return false;
-      if (/([a-záéíóúñü])\1\1/i.test(pLower)) return false;
-
-      const vocales = pLower.match(/[aeiouáéíóúü]/g) || [];
-      if (vocales.length === 0) return false;
-
-      if (palabra.length >= 6) {
-        const porcentajeVocales = vocales.length / palabra.length;
-        if (porcentajeVocales < 0.25 || porcentajeVocales > 0.70) return false;
-      }
-
-      if (/[bcdfghjklmnñpqrstvwxyz]{3,}/i.test(pLower)) return false;
-      if (/[aeiouáéíóúü]{3,}/i.test(pLower)) return false;
-      if (/(jd|dj|jn|nj|dn|nd|ed|fn|nf|bf|fb|ubf|fub|bbu|ffu|qj|xj|zx|jk|kj|wq|qw|fg|gf|vb|bv|bp|pb)/i.test(pLower)) return false;
-
-      const conteoLetras: { [char: string]: number } = {};
-      for (const char of pLower) {
-        if (!'aeiouáéíóúü'.includes(char)) {
-          conteoLetras[char] = (conteoLetras[char] || 0) + 1;
-          if (conteoLetras[char] >= 3) return false;
-        }
-      }
-
-      if (/(.{2,4})\1/i.test(pLower) && palabra.length > 8) return false;
-    }
-
-    return true;
-  }
-
   get nombreValido(): boolean {
-    return this.validarCadenaNombre(this.usuario.nombre);
+    return validarNombre(this.usuario.nombre);
   }
 
   get apellidoValido(): boolean {
-    return this.validarCadenaNombre(this.usuario.apellido);
+    return validarNombre(this.usuario.apellido);
   }
 
   get correoValido(): boolean {

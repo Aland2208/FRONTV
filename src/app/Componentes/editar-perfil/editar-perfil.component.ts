@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { IonicModule } from '@ionic/angular';
 import { Auth } from '../../servicios/auth';
 import { validarCorreoElectronico } from '../../utilidades/correo-validator';
+import { validarNombre } from '../../utilidades/nombre-validator';
 
 @Component({
   selector: 'app-editar-perfil',
@@ -80,7 +81,7 @@ export class EditarPerfilComponent implements OnInit {
       return;
     }
 
-    if (nombre.length > 30 || apellido.length > 30) {
+    if (!validarNombre(nombre) || !validarNombre(apellido)) {
       this.error = 'El nombre y apellido no son válidos.';
       return;
     }

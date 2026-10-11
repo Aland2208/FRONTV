@@ -9,9 +9,11 @@ import {
 import { Auth } from '../../servicios/auth';
 import { validarCorreoElectronico } from '../../utilidades/correo-validator';
 import { validarPassword } from '../../utilidades/password-validator';
+import { validarNombre } from '../../utilidades/nombre-validator';
 
 interface Observador{
-  id_usuario:number;
+  id_usuario:number|null;
+  id_solicitud?:number;
   nombre:string;
   apellido:string;
   correo:string;
@@ -179,6 +181,8 @@ export class UsuariosAdminComponent implements OnInit{
   }
 
   async editarObservador(usuario:Observador){
+    if(usuario.verificacion_pendiente||usuario.id_usuario===null) return;
+
     this.modoFormulario='editar';
     this.usuarioEnEdicion=usuario;
     this.formularioObservador={
@@ -192,6 +196,8 @@ export class UsuariosAdminComponent implements OnInit{
   }
 
   private guardarEdicion(usuario:Observador,datos:any){
+    if(usuario.id_usuario===null) return;
+
     const nombre=String(datos.nombre||'').trim();
     const apellido=String(datos.apellido||'').trim();
 
@@ -273,6 +279,8 @@ export class UsuariosAdminComponent implements OnInit{
   }
 
   async cambiarEstado(usuario:Observador){
+    if(usuario.verificacion_pendiente||usuario.id_usuario===null) return;
+
     const nuevoEstado=Number(usuario.estado)===1 ? 0 : 1;
     const accion=nuevoEstado===1 ? 'activar' : 'desactivar';
 
@@ -299,6 +307,8 @@ export class UsuariosAdminComponent implements OnInit{
   }
 
   private actualizarEstado(usuario:Observador,estado:number){
+    if(usuario.id_usuario===null) return;
+
     this.authService.cambiarEstadoObservador(
       usuario.id_usuario,
       estado
@@ -365,8 +375,7 @@ export class UsuariosAdminComponent implements OnInit{
   }
 
   private nombreValido(nombre:string):boolean{
-    return nombre.length>=2&&nombre.length<=30&&
-      /^[\p{L}]+(?:[ '-][\p{L}]+)*$/u.test(nombre);
+    return validarNombre(nombre);
   }
 
   private async mostrarToast(

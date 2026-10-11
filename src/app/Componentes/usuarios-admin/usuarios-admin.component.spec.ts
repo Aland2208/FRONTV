@@ -43,7 +43,7 @@ describe('UsuariosAdminComponent', () => {
 
     component.formularioObservador = {
       nombre: 'Ana',
-      apellido: 'Prueba',
+      apellido: 'Vargas',
       correo: 'correo-invalido',
       password: 'Test123!'
     };
@@ -77,5 +77,25 @@ describe('UsuariosAdminComponent', () => {
 
     expect(component.totalPendientesVerificacion).toBe(1);
     expect(component.totalInactivos).toBe(1);
+  });
+
+  it('shows temporary registration requests without a user ID or edit action', () => {
+    component.observadores = [{
+      id_usuario: null,
+      id_solicitud: 12,
+      nombre: 'Ana',
+      apellido: 'Prueba',
+      correo: 'ana@example.com',
+      estado: 0,
+      verificacion_pendiente: true
+    }];
+    fixture.detectChanges();
+
+    const row = fixture.nativeElement.querySelector('tbody tr');
+
+    expect(row.textContent).toContain('Pendiente de verificación');
+    expect(row.textContent).not.toContain('ID #');
+    expect(row.querySelector('.editar')).toBeNull();
+    expect(component.totalPendientesVerificacion).toBe(1);
   });
 });

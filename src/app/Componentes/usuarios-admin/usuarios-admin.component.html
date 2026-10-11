@@ -188,7 +188,7 @@
                   {{ usuario.apellido }}
                 </strong>
 
-                <span>
+                <span *ngIf="usuario.id_usuario!==null">
                   ID #{{ usuario.id_usuario }}
                 </span>
               </div>
@@ -223,6 +223,7 @@
             <div class="acciones">
 
               <button
+                *ngIf="!usuario.verificacion_pendiente"
                 type="button"
                 class="btn-accion editar"
                 title="Editar observador"
