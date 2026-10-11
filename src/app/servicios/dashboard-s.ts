@@ -1,5 +1,5 @@
 import {Injectable} from '@angular/core';
-import {HttpClient,HttpParams} from '@angular/common/http';
+import {HttpClient,HttpHeaders,HttpParams} from '@angular/common/http';
 import {Observable} from 'rxjs';
 import {environment} from '../../environments/environment';
 
@@ -11,9 +11,21 @@ export class DashboardS{
 
  constructor(private http:HttpClient){}
 
+ private opcionesConSesion(){
+  const token=sessionStorage.getItem('veedor_token');
+  return {
+   headers:token
+    ?new HttpHeaders({Authorization:`Bearer ${token}`})
+    :new HttpHeaders()
+  };
+ }
+
  // Dashboard del veedor
  obtenerDashboardVeedor(idUsuario:number):Observable<any>{
-  return this.http.get(`${this.api}/veedor/${idUsuario}`);
+  return this.http.get(
+   `${this.api}/veedor/${idUsuario}`,
+   this.opcionesConSesion()
+  );
  }
 
  // Dashboard general del administrador
@@ -37,7 +49,7 @@ export class DashboardS{
 
   return this.http.get(
    `${this.api}/admin/${idAdministrador}`,
-   {params}
+   {...this.opcionesConSesion(),params}
   );
  }
 }

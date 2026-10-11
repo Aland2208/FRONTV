@@ -117,6 +117,53 @@
                     <small>Detección del modelo</small>
                 </div>
             </article>
+
+            <article class="stat-card">
+                <div class="stat-icon"><ion-icon name="speedometer-outline"></ion-icon></div>
+                <div class="stat-contenido">
+                    <span>Peso medio por captura</span>
+                    <strong>{{ pesoMedio === null ? '—' : formatearPeso(pesoMedio) }}</strong>
+                    <small>Promedio del período</small>
+                </div>
+            </article>
+        </section>
+
+        <section class="comparacion-periodo">
+            <div class="comparacion-header">
+                <div>
+                    <span class="etiqueta">TENDENCIA</span>
+                    <h2>Comparación con período anterior</h2>
+                    <p *ngIf="periodoAnterior.desde && periodoAnterior.hasta">
+                        {{ formatearFechaCorta(periodoAnterior.desde) }} –
+                        {{ formatearFechaCorta(periodoAnterior.hasta) }}
+                    </p>
+                </div>
+                <span class="comparacion-base" *ngIf="!tieneBaseAnterior">
+                    Sin registros previos para comparar
+                </span>
+            </div>
+            <div class="comparacion-metricas">
+                <div>
+                    <span>Capturas</span>
+                    <strong>{{ cambio(resumen.total_capturas, comparacion.total_capturas) }}</strong>
+                </div>
+                <div>
+                    <span>Peso total</span>
+                    <strong>{{ cambio(resumen.peso_total, comparacion.peso_total, 1, ' g') }}</strong>
+                </div>
+                <div>
+                    <span>Peso medio / captura</span>
+                    <strong>{{ cambio(pesoMedio || 0, (comparacion.total_capturas ? comparacion.peso_total / comparacion.total_capturas : 0), 1, ' g/captura') }}</strong>
+                </div>
+                <div>
+                    <span>Confianza media</span>
+                    <strong>{{ cambioConfianza() }}</strong>
+                </div>
+                <div>
+                    <span>Reportes</span>
+                    <strong>{{ cambio(resumen.total_reportes, comparacion.total_reportes) }}</strong>
+                </div>
+            </div>
         </section>
 
         <!-- SIN DATOS -->
@@ -126,7 +173,7 @@
             <p>No existen registros para los filtros seleccionados.</p>
         </div>
 
-        <ng-container *ngIf="resumen.total_capturas>0 || resumen.total_reportes>0">
+        <ng-container *ngIf="resumen.total_capturas>0 || resumen.total_reportes>0 || tieneBaseAnterior">
             <!-- COMPARACIÓN VEEDORES + REPORTES -->
             <section class="graficos-grid principal">
                 <article class="grafico-card">
@@ -206,20 +253,19 @@
                     <div>
                         <span class="etiqueta">ACTIVIDAD</span>
                         <h2>{{ periodo==='hoy' ? 'Actividad durante la jornada' : 'Actividad durante el período' }}</h2>
-                        <p>{{ periodo==='hoy' ? 'Evolución de las capturas registradas por hora.' : 'Evolución diaria de
-                            las capturas registradas.' }}</p>
+                        <p>{{ periodo==='hoy' ? 'Hoy frente a ayer, por hora.' : 'Período seleccionado frente al rango previo equivalente.' }}</p>
                     </div>
                     <div class="grafico-icon"><ion-icon name="trending-up-outline"></ion-icon></div>
                 </div>
 
                 <!-- AQUI AGREGAMOS EL SCROLL HORIZONTAL -->
-                <div class="grafico-scroll-wrapper" *ngIf="actividad.length>0">
+                <div class="grafico-scroll-wrapper" *ngIf="actividad.length>0 || actividadAnterior.length>0">
                     <div class="grafico-canvas grafico-linea">
                         <canvas #graficoActividad></canvas>
                     </div>
                 </div>
 
-                <div class="sin-actividad" *ngIf="actividad.length===0">
+                <div class="sin-actividad" *ngIf="actividad.length===0 && actividadAnterior.length===0">
                     <ion-icon name="time-outline"></ion-icon>
                     <span>No existe actividad registrada en el período.</span>
                 </div>

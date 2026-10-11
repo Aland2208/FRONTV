@@ -16,6 +16,12 @@ import {
 
 import { DashboardS } from 'src/app/servicios/dashboard-s';
 import { Auth } from 'src/app/servicios/auth';
+import {
+  ActivityRecord,
+  crearSerieComparativa,
+  formatearCambio,
+  pesoMedioPorCaptura
+} from 'src/app/utils/dashboard-statistics';
 
 Chart.register(...registerables);
 
@@ -47,8 +53,16 @@ export class DashboardVeedorComponent implements OnInit,AfterViewInit,OnDestroy 
     total_especies:0
   };
 
+  comparacion={
+    total_capturas:0,
+    peso_total:0,
+    confianza_promedio:0,
+    total_especies:0
+  };
+
   especies:any[]=[];
-  actividad:any[]=[];
+  actividad:ActivityRecord[]=[];
+  actividadAnterior:ActivityRecord[]=[];
 
   cargando=false;
   error='';
@@ -113,6 +127,13 @@ export class DashboardVeedorComponent implements OnInit,AfterViewInit,OnDestroy 
           confianza_promedio:Number(resumenApi?.confianza_promedio || 0),
           total_especies:Number(resumenApi?.total_especies || 0)
         };
+        const resumenAnterior=respuesta?.data?.comparacion?.resumen;
+        this.comparacion={
+          total_capturas:Number(resumenAnterior?.total_capturas || 0),
+          peso_total:Number(resumenAnterior?.peso_total || 0),
+          confianza_promedio:Number(resumenAnterior?.confianza_promedio || 0),
+          total_especies:Number(resumenAnterior?.total_especies || 0)
+        };
 
         this.especies=(respuesta?.data?.especies || []).map((especie:any)=>({
           ...especie,
@@ -122,6 +143,12 @@ export class DashboardVeedorComponent implements OnInit,AfterViewInit,OnDestroy 
         }));
 
         this.actividad=(respuesta?.data?.actividad || []).map((item:any)=>({
+          ...item,
+          hora:Number(item.hora || 0),
+          total_capturas:Number(item.total_capturas || 0),
+          peso_total:Number(item.peso_total || 0)
+        }));
+        this.actividadAnterior=(respuesta?.data?.actividad_anterior || []).map((item:any)=>({
           ...item,
           hora:Number(item.hora || 0),
           total_capturas:Number(item.total_capturas || 0),
@@ -171,16 +198,17 @@ export class DashboardVeedorComponent implements OnInit,AfterViewInit,OnDestroy 
 
     this.destruirGraficos();
 
-    if(!this.especies.length){
-      
+    if(!this.especies.length&&!this.actividad.length&&!this.actividadAnterior.length){
       return;
     }
 
     setTimeout(()=>{
-      this.crearGraficoEspecies();
-      this.crearGraficoPeso();
+      if(this.especies.length){
+        this.crearGraficoEspecies();
+        this.crearGraficoPeso();
+      }
 
-      if(this.actividad.length){
+      if(this.actividad.length || this.actividadAnterior.length){
         this.crearGraficoActividad();
       }
     },50);
@@ -352,12 +380,13 @@ export class DashboardVeedorComponent implements OnInit,AfterViewInit,OnDestroy 
       return;
     }
 
-    const labels=this.actividad.map(
-      item=>`${String(item.hora).padStart(2,'0')}:00`
-    );
-
-    const datos=this.actividad.map(
-      item=>Number(item.total_capturas || 0)
+    const serie=crearSerieComparativa(
+      this.actividad,
+      this.actividadAnterior,
+      '',
+      '',
+      '',
+      true
     );
 
     this.chartActividad=new Chart(
@@ -366,25 +395,34 @@ export class DashboardVeedorComponent implements OnInit,AfterViewInit,OnDestroy 
         type:'line',
 
         data:{
-          labels,
+          labels:serie.labels,
 
-          datasets:[{
-            label:'Capturas',
-            data:datos,
-
-            borderColor:'#12969e',
-            backgroundColor:'rgba(18,150,158,0.12)',
-
-            fill:true,
-            tension:0.35,
-
-            pointRadius:4,
-            pointHoverRadius:6,
-
-            pointBackgroundColor:'#0a1f33',
-            pointBorderColor:'#ffffff',
-            pointBorderWidth:2
-          }]
+          datasets:[
+            {
+              label:'Hoy',
+              data:serie.actual,
+              borderColor:'#12969e',
+              backgroundColor:'rgba(18,150,158,0.12)',
+              fill:true,
+              tension:0.35,
+              pointRadius:3,
+              pointHoverRadius:6,
+              pointBackgroundColor:'#0a1f33',
+              pointBorderColor:'#ffffff',
+              pointBorderWidth:2
+            },
+            {
+              label:'Ayer',
+              data:serie.anterior,
+              borderColor:'#8a9aab',
+              backgroundColor:'rgba(138,154,171,0.06)',
+              fill:false,
+              tension:0.35,
+              borderDash:[5,5],
+              pointRadius:2,
+              pointHoverRadius:5
+            }
+          ]
         },
 
         options:{
@@ -398,7 +436,8 @@ export class DashboardVeedorComponent implements OnInit,AfterViewInit,OnDestroy 
 
           plugins:{
             legend:{
-              display:false
+              display:true,
+              position:'bottom'
             },
 
             tooltip:{
@@ -431,6 +470,26 @@ export class DashboardVeedorComponent implements OnInit,AfterViewInit,OnDestroy 
         }
       }
     );
+  }
+
+  get pesoMedio():number|null{
+    return pesoMedioPorCaptura(this.resumen.peso_total,this.resumen.total_capturas);
+  }
+
+  get tieneBaseAnterior():boolean{
+    return this.comparacion.total_capturas>0;
+  }
+
+  cambio(actual:number,anterior:number,decimales=0,sufijo=''):string{
+    return this.tieneBaseAnterior
+      ?formatearCambio(actual,anterior,decimales,sufijo)
+      :'Sin registros previos';
+  }
+
+  cambioConfianza():string{
+    if(!this.tieneBaseAnterior)return 'Sin registros previos';
+    const diferencia=this.resumen.confianza_promedio-this.comparacion.confianza_promedio;
+    return `${diferencia>0?'+':''}${diferencia.toFixed(1)} pp`;
   }
 
   // ==========================================

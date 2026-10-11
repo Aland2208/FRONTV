@@ -308,7 +308,7 @@
 /* TARJETAS PRINCIPALES */
 .estadisticas-dashboard {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(5, minmax(0, 1fr));
     gap: 13px;
     margin-bottom: 18px;
 }
@@ -376,6 +376,61 @@
     margin-top: 3px;
     color: #8796a2;
     font-size: 9px;
+}
+
+.comparacion-periodo {
+    padding: 16px;
+    margin-bottom: 18px;
+    border: 1px solid var(--border);
+    border-radius: 9px;
+    background: #fff;
+}
+
+.comparacion-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 12px;
+}
+
+.comparacion-header h2 {
+    margin: 4px 0 0;
+    color: var(--abyss);
+    font-size: 16px;
+}
+
+.comparacion-header p,
+.comparacion-base {
+    margin: 4px 0 0;
+    color: var(--slate);
+    font-size: 11px;
+}
+
+.comparacion-metricas {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 10px;
+}
+
+.comparacion-metricas > div {
+    display: grid;
+    gap: 5px;
+    min-width: 0;
+    padding: 11px;
+    border-radius: 7px;
+    background: var(--foam);
+}
+
+.comparacion-metricas span {
+    color: var(--slate);
+    font-size: 11px;
+}
+
+.comparacion-metricas strong {
+    color: var(--abyss);
+    font-size: 13px;
+    overflow-wrap: anywhere;
 }
 
 /* GRÁFICOS */
@@ -914,6 +969,10 @@
         grid-template-columns: repeat(2, 1fr);
     }
 
+    .comparacion-metricas {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
     .graficos-grid,
     .especies-grid {
         grid-template-columns: 1fr;
@@ -993,6 +1052,15 @@
 
     .estadisticas-dashboard {
         grid-template-columns: 1fr;
+    }
+
+    .comparacion-periodo {
+        padding: 12px;
+    }
+
+    .comparacion-header {
+        align-items: flex-start;
+        flex-direction: column;
     }
 
     .periodos {

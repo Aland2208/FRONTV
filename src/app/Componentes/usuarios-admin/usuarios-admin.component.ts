@@ -48,9 +48,9 @@ export class UsuariosAdminComponent implements OnInit{
     if(!texto) return this.observadores;
 
     return this.observadores.filter(usuario=>
-      usuario.nombre.toLowerCase().includes(texto)||
-      usuario.apellido.toLowerCase().includes(texto)||
-      usuario.correo.toLowerCase().includes(texto)
+      (usuario.nombre||'').toLowerCase().includes(texto)||
+      (usuario.apellido||'').toLowerCase().includes(texto)||
+      (usuario.correo||'').toLowerCase().includes(texto)
     );
   }
 
@@ -91,13 +91,13 @@ export class UsuariosAdminComponent implements OnInit{
         {
           name:'nombre',
           type:'text',
-          attributes:{maxlength:'100'},
+          attributes:{maxlength:'100',autocomplete:'given-name'},
           placeholder:'Nombre'
         },
         {
           name:'apellido',
           type:'text',
-          attributes:{maxlength:'100'},
+          attributes:{maxlength:'100',autocomplete:'family-name'},
           placeholder:'Apellido'
         },
         {
@@ -109,7 +109,7 @@ export class UsuariosAdminComponent implements OnInit{
         {
           name:'password',
           type:'password',
-          attributes:{maxlength:'72'},
+          attributes:{maxlength:'72',autocomplete:'new-password'},
           placeholder:'Contraseña'
         }
       ],
@@ -140,6 +140,14 @@ export class UsuariosAdminComponent implements OnInit{
     if(!nombre||!apellido||!correo||!password){
       this.mostrarToast(
         'Todos los campos son obligatorios.',
+        'danger'
+      );
+      return;
+    }
+
+    if(!this.nombreValido(nombre)||!this.nombreValido(apellido)){
+      this.mostrarToast(
+        'El nombre y el apellido deben tener entre 2 y 100 letras.',
         'danger'
       );
       return;
@@ -189,27 +197,21 @@ export class UsuariosAdminComponent implements OnInit{
   async editarObservador(usuario:Observador){
     const alerta=await this.alertController.create({
       header:'Editar observador',
+      message:'El correo se muestra como dato de contacto y no puede modificarse desde esta pantalla.',
       inputs:[
         {
           name:'nombre',
           type:'text',
           value:usuario.nombre,
-          attributes:{maxlength:'100'},
+          attributes:{maxlength:'100',autocomplete:'given-name'},
           placeholder:'Nombre'
         },
         {
           name:'apellido',
           type:'text',
           value:usuario.apellido,
-          attributes:{maxlength:'100'},
+          attributes:{maxlength:'100',autocomplete:'family-name'},
           placeholder:'Apellido'
-        },
-        {
-          name:'correo',
-          type:'email',
-          value:usuario.correo,
-          attributes:{maxlength:'150'},
-          placeholder:'Correo electrónico'
         }
       ],
       buttons:[
@@ -233,24 +235,18 @@ export class UsuariosAdminComponent implements OnInit{
   private guardarEdicion(usuario:Observador,datos:any){
     const nombre=String(datos.nombre||'').trim();
     const apellido=String(datos.apellido||'').trim();
-    const correo=String(datos.correo||'').trim().toLowerCase();
 
-    if(!nombre||!apellido||!correo){
+    if(!nombre||!apellido){
       this.mostrarToast(
-        'Nombre, apellido y correo son obligatorios.',
+        'El nombre y el apellido son obligatorios.',
         'danger'
       );
       return;
     }
 
-    if(nombre.length>100||apellido.length>100){
-      this.mostrarToast('El nombre y el apellido no pueden superar 100 caracteres.','danger');
-      return;
-    }
-
-    if(!this.correoValido(correo)){
+    if(!this.nombreValido(nombre)||!this.nombreValido(apellido)){
       this.mostrarToast(
-        'Ingresa un correo electrónico válido.',
+        'El nombre y el apellido deben tener entre 2 y 100 letras.',
         'danger'
       );
       return;
@@ -258,12 +254,11 @@ export class UsuariosAdminComponent implements OnInit{
 
     this.authService.editarObservador(
       usuario.id_usuario,
-      {nombre,apellido,correo}
+      {nombre,apellido}
     ).subscribe({
       next:async(respuesta:any)=>{
         usuario.nombre=nombre;
         usuario.apellido=apellido;
-        usuario.correo=correo;
 
         this.cdr.detectChanges();
 
@@ -340,6 +335,11 @@ export class UsuariosAdminComponent implements OnInit{
 
   private correoValido(correo:string):boolean{
     return validarCorreoElectronico(correo);
+  }
+
+  private nombreValido(nombre:string):boolean{
+    return nombre.length>=2&&nombre.length<=100&&
+      /^[\p{L}]+(?:[ '-][\p{L}]+)*$/u.test(nombre);
   }
 
   private async mostrarToast(

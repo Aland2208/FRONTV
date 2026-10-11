@@ -1,7 +1,7 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
-import { IonicModule } from '@ionic/angular';
-
 import { DashboardVeedorComponent } from './dashboard-veedor.component';
+import { DashboardS } from 'src/app/servicios/dashboard-s';
+import { Auth } from 'src/app/servicios/auth';
 
 describe('DashboardVeedorComponent', () => {
   let component: DashboardVeedorComponent;
@@ -9,8 +9,11 @@ describe('DashboardVeedorComponent', () => {
 
   beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
-      declarations: [ DashboardVeedorComponent ],
-      imports: [IonicModule.forRoot()]
+      imports: [DashboardVeedorComponent],
+      providers: [
+        { provide: DashboardS, useValue: {} },
+        { provide: Auth, useValue: { obtenerIdUsuario: () => null } }
+      ]
     }).compileComponents();
 
     fixture = TestBed.createComponent(DashboardVeedorComponent);

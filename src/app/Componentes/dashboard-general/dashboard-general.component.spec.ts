@@ -1,7 +1,7 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
-import { IonicModule } from '@ionic/angular';
-
 import { DashboardGeneralComponent } from './dashboard-general.component';
+import { DashboardS } from 'src/app/servicios/dashboard-s';
+import { Auth } from 'src/app/servicios/auth';
 
 describe('DashboardGeneralComponent', () => {
   let component: DashboardGeneralComponent;
@@ -9,8 +9,11 @@ describe('DashboardGeneralComponent', () => {
 
   beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
-      declarations: [ DashboardGeneralComponent ],
-      imports: [IonicModule.forRoot()]
+      imports: [DashboardGeneralComponent],
+      providers: [
+        { provide: DashboardS, useValue: {} },
+        { provide: Auth, useValue: { obtenerIdUsuario: () => null } }
+      ]
     }).compileComponents();
 
     fixture = TestBed.createComponent(DashboardGeneralComponent);

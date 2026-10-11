@@ -78,7 +78,50 @@
         </div>
       </div>
 
+      <div class="stat-card">
+        <div class="stat-icon">
+          <ion-icon name="speedometer-outline"></ion-icon>
+        </div>
+        <div class="stat-contenido">
+          <span>Peso medio por captura</span>
+          <strong>{{ pesoMedio === null ? '—' : formatearPeso(pesoMedio) }}</strong>
+          <small>Promedio de la jornada</small>
+        </div>
+      </div>
+
     </div>
+
+    <section class="comparacion-periodo">
+      <div class="comparacion-header">
+        <div>
+          <span class="etiqueta">TENDENCIA</span>
+          <h2>Hoy frente a ayer</h2>
+        </div>
+        <span class="comparacion-base" *ngIf="!tieneBaseAnterior">Sin registros previos para comparar</span>
+      </div>
+      <div class="comparacion-metricas">
+        <div>
+          <span>Capturas</span>
+          <strong>{{ cambio(resumen.total_capturas, comparacion.total_capturas) }}</strong>
+        </div>
+        <div>
+          <span>Peso total</span>
+          <strong>{{ cambio(resumen.peso_total, comparacion.peso_total, 1, ' g') }}</strong>
+        </div>
+        <div>
+          <span>Peso medio / captura</span>
+          <strong>{{ cambio(pesoMedio || 0, (comparacion.total_capturas ? comparacion.peso_total / comparacion.total_capturas : 0), 1, ' g/captura') }}</strong>
+        </div>
+        <div>
+          <span>Especies</span>
+          <strong>{{ cambio(resumen.total_especies, comparacion.total_especies) }}</strong>
+        </div>
+        <div>
+          <span>Confianza media</span>
+          <strong>{{ cambioConfianza() }}</strong>
+        </div>
+      </div>
+    </section>
 
     <!-- ==========================================
          SIN INFORMACIÓN
@@ -92,10 +135,10 @@
     <!-- ==========================================
          GRÁFICOS
     =========================================== -->
-    <ng-container *ngIf="especies.length > 0">
+    <ng-container *ngIf="especies.length > 0 || actividadAnterior.length > 0">
 
       <!-- PRIMERA FILA -->
-      <div class="graficos-grid">
+      <div class="graficos-grid" *ngIf="especies.length > 0">
 
         <!-- DISTRIBUCIÓN DE ESPECIES -->
         <div class="grafico-card">
@@ -183,7 +226,7 @@
           </div>
         </div>
 
-        <div class="grafico-canvas grafico-linea" *ngIf="actividad.length > 0">
+        <div class="grafico-canvas grafico-linea" *ngIf="actividad.length > 0 || actividadAnterior.length > 0">
           <canvas #graficoActividad></canvas>
         </div>
 
@@ -197,7 +240,7 @@
       <!-- ==========================================
            RESUMEN ESTADÍSTICO POR ESPECIE
       =========================================== -->
-      <div class="panel-resumen">
+      <div class="panel-resumen" *ngIf="especies.length > 0">
 
         <div class="panel-header">
           <div>

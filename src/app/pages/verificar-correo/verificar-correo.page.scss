@@ -1,0 +1,206 @@
+:host {
+  --abyss: #071627;
+  --abyss-mid: #0d2438;
+  --panel: #112c42;
+  --panel-light: #17374f;
+  --teal: #17b8ac;
+  --teal-glow: #5eead4;
+  --white: #f2f9fb;
+  --slate: #9fb4c4;
+  --border: rgba(94, 234, 212, 0.22);
+  --success: #34d399;
+  --danger: #f87171;
+  --font-mono: 'IBM Plex Mono', 'Courier New', monospace;
+  --font-sans: 'IBM Plex Sans', -apple-system, sans-serif;
+}
+
+.verify-content {
+  --background: radial-gradient(circle at 50% 0%, var(--abyss-mid) 0%, var(--abyss) 68%);
+  color: var(--white);
+}
+
+.verify-shell {
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: min(100%, 520px);
+  min-height: 100%;
+  margin: 0 auto;
+  padding: max(36px, env(safe-area-inset-top)) 22px max(28px, env(safe-area-inset-bottom));
+}
+
+.verify-brand {
+  display: grid;
+  justify-items: center;
+  margin-bottom: 25px;
+  text-align: center;
+}
+
+.brand-mark {
+  display: grid;
+  width: 58px;
+  height: 58px;
+  margin-bottom: 13px;
+  place-items: center;
+  border: 1px solid rgba(94, 234, 212, 0.45);
+  border-radius: 18px;
+  background: linear-gradient(180deg, var(--panel), var(--panel-light));
+  box-shadow: 0 0 0 7px rgba(23, 184, 172, 0.09), 0 0 24px rgba(94, 234, 212, 0.16);
+  color: var(--teal-glow);
+  font-size: 28px;
+}
+
+.brand-name {
+  color: var(--white);
+  font-family: var(--font-sans);
+  font-size: 1.45rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+}
+
+.brand-caption,
+.verify-eyebrow,
+.verify-footer {
+  font-family: var(--font-mono);
+  letter-spacing: 0.1em;
+}
+
+.brand-caption {
+  margin-top: 5px;
+  color: var(--slate);
+  font-size: 0.59rem;
+}
+
+.verify-card {
+  box-sizing: border-box;
+  width: 100%;
+  padding: 34px;
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  background: linear-gradient(180deg, rgba(17, 44, 66, 0.97), rgba(23, 55, 79, 0.97));
+  box-shadow: 0 18px 44px rgba(0, 0, 0, 0.32);
+  text-align: center;
+}
+
+.status-mark {
+  display: grid;
+  width: 68px;
+  height: 68px;
+  margin: 0 auto 22px;
+  place-items: center;
+  border: 1px solid rgba(94, 234, 212, 0.3);
+  border-radius: 50%;
+  background: rgba(23, 184, 172, 0.1);
+  color: var(--teal-glow);
+  font-size: 34px;
+}
+
+.status-mark--success {
+  border-color: rgba(52, 211, 153, 0.35);
+  background: rgba(52, 211, 153, 0.1);
+  color: var(--success);
+}
+
+.status-mark--invalid {
+  border-color: rgba(248, 113, 113, 0.35);
+  background: rgba(248, 113, 113, 0.1);
+  color: var(--danger);
+}
+
+.status-mark ion-spinner {
+  width: 30px;
+  height: 30px;
+  color: var(--teal-glow);
+}
+
+.verify-eyebrow {
+  color: var(--teal-glow);
+  font-size: 0.66rem;
+  font-weight: 700;
+}
+
+.verify-card h1 {
+  margin: 12px 0 10px;
+  color: var(--white);
+  font-family: var(--font-sans);
+  font-size: clamp(1.55rem, 5vw, 2rem);
+  font-weight: 750;
+}
+
+.verify-message {
+  max-width: 390px;
+  margin: 0 auto;
+  color: var(--slate);
+  font-size: 0.96rem;
+  line-height: 1.6;
+}
+
+.secure-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin-top: 22px;
+  padding: 13px 14px;
+  border: 1px solid rgba(94, 234, 212, 0.14);
+  border-radius: 11px;
+  background: rgba(7, 22, 39, 0.3);
+  color: var(--slate);
+  font-size: 0.79rem;
+  line-height: 1.45;
+  text-align: left;
+}
+
+.secure-note ion-icon {
+  flex: 0 0 auto;
+  color: var(--teal-glow);
+  font-size: 18px;
+}
+
+.verify-actions {
+  display: grid;
+  gap: 5px;
+  margin-top: 24px;
+}
+
+.primary-action {
+  --background: var(--teal);
+  --background-activated: #0e8b87;
+  --border-radius: 11px;
+  --color: var(--abyss);
+  font-weight: 750;
+}
+
+.secondary-action {
+  --color: var(--slate);
+  font-size: 0.86rem;
+}
+
+.verify-footer {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 7px 12px;
+  margin-top: 22px;
+  color: rgba(159, 180, 196, 0.72);
+  font-size: 0.61rem;
+  text-align: center;
+}
+
+.verify-footer span:first-child {
+  color: var(--teal-glow);
+  font-weight: 700;
+}
+
+@media (max-width: 420px) {
+  .verify-shell {
+    padding-right: 16px;
+    padding-left: 16px;
+  }
+
+  .verify-card {
+    padding: 28px 21px;
+    border-radius: 17px;
+  }
+}

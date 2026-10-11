@@ -12,6 +12,12 @@ import {IonicModule} from '@ionic/angular';
 import {Chart,registerables} from 'chart.js';
 import {DashboardS} from 'src/app/servicios/dashboard-s';
 import {Auth} from 'src/app/servicios/auth';
+import {
+ ActivityRecord,
+ crearSerieComparativa,
+ formatearCambio,
+ pesoMedioPorCaptura
+} from 'src/app/utils/dashboard-statistics';
 
 Chart.register(...registerables);
 
@@ -48,13 +54,24 @@ export class DashboardGeneralComponent implements OnInit,AfterViewInit,OnDestroy
   peso_total:0,
   confianza_promedio:0,
   total_especies:0,
-  total_reportes:0,
-  reportes_completos:0,
-  reportes_incompletos:0
- };
+   total_reportes:0,
+   reportes_completos:0,
+   reportes_incompletos:0
+  };
 
- especies:any[]=[];
- actividad:any[]=[];
+  comparacion={
+   total_capturas:0,
+   peso_total:0,
+   confianza_promedio:0,
+   total_especies:0,
+   total_reportes:0,
+   reportes_completos:0,
+   reportes_incompletos:0
+  };
+
+  especies:any[]=[];
+  actividad:ActivityRecord[]=[];
+  actividadAnterior:ActivityRecord[]=[];
  veedores:VeedorDashboard[]=[];
  listaVeedores:VeedorDashboard[]=[];
 
@@ -66,6 +83,7 @@ export class DashboardGeneralComponent implements OnInit,AfterViewInit,OnDestroy
  cargando=false;
  error='';
  filtrosAplicados:any=null;
+ periodoAnterior={desde:'',hasta:''};
 
  private vistaLista=false;
 
@@ -143,6 +161,18 @@ export class DashboardGeneralComponent implements OnInit,AfterViewInit,OnDestroy
      reportes_incompletos:Number(resumenApi.reportes_incompletos||0)
     };
 
+    const comparacionApi=data.comparacion?.resumen||{};
+    this.comparacion={
+     total_capturas:Number(comparacionApi.total_capturas||0),
+     peso_total:Number(comparacionApi.peso_total||0),
+     confianza_promedio:Number(comparacionApi.confianza_promedio||0),
+     total_especies:Number(comparacionApi.total_especies||0),
+     total_reportes:Number(comparacionApi.total_reportes||0),
+     reportes_completos:Number(comparacionApi.reportes_completos||0),
+     reportes_incompletos:Number(comparacionApi.reportes_incompletos||0)
+    };
+    this.periodoAnterior=data.comparacion?.periodo_anterior||{desde:'',hasta:''};
+
     this.especies=(data.especies||[]).map((item:any)=>({
      ...item,
      id_especie:Number(item.id_especie),
@@ -152,6 +182,12 @@ export class DashboardGeneralComponent implements OnInit,AfterViewInit,OnDestroy
     }));
 
     this.actividad=(data.actividad||[]).map((item:any)=>({
+     ...item,
+     hora:item.hora!==undefined?Number(item.hora):undefined,
+     total_capturas:Number(item.total_capturas||0),
+     peso_total:Number(item.peso_total||0)
+    }));
+    this.actividadAnterior=(data.actividad_anterior||[]).map((item:any)=>({
      ...item,
      hora:item.hora!==undefined?Number(item.hora):undefined,
      total_capturas:Number(item.total_capturas||0),
@@ -243,7 +279,7 @@ export class DashboardGeneralComponent implements OnInit,AfterViewInit,OnDestroy
     this.crearGraficoPeso();
    }
 
-   if(this.actividad.length){
+   if(this.actividad.length||this.actividadAnterior.length){
     this.crearGraficoActividad();
    }
 
@@ -390,17 +426,13 @@ export class DashboardGeneralComponent implements OnInit,AfterViewInit,OnDestroy
   if(!this.graficoActividad?.nativeElement)return;
 
   const esHoy=this.periodo==='hoy';
-
-  const labels=this.actividad.map(item=>{
-   if(esHoy){
-    return `${String(item.hora).padStart(2,'0')}:00`;
-   }
-
-   return this.formatearFechaCorta(item.fecha);
-  });
-
-  const datos=this.actividad.map(
-   item=>Number(item.total_capturas||0)
+  const serie=crearSerieComparativa(
+   this.actividad,
+   this.actividadAnterior,
+   this.normalizarFecha(this.filtrosAplicados?.desde),
+   this.normalizarFecha(this.filtrosAplicados?.hasta),
+   this.normalizarFecha(this.periodoAnterior?.desde),
+   !esHoy
   );
 
   this.chartActividad=new Chart(
@@ -408,20 +440,33 @@ export class DashboardGeneralComponent implements OnInit,AfterViewInit,OnDestroy
    {
     type:'line',
     data:{
-     labels,
-     datasets:[{
-      label:'Capturas',
-      data:datos,
-      borderColor:'#12969e',
-      backgroundColor:'rgba(18,150,158,0.12)',
-      fill:true,
-      tension:.35,
-      pointRadius:4,
-      pointHoverRadius:6,
-      pointBackgroundColor:'#0a1f33',
-      pointBorderColor:'#ffffff',
-      pointBorderWidth:2
-     }]
+     labels:serie.labels,
+     datasets:[
+      {
+       label:'Período actual',
+       data:serie.actual,
+       borderColor:'#12969e',
+       backgroundColor:'rgba(18,150,158,0.12)',
+       fill:true,
+       tension:.35,
+       pointRadius:3,
+       pointHoverRadius:6,
+       pointBackgroundColor:'#0a1f33',
+       pointBorderColor:'#ffffff',
+       pointBorderWidth:2
+      },
+      {
+       label:'Período anterior',
+       data:serie.anterior,
+       borderColor:'#8a9aab',
+       backgroundColor:'rgba(138,154,171,0.06)',
+       fill:false,
+       tension:.35,
+       borderDash:[5,5],
+       pointRadius:2,
+       pointHoverRadius:5
+      }
+     ]
     },
     options:{
      responsive:true,
@@ -432,7 +477,8 @@ export class DashboardGeneralComponent implements OnInit,AfterViewInit,OnDestroy
      },
      plugins:{
       legend:{
-       display:false
+       display:true,
+       position:'bottom'
       },
       tooltip:{
        callbacks:{
@@ -629,6 +675,30 @@ export class DashboardGeneralComponent implements OnInit,AfterViewInit,OnDestroy
   }
 
   return `${valor.toFixed(2)} g`;
+ }
+
+ get pesoMedio():number|null{
+  return pesoMedioPorCaptura(this.resumen.peso_total,this.resumen.total_capturas);
+ }
+
+ get tieneBaseAnterior():boolean{
+  return this.comparacion.total_capturas>0||this.comparacion.total_reportes>0;
+ }
+
+ cambio(actual:number,anterior:number,decimales=0,sufijo=''):string{
+  return this.tieneBaseAnterior
+   ?formatearCambio(actual,anterior,decimales,sufijo)
+   :'Sin registros previos';
+ }
+
+ cambioConfianza():string{
+  if(this.comparacion.total_capturas===0)return 'Sin registros previos';
+  const diferencia=this.resumen.confianza_promedio-this.comparacion.confianza_promedio;
+  return `${diferencia>0?'+':''}${diferencia.toFixed(1)} pp`;
+ }
+
+ private normalizarFecha(fecha:any):string{
+  return String(fecha||'').slice(0,10);
  }
 
  // ==========================================

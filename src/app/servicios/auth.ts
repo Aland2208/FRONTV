@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, BehaviorSubject } from 'rxjs';
 import { environment } from '../../environments/environment';
 
@@ -48,6 +48,15 @@ export class Auth {
 
     obtenerToken(): string | null {
         return sessionStorage.getItem('veedor_token');
+    }
+
+    private opcionesConSesion() {
+        const token = this.obtenerToken();
+        return {
+            headers: token
+                ? new HttpHeaders({ Authorization: `Bearer ${token}` })
+                : new HttpHeaders()
+        };
     }
 
     obtenerIdUsuario(): number | null {
@@ -206,7 +215,8 @@ export class Auth {
 
     getObservadores(): Observable<any> {
         return this.http.get(
-            `${environment.apiUrl}usuarios/observadores`
+            `${environment.apiUrl}usuarios/observadores`,
+            this.opcionesConSesion()
         );
     }
 
@@ -218,7 +228,8 @@ export class Auth {
     }): Observable<any> {
         return this.http.post(
             `${environment.apiUrl}usuarios/observadores`,
-            datos
+            datos,
+            this.opcionesConSesion()
         );
     }
 
@@ -227,12 +238,12 @@ export class Auth {
         datos: {
             nombre: string;
             apellido: string;
-            correo: string;
         }
     ): Observable<any> {
         return this.http.patch(
             `${environment.apiUrl}usuarios/observadores/${idUsuario}`,
-            datos
+            datos,
+            this.opcionesConSesion()
         );
     }
 
@@ -244,7 +255,8 @@ export class Auth {
             `${environment.apiUrl}usuarios/observadores/${idUsuario}/estado`,
             {
                 estado
-            }
+            },
+            this.opcionesConSesion()
         );
     }
 
