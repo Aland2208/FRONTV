@@ -20,6 +20,42 @@
     <span>Fecha Ecuador: <strong>{{formatearFecha(fechaEcuador)}}</strong></span>
   </div>
 
+  <section class="revision-panel" *ngIf="!cargando && lotesPendientesRevision.length > 0">
+    <header class="revision-header">
+      <div>
+        <span class="eyebrow">REVISIÓN REQUERIDA</span>
+        <h2>Reportes atrasados</h2>
+        <p>Revisa cada envío y apruébalo o devuélvelo al observador con un motivo.</p>
+      </div>
+      <span class="revision-count">{{ lotesPendientesRevision.length }}</span>
+    </header>
+
+    <article class="revision-item" *ngFor="let lote of lotesPendientesRevision">
+      <div class="revision-item-info">
+        <span class="revision-state">Pendiente de aprobación</span>
+        <h3>{{ lote.titulo || 'Reporte sin título' }}</h3>
+        <p>
+          {{ lote.nombre_completo }} · {{ lote.especie || 'Sin especie' }}
+        </p>
+        <div class="revision-meta">
+          <span>{{ lote.total_capturas }} {{ lote.total_capturas === 1 ? 'captura' : 'capturas' }}</span>
+          <span>Captura: {{ formatearFecha(lote.fecha_captura || '') }}</span>
+          <span>Enviado: {{ lote.fecha_envio | date:'dd/MM/yyyy, HH:mm' }}</span>
+        </div>
+      </div>
+      <div class="revision-actions">
+        <button type="button" class="btn-aprobar" [disabled]="loteEnRevision"
+          (click)="aprobarReporte(lote)">
+          {{ loteEnRevision === lote.id_lote_envio ? 'Procesando...' : 'Aprobar' }}
+        </button>
+        <button type="button" class="btn-rechazar" [disabled]="loteEnRevision"
+          (click)="abrirRechazo(lote)">
+          Devolver
+        </button>
+      </div>
+    </article>
+  </section>
+
   <!-- RESUMEN -->
   <section class="resumen-grid">
     <button class="resumen-card" [class.activa]="filtroEstado==='Todos'" (click)="seleccionarFiltro('Todos')">
@@ -460,6 +496,32 @@
       </div>
 
     </div>
+  </div>
+
+  <div class="detalle-overlay" *ngIf="loteSeleccionadoRechazo" (click)="cerrarRechazo()">
+    <section class="rechazo-modal" role="dialog" aria-modal="true"
+      aria-labelledby="titulo-rechazo" (click)="$event.stopPropagation()">
+      <header>
+        <span class="eyebrow">REVISIÓN DEL REPORTE</span>
+        <h2 id="titulo-rechazo">Devolver para corrección</h2>
+        <p>
+          El observador verá este motivo y podrá corregir y enviar nuevamente el reporte.
+        </p>
+      </header>
+      <label for="motivoRechazo">Motivo</label>
+      <textarea id="motivoRechazo" [(ngModel)]="motivoRechazo" maxlength="500"
+        rows="4" placeholder="Indica qué debe corregirse"></textarea>
+      <div class="rechazo-contador">{{ motivoRechazo.length }}/500</div>
+      <footer>
+        <button type="button" class="btn-cancelar-edicion" [disabled]="loteEnRevision"
+          (click)="cerrarRechazo()">Cancelar</button>
+        <button type="button" class="btn-confirmar-rechazo"
+          [disabled]="loteEnRevision || motivoRechazo.trim().length < 5"
+          (click)="rechazarReporte()">
+          {{ loteEnRevision ? 'Enviando...' : 'Devolver reporte' }}
+        </button>
+      </footer>
+    </section>
   </div>
 
 </div>

@@ -272,6 +272,27 @@ export class Auth {
         );
     }
 
+    aprobarLoteReporte(
+        idAdministrador: number,
+        idLoteEnvio: string
+    ): Observable<any> {
+        return this.http.patch(
+            `${environment.apiUrl}reporte/admin/${idAdministrador}/lote/${encodeURIComponent(idLoteEnvio)}/aprobar`,
+            {}
+        );
+    }
+
+    rechazarLoteReporte(
+        idAdministrador: number,
+        idLoteEnvio: string,
+        motivo: string
+    ): Observable<any> {
+        return this.http.patch(
+            `${environment.apiUrl}reporte/admin/${idAdministrador}/lote/${encodeURIComponent(idLoteEnvio)}/rechazar`,
+            { motivo }
+        );
+    }
+
     editarReporteAdmin(
         idAdministrador: number,
         idReporte: number,

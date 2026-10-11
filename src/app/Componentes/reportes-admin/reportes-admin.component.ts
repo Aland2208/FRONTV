@@ -30,6 +30,16 @@ interface ReporteAdmin {
   especie: string | null;
   nombre_cientifico: string | null;
   estado_reporte: 'Completo' | 'Incompleto';
+  id_lote_envio: string | null;
+  estado_revision: 'PENDIENTE' | 'APROBADO' | 'RECHAZADO' | null;
+  fecha_envio: string | null;
+  motivo_rechazo: string | null;
+  es_atrasado: number | boolean;
+}
+
+interface LotePendienteRevision extends ReporteAdmin {
+  id_lote_envio: string;
+  total_capturas: number;
 }
 
 interface TipoReporte {
@@ -51,6 +61,9 @@ export class ReportesAdminComponent implements OnInit {
   // ==========================================
   reportes: ReporteAdmin[] = [];
   reporteSeleccionado: ReporteAdmin | null = null;
+  loteSeleccionadoRechazo: LotePendienteRevision | null = null;
+  motivoRechazo = '';
+  loteEnRevision: string | null = null;
 
   // ==========================================
   // TIPOS DE REPORTE
@@ -104,6 +117,10 @@ export class ReportesAdminComponent implements OnInit {
     const texto = this.busqueda.trim().toLowerCase();
 
     return this.reportes.filter(reporte => {
+      if (reporte.estado_revision === 'PENDIENTE') {
+        return false;
+      }
+
       const coincideEstado =
         this.filtroEstado === 'Todos' ||
         reporte.estado_reporte === this.filtroEstado;
@@ -119,6 +136,38 @@ export class ReportesAdminComponent implements OnInit {
 
       return coincideEstado && coincideBusqueda;
     });
+  }
+
+  get lotesPendientesRevision(): LotePendienteRevision[] {
+    const lotes = new Map<string, LotePendienteRevision>();
+    const texto = this.busqueda.trim().toLowerCase();
+
+    for (const reporte of this.reportes) {
+      const idLoteEnvio = reporte.id_lote_envio;
+      if (reporte.estado_revision !== 'PENDIENTE' || !idLoteEnvio) {
+        continue;
+      }
+
+      const lote = lotes.get(idLoteEnvio);
+      if (lote) {
+        lote.total_capturas += 1;
+      } else {
+        lotes.set(idLoteEnvio, {
+          ...reporte,
+          id_lote_envio: idLoteEnvio,
+          total_capturas: 1
+        });
+      }
+    }
+
+    return Array.from(lotes.values()).filter(reporte =>
+      !texto ||
+      reporte.nombre_completo?.toLowerCase().includes(texto) ||
+      reporte.correo?.toLowerCase().includes(texto) ||
+      reporte.titulo?.toLowerCase().includes(texto) ||
+      reporte.especie?.toLowerCase().includes(texto) ||
+      String(reporte.id_reporte).includes(texto)
+    );
   }
 
   // ==========================================
@@ -223,6 +272,94 @@ export class ReportesAdminComponent implements OnInit {
     this.generandoCSV = false;
     this.tituloEditado = '';
     this.tipoEditado = null;
+  }
+
+  aprobarReporte(lote: LotePendienteRevision): void {
+    const idAdministrador = this.authService.obtenerIdUsuario();
+    if (!idAdministrador || this.loteEnRevision) {
+      return;
+    }
+
+    this.loteEnRevision = lote.id_lote_envio;
+    this.authService.aprobarLoteReporte(
+      idAdministrador,
+      lote.id_lote_envio
+    ).subscribe({
+      next: (respuesta: any) => {
+        this.loteEnRevision = null;
+        this.mostrarToast(
+          respuesta.mensaje || 'Reporte aprobado correctamente.',
+          'success'
+        );
+        this.cargarReportes();
+      },
+      error: (error: any) => {
+        this.loteEnRevision = null;
+        this.mostrarToast(
+          error.error?.mensaje || 'No se pudo aprobar el reporte.',
+          'danger'
+        );
+      }
+    });
+  }
+
+  abrirRechazo(lote: LotePendienteRevision): void {
+    if (this.loteEnRevision) {
+      return;
+    }
+
+    this.loteSeleccionadoRechazo = lote;
+    this.motivoRechazo = '';
+  }
+
+  cerrarRechazo(): void {
+    if (this.loteEnRevision) {
+      return;
+    }
+
+    this.loteSeleccionadoRechazo = null;
+    this.motivoRechazo = '';
+  }
+
+  rechazarReporte(): void {
+    const lote = this.loteSeleccionadoRechazo;
+    const motivo = this.motivoRechazo.trim();
+    const idAdministrador = this.authService.obtenerIdUsuario();
+
+    if (!lote || !idAdministrador || this.loteEnRevision) {
+      return;
+    }
+    if (motivo.length < 5 || motivo.length > 500) {
+      this.mostrarToast(
+        'Escribe un motivo de rechazo válido.',
+        'danger'
+      );
+      return;
+    }
+
+    this.loteEnRevision = lote.id_lote_envio;
+    this.authService.rechazarLoteReporte(
+      idAdministrador,
+      lote.id_lote_envio,
+      motivo
+    ).subscribe({
+      next: (respuesta: any) => {
+        this.loteEnRevision = null;
+        this.cerrarRechazo();
+        this.mostrarToast(
+          respuesta.mensaje || 'Reporte devuelto para corrección.',
+          'success'
+        );
+        this.cargarReportes();
+      },
+      error: (error: any) => {
+        this.loteEnRevision = null;
+        this.mostrarToast(
+          error.error?.mensaje || 'No se pudo rechazar el reporte.',
+          'danger'
+        );
+      }
+    });
   }
 
   // ==========================================

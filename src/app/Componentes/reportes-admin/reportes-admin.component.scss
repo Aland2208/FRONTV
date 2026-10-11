@@ -113,6 +113,216 @@
 }
 
 /* ==========================================
+   REVISIÓN DE REPORTES ATRASADOS
+========================================== */
+.revision-panel {
+    margin-bottom: 20px;
+    padding: 20px;
+    border: 1px solid #f2c8a6;
+    border-radius: 14px;
+    background: #fffaf5;
+}
+
+.revision-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 16px;
+    margin-bottom: 16px;
+}
+
+.revision-header h2 {
+    margin: 5px 0;
+    color: var(--abyss);
+    font-size: 20px;
+}
+
+.revision-header p,
+.revision-item-info p {
+    margin: 0;
+    color: var(--slate);
+    font-size: 13px;
+}
+
+.revision-count {
+    display: grid;
+    min-width: 36px;
+    height: 36px;
+    place-items: center;
+    border-radius: 50%;
+    background: #ffeadb;
+    color: #9a4815;
+    font-family: var(--font-mono);
+    font-weight: 700;
+}
+
+.revision-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+    padding: 16px;
+    border: 1px solid #f1ddcb;
+    border-radius: 10px;
+    background: var(--surface);
+}
+
+.revision-item + .revision-item {
+    margin-top: 10px;
+}
+
+.revision-item-info {
+    min-width: 0;
+}
+
+.revision-item-info h3 {
+    margin: 6px 0 4px;
+    color: var(--abyss);
+    font-size: 16px;
+    overflow-wrap: anywhere;
+}
+
+.revision-state {
+    display: inline-flex;
+    border-radius: 999px;
+    padding: 4px 9px;
+    background: #fff0df;
+    color: #91430f;
+    font-size: 11px;
+    font-weight: 700;
+}
+
+.revision-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 7px 14px;
+    margin-top: 10px;
+    color: var(--slate);
+    font-size: 12px;
+}
+
+.revision-actions {
+    display: flex;
+    flex-shrink: 0;
+    gap: 8px;
+}
+
+.btn-aprobar,
+.btn-rechazar,
+.btn-confirmar-rechazo {
+    min-height: 39px;
+    border-radius: 8px;
+    padding: 8px 13px;
+    font-family: var(--font-sans);
+    font-weight: 600;
+    cursor: pointer;
+    transition: .2s;
+}
+
+.btn-aprobar {
+    border: 1px solid var(--success);
+    background: var(--success);
+    color: #fff;
+}
+
+.btn-aprobar:hover:not(:disabled) {
+    background: #168d64;
+    border-color: #168d64;
+}
+
+.btn-rechazar {
+    border: 1px solid var(--danger);
+    background: #fff;
+    color: var(--danger);
+}
+
+.btn-rechazar:hover:not(:disabled) {
+    background: var(--danger);
+    color: #fff;
+}
+
+.btn-aprobar:disabled,
+.btn-rechazar:disabled,
+.btn-confirmar-rechazo:disabled {
+    opacity: .55;
+    cursor: not-allowed;
+}
+
+.rechazo-modal {
+    width: min(480px, 100%);
+    padding: 24px;
+    border-radius: 14px;
+    background: var(--surface);
+    color: var(--ink);
+    box-shadow: 0 25px 70px rgba(0, 0, 0, .25);
+}
+
+.rechazo-modal h2 {
+    margin: 6px 0;
+    color: var(--abyss);
+    font-size: 21px;
+}
+
+.rechazo-modal header p {
+    margin: 0 0 20px;
+    color: var(--slate);
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+.rechazo-modal label {
+    display: block;
+    margin-bottom: 6px;
+    color: var(--abyss);
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.rechazo-modal textarea {
+    display: block;
+    width: 100%;
+    min-height: 112px;
+    resize: vertical;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 12px;
+    background: var(--surface);
+    color: var(--ink);
+    font: inherit;
+    line-height: 1.45;
+}
+
+.rechazo-modal textarea:focus {
+    border-color: var(--teal);
+    outline: 2px solid rgba(18, 150, 158, .12);
+}
+
+.rechazo-contador {
+    margin-top: 5px;
+    color: var(--slate);
+    text-align: right;
+    font-size: 11px;
+}
+
+.rechazo-modal footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    margin-top: 18px;
+}
+
+.btn-confirmar-rechazo {
+    border: 1px solid var(--danger);
+    background: var(--danger);
+    color: #fff;
+}
+
+.btn-confirmar-rechazo:hover:not(:disabled) {
+    border-color: #c9363b;
+    background: #c9363b;
+}
+
+/* ==========================================
    TARJETAS DE RESUMEN
 ========================================== */
 .resumen-grid {
@@ -766,6 +976,19 @@ td small {
         overflow-x: auto;
         padding-bottom: 2px;
     }
+
+    .revision-item {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .revision-actions {
+        width: 100%;
+    }
+
+    .revision-actions button {
+        flex: 1;
+    }
 }
 
 /* ==========================================
@@ -782,6 +1005,32 @@ td small {
 
     .page-header h1 {
         font-size: 25px;
+    }
+
+    .revision-panel {
+        padding: 15px;
+    }
+
+    .revision-header h2 {
+        font-size: 18px;
+    }
+
+    .revision-item {
+        padding: 13px;
+    }
+
+    .revision-actions,
+    .rechazo-modal footer {
+        flex-direction: column-reverse;
+    }
+
+    .revision-actions button,
+    .rechazo-modal footer button {
+        width: 100%;
+    }
+
+    .rechazo-modal {
+        padding: 19px;
     }
 
     .btn-actualizar {

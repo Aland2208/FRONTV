@@ -44,6 +44,11 @@
           <span>{{ grupo.fechaReporteVisible }}</span>
         </div>
 
+        <div class="aviso-rechazo" *ngIf="grupo.estado_revision==='RECHAZADO' && grupo.motivo_rechazo">
+          <strong>Reporte devuelto para corrección</strong>
+          <span>{{ grupo.motivo_rechazo }}</span>
+        </div>
+
         <!-- CABECERA DE LA ESPECIE -->
         <div class="especie-header">
           <div class="especie-info">
@@ -205,7 +210,6 @@
     <section class="seccion-pendientes seccion-hoy">
       <div class="encabezado-seccion-pendientes">
         <div>
-          <span class="eyebrow">Primero</span>
           <h2>Pendientes de hoy</h2>
           <p>Genera y envía reportes de las capturas registradas durante el día actual.</p>
         </div>
@@ -254,7 +258,6 @@
     <section class="lista-reportes pendientes-anteriores seccion-pendientes">
       <div class="lista-header">
         <div>
-          <span class="eyebrow">Segundo</span>
           <h2>Pendientes de días anteriores</h2>
           <p>Capturas activas que todavía no forman parte de un reporte finalizado.</p>
         </div>

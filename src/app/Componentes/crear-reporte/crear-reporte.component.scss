@@ -213,6 +213,23 @@
     font-weight: 700;
 }
 
+.aviso-rechazo {
+    display: grid;
+    gap: 4px;
+    margin: 0 0 16px;
+    padding: 12px 14px;
+    border: 1px solid rgba(229, 72, 77, 0.24);
+    border-radius: 10px;
+    background: rgba(229, 72, 77, 0.07);
+    color: #9e3035;
+    font-size: 12px;
+    line-height: 1.45;
+
+    strong {
+        font-size: 13px;
+    }
+}
+
 .lista-header {
     display: flex;
     justify-content: space-between;

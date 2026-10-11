@@ -227,6 +227,8 @@ export class CrearReporteComponent implements OnInit {
           id_especie: idEspecie,
           fecha_reporte: fechaReporte,
           fechaReporteVisible: fechaReporte.split('-').reverse().join('/'),
+          estado_revision: reporte.estado_revision || null,
+          motivo_rechazo: reporte.motivo_rechazo || null,
           especie: reporte.especie,
           nombre_cientifico: reporte.nombre_cientifico,
           imagen_url: reporte.imagen_url || null,
