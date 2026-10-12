@@ -35,7 +35,8 @@
                     </label>
 
                     <ion-item lines="none" class="field__box"
-                        [class.field__box--error]="usuario.nombre && !nombreValido">
+                        [class.field__box--error]="usuario.nombre.trim().length > 0 && !nombreValido"
+                        [attr.aria-invalid]="usuario.nombre.trim().length > 0 && !nombreValido">
                         <ion-input id="nombre" name="nombre" type="text" [(ngModel)]="usuario.nombre"
                             placeholder="Ej. Juan Carlos" autocomplete="given-name" maxlength="30" required>
                         </ion-input>
@@ -54,7 +55,8 @@
                     </label>
 
                     <ion-item lines="none" class="field__box"
-                        [class.field__box--error]="usuario.apellido && !apellidoValido">
+                        [class.field__box--error]="usuario.apellido.trim().length > 0 && !apellidoValido"
+                        [attr.aria-invalid]="usuario.apellido.trim().length > 0 && !apellidoValido">
                         <ion-input id="apellido" name="apellido" type="text" [(ngModel)]="usuario.apellido"
                             placeholder="Ej. Pérez Loor" autocomplete="family-name" maxlength="30" required>
                         </ion-input>

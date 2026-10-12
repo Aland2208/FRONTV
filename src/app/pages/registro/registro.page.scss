@@ -155,8 +155,10 @@
  transition:border-color .15s ease,box-shadow .15s ease,background .15s ease;
 
  &.field__box--error {
-   border-color: var(--danger);
-   box-shadow: 0 0 0 2px rgba(248, 113, 113, 0.25);
+   border: 2px solid var(--danger) !important;
+   --border-color: var(--danger);
+   --highlight-color-focused: var(--danger);
+   box-shadow: 0 0 0 3px rgba(248, 113, 113, 0.3);
    background: rgba(248, 113, 113, 0.06);
  }
 }
