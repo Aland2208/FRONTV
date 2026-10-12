@@ -3,6 +3,7 @@ import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { IonIcon, ToastController } from '@ionic/angular/standalone';
 import { Auth } from 'src/app/servicios/auth';
+import { formatearFechaHoraEcuador } from 'src/app/utilidades/fecha-ecuador';
 
 interface ReporteAdmin {
   id_reporte: number;
@@ -55,6 +56,10 @@ interface TipoReporte {
   imports: [CommonModule, FormsModule, IonIcon]
 })
 export class ReportesAdminComponent implements OnInit {
+
+  formatearFechaHora(fecha: string | null): string {
+    return fecha ? formatearFechaHoraEcuador(fecha) : '—';
+  }
 
   // ==========================================
   // REPORTES

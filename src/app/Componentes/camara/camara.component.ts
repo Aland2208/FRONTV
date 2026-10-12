@@ -422,7 +422,13 @@ export class CamaraComponent implements OnInit, OnDestroy {
           especie: respaldoVisual.especie,
           peso: respaldoVisual.peso,
           porcentaje: respaldoVisual.porcentaje,
-          hora: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' }),
+          hora: new Date().toLocaleTimeString('es-EC', {
+            timeZone: 'America/Guayaquil',
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit',
+            hour12: false
+          }),
           id: respaldoVisual.id_especie,
           imagen_url: respaldoVisual.imagen_url
         };

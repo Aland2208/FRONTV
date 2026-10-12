@@ -90,7 +90,9 @@ export class ConfigurarCamaraComponent implements OnInit {
           this.cargando = false;
           if (res?.estado === 1) {
             this.urlActual = urlLimpia;
-            this.fechaActualizacion = new Date().toLocaleString('es-EC');
+            this.fechaActualizacion = new Date().toLocaleString('es-EC', {
+              timeZone: 'America/Guayaquil'
+            });
             this.nuevaUrl = '';
             this.mostrarToast(`✅ Cámara habilitada para tus ${this.totalVeedores} veedores.`, 'success');
           } else {

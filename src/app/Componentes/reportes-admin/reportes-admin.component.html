@@ -40,7 +40,7 @@
         <div class="revision-meta">
           <span>{{ lote.total_capturas }} {{ lote.total_capturas === 1 ? 'captura' : 'capturas' }}</span>
           <span>Captura: {{ formatearFecha(lote.fecha_captura || '') }}</span>
-          <span>Enviado: {{ lote.fecha_envio | date:'dd/MM/yyyy, HH:mm' }}</span>
+          <span>Enviado: {{ formatearFechaHora(lote.fecha_envio) }}</span>
         </div>
       </div>
       <div class="revision-actions">

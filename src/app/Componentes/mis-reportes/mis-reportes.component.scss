@@ -288,6 +288,66 @@
    TARJETAS DE REPORTES
 ========================================== */
 
+.grupo-reportes {
+  margin: 20px 0;
+}
+
+.grupo-reportes-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 0 2px 10px;
+  border-bottom: 1px solid #dfe7eb;
+}
+
+.grupo-reportes-header h2 {
+  margin: 4px 0 0;
+  color: var(--abyss);
+  font-size: 18px;
+}
+
+.grupo-reportes-header > span,
+.grupo-fecha summary > span:last-child {
+  color: var(--slate);
+  font-size: 12px;
+}
+
+.grupo-vacio {
+  padding: 18px;
+  color: var(--slate);
+  font-size: 13px;
+  text-align: center;
+}
+
+.grupo-fecha {
+  margin-top: 10px;
+  border: 1px solid #dfe7eb;
+  border-radius: 12px;
+  background: white;
+  overflow: hidden;
+}
+
+.grupo-fecha summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 13px 16px;
+  color: var(--abyss);
+  font-weight: 600;
+  cursor: pointer;
+  list-style-position: inside;
+}
+
+.grupo-fecha[open] summary {
+  border-bottom: 1px solid #edf1f3;
+}
+
+.grupo-fecha .reporte-card {
+  margin: 12px;
+}
+
 .reporte-card {
   padding: 18px;
   margin-bottom: 14px;

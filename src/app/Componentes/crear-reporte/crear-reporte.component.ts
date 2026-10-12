@@ -21,6 +21,7 @@ import {
 import { ReporteS } from '../../servicios/reporte-s';
 import { Auth } from '../../servicios/auth';
 import { BalanzaS } from '../../servicios/balanza-s';
+import { desplazarFecha, obtenerFechaEcuador } from '../../utilidades/fecha-ecuador';
 
 @Component({
   selector: 'app-crear-reporte',
@@ -102,23 +103,14 @@ export class CrearReporteComponent implements OnInit {
   }
 
   private configurarRangoAnterior(): void {
-    const ayer = new Date();
-    ayer.setDate(ayer.getDate() - 1);
-    const haceTreintaDias = new Date(ayer);
-    haceTreintaDias.setDate(haceTreintaDias.getDate() - 29);
+    const ayer = desplazarFecha(obtenerFechaEcuador(), -1);
+    const haceTreintaDias = desplazarFecha(ayer, -29);
 
-    this.fechaMaximaAnterior = this.formatearFechaLocal(ayer);
+    this.fechaMaximaAnterior = ayer;
     this.rangoPendientesAnteriores = {
-      fecha_inicio: this.formatearFechaLocal(haceTreintaDias),
+      fecha_inicio: haceTreintaDias,
       fecha_fin: this.fechaMaximaAnterior
     };
-  }
-
-  private formatearFechaLocal(fecha: Date): string {
-    const anio = fecha.getFullYear();
-    const mes = String(fecha.getMonth() + 1).padStart(2, '0');
-    const dia = String(fecha.getDate()).padStart(2, '0');
-    return `${anio}-${mes}-${dia}`;
   }
 
   cargarTiposReporte() {
@@ -507,11 +499,7 @@ export class CrearReporteComponent implements OnInit {
   }
 
   private obtenerFechaActual(): string {
-    const fecha = new Date();
-    const anio = fecha.getFullYear();
-    const mes = String(fecha.getMonth() + 1).padStart(2, '0');
-    const dia = String(fecha.getDate()).padStart(2, '0');
-    return `${anio}-${mes}-${dia}`;
+    return obtenerFechaEcuador();
   }
 
   private mostrarErrorBlob(err: any, mensajeDefecto: string) {

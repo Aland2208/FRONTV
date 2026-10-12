@@ -13,8 +13,6 @@ import {Chart,registerables} from 'chart.js';
 import {DashboardS} from 'src/app/servicios/dashboard-s';
 import {Auth} from 'src/app/servicios/auth';
 import {
- ActivityRecord,
- crearSerieComparativa,
  formatearCambio,
  pesoMedioPorCaptura
 } from 'src/app/utils/dashboard-statistics';
@@ -45,7 +43,6 @@ export class DashboardGeneralComponent implements OnInit,AfterViewInit,OnDestroy
 
  @ViewChild('graficoEspecies') graficoEspecies!:ElementRef<HTMLCanvasElement>;
  @ViewChild('graficoPeso') graficoPeso!:ElementRef<HTMLCanvasElement>;
- @ViewChild('graficoActividad') graficoActividad!:ElementRef<HTMLCanvasElement>;
  @ViewChild('graficoVeedores') graficoVeedores!:ElementRef<HTMLCanvasElement>;
  @ViewChild('graficoReportes') graficoReportes!:ElementRef<HTMLCanvasElement>;
 
@@ -70,8 +67,6 @@ export class DashboardGeneralComponent implements OnInit,AfterViewInit,OnDestroy
   };
 
   especies:any[]=[];
-  actividad:ActivityRecord[]=[];
-  actividadAnterior:ActivityRecord[]=[];
  veedores:VeedorDashboard[]=[];
  listaVeedores:VeedorDashboard[]=[];
 
@@ -87,9 +82,12 @@ export class DashboardGeneralComponent implements OnInit,AfterViewInit,OnDestroy
 
  private vistaLista=false;
 
+ get alturaGraficoVeedores():number{
+  return Math.max(260,this.veedores.length*54);
+ }
+
  private chartEspecies?:Chart;
  private chartPeso?:Chart;
- private chartActividad?:Chart;
  private chartVeedores?:Chart;
  private chartReportes?:Chart;
 
@@ -181,19 +179,6 @@ export class DashboardGeneralComponent implements OnInit,AfterViewInit,OnDestroy
      confianza_promedio:Number(item.confianza_promedio||0)
     }));
 
-    this.actividad=(data.actividad||[]).map((item:any)=>({
-     ...item,
-     hora:item.hora!==undefined?Number(item.hora):undefined,
-     total_capturas:Number(item.total_capturas||0),
-     peso_total:Number(item.peso_total||0)
-    }));
-    this.actividadAnterior=(data.actividad_anterior||[]).map((item:any)=>({
-     ...item,
-     hora:item.hora!==undefined?Number(item.hora):undefined,
-     total_capturas:Number(item.total_capturas||0),
-     peso_total:Number(item.peso_total||0)
-    }));
-
     this.veedores=(data.veedores||[]).map((item:any)=>({
      ...item,
      id_usuario:Number(item.id_usuario),
@@ -277,10 +262,6 @@ export class DashboardGeneralComponent implements OnInit,AfterViewInit,OnDestroy
    if(this.especies.length){
     this.crearGraficoEspecies();
     this.crearGraficoPeso();
-   }
-
-   if(this.actividad.length||this.actividadAnterior.length){
-    this.crearGraficoActividad();
    }
 
    if(this.veedores.length){
@@ -420,95 +401,6 @@ export class DashboardGeneralComponent implements OnInit,AfterViewInit,OnDestroy
  }
 
  // ==========================================
- // GRÁFICO LÍNEA - ACTIVIDAD
- // ==========================================
- private crearGraficoActividad():void{
-  if(!this.graficoActividad?.nativeElement)return;
-
-  const esHoy=this.periodo==='hoy';
-  const serie=crearSerieComparativa(
-   this.actividad,
-   this.actividadAnterior,
-   this.normalizarFecha(this.filtrosAplicados?.desde),
-   this.normalizarFecha(this.filtrosAplicados?.hasta),
-   this.normalizarFecha(this.periodoAnterior?.desde),
-   !esHoy
-  );
-
-  this.chartActividad=new Chart(
-   this.graficoActividad.nativeElement,
-   {
-    type:'line',
-    data:{
-     labels:serie.labels,
-     datasets:[
-      {
-       label:'Período actual',
-       data:serie.actual,
-       borderColor:'#12969e',
-       backgroundColor:'rgba(18,150,158,0.12)',
-       fill:true,
-       tension:.35,
-       pointRadius:3,
-       pointHoverRadius:6,
-       pointBackgroundColor:'#0a1f33',
-       pointBorderColor:'#ffffff',
-       pointBorderWidth:2
-      },
-      {
-       label:'Período anterior',
-       data:serie.anterior,
-       borderColor:'#8a9aab',
-       backgroundColor:'rgba(138,154,171,0.06)',
-       fill:false,
-       tension:.35,
-       borderDash:[5,5],
-       pointRadius:2,
-       pointHoverRadius:5
-      }
-     ]
-    },
-    options:{
-     responsive:true,
-     maintainAspectRatio:false,
-     interaction:{
-      intersect:false,
-      mode:'index'
-     },
-     plugins:{
-      legend:{
-       display:true,
-       position:'bottom'
-      },
-      tooltip:{
-       callbacks:{
-        label:(context)=>{
-         const total=Number(context.raw||0);
-         return ` ${total} captura${total===1?'':'s'}`;
-        }
-       }
-      }
-     },
-     scales:{
-      x:{
-       grid:{
-        display:false
-       }
-      },
-      y:{
-       beginAtZero:true,
-       ticks:{
-        precision:0,
-        stepSize:1
-       }
-      }
-     }
-    }
-   }
-  );
- }
-
- // ==========================================
  // GRÁFICO BARRAS - RENDIMIENTO POR VEEDOR
  // ==========================================
  private crearGraficoVeedores():void{
@@ -546,6 +438,7 @@ export class DashboardGeneralComponent implements OnInit,AfterViewInit,OnDestroy
      ]
     },
     options:{
+     indexAxis:'y',
      responsive:true,
      maintainAspectRatio:false,
      plugins:{
@@ -556,19 +449,22 @@ export class DashboardGeneralComponent implements OnInit,AfterViewInit,OnDestroy
      },
      scales:{
       x:{
-       grid:{
-        display:false
-       },
-       ticks:{
-        maxRotation:0,
-        minRotation:0
-       }
-      },
-      y:{
        beginAtZero:true,
        ticks:{
         precision:0,
         stepSize:1
+       }
+      },
+      y:{
+       grid:{
+        display:false
+       },
+       ticks:{
+        autoSkip:false,
+        callback:(value)=>{
+         const etiqueta=String(labels[Number(value)]||'');
+         return etiqueta.split(' ');
+        }
        }
       }
      }
@@ -648,11 +544,6 @@ export class DashboardGeneralComponent implements OnInit,AfterViewInit,OnDestroy
    this.chartPeso=undefined;
   }
 
-  if(this.chartActividad){
-   this.chartActividad.destroy();
-   this.chartActividad=undefined;
-  }
-
   if(this.chartVeedores){
    this.chartVeedores.destroy();
    this.chartVeedores=undefined;
@@ -695,10 +586,6 @@ export class DashboardGeneralComponent implements OnInit,AfterViewInit,OnDestroy
   if(this.comparacion.total_capturas===0)return 'Sin registros previos';
   const diferencia=this.resumen.confianza_promedio-this.comparacion.confianza_promedio;
   return `${diferencia>0?'+':''}${diferencia.toFixed(1)} pp`;
- }
-
- private normalizarFecha(fecha:any):string{
-  return String(fecha||'').slice(0,10);
  }
 
  // ==========================================

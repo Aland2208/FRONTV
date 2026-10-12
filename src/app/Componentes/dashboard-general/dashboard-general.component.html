@@ -192,7 +192,7 @@
 
                     <!-- AQUI AGREGAMOS EL SCROLL HORIZONTAL -->
                     <div class="grafico-scroll-wrapper" *ngIf="veedores.length>0">
-                        <div class="grafico-canvas grafico-veedores">
+                        <div class="grafico-canvas grafico-veedores" [style.height.px]="alturaGraficoVeedores">
                             <canvas #graficoVeedores></canvas>
                         </div>
                     </div>
@@ -250,30 +250,6 @@
                     </div>
                 </article>
             </section>
-
-            <!-- ACTIVIDAD -->
-            <article class="grafico-card grafico-actividad-card">
-                <div class="grafico-header">
-                    <div>
-                        <span class="etiqueta">ACTIVIDAD</span>
-                        <h2>{{ periodo==='hoy' ? 'Actividad durante la jornada' : 'Actividad durante el período' }}</h2>
-                        <p>{{ periodo==='hoy' ? 'Hoy frente a ayer, por hora.' : 'Período seleccionado frente al rango previo equivalente.' }}</p>
-                    </div>
-                    <div class="grafico-icon"><ion-icon name="trending-up-outline"></ion-icon></div>
-                </div>
-
-                <!-- AQUI AGREGAMOS EL SCROLL HORIZONTAL -->
-                <div class="grafico-scroll-wrapper" *ngIf="actividad.length>0 || actividadAnterior.length>0">
-                    <div class="grafico-canvas grafico-linea">
-                        <canvas #graficoActividad></canvas>
-                    </div>
-                </div>
-
-                <div class="sin-actividad" *ngIf="actividad.length===0 && actividadAnterior.length===0">
-                    <ion-icon name="time-outline"></ion-icon>
-                    <span>No existe actividad registrada en el período.</span>
-                </div>
-            </article>
 
             <!-- ESPECIES -->
             <section class="graficos-grid especies-grid">

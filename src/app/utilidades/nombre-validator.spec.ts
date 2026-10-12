@@ -17,5 +17,15 @@ describe('validarNombre', () => {
 
   it('allows names that cannot safely be classified as fake based on text alone', () => {
     expect(validarNombre('Asad')).toBeTrue();
+    expect(validarNombre('Xochitl')).toBeTrue();
+    expect(validarNombre('Ng')).toBeTrue();
+    expect(validarNombre('Bjørn')).toBeTrue();
+    expect(validarNombre('Иван')).toBeTrue();
+  });
+
+  it('rejects common placeholders and random-looking names', () => {
+    expect(validarNombre('Waos')).toBeFalse();
+    expect(validarNombre('Qwerty')).toBeFalse();
+    expect(validarNombre('TestUser')).toBeFalse();
   });
 });

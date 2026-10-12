@@ -57,4 +57,26 @@ describe('MisReportesComponent', () => {
     expect(component.filtros.fecha_inicio).toBe('2026-10-01');
     expect(component.filtros.fecha_fin).toBe('2026-10-10');
   });
+
+  it('shows current-day reports first and groups earlier dates newest-first', () => {
+    component.fechaHoy = '2026-10-10';
+    component.reportes = [
+      { fecha: '2026-10-08', titulo: 'Older' },
+      { fecha: '2026-10-10', titulo: 'Today' },
+      { fecha: '2026-10-09', titulo: 'Yesterday' },
+      { fecha: '2026-10-08', titulo: 'Older same day' }
+    ];
+
+    expect(component.reportesDeHoy.map(reporte => reporte.titulo)).toEqual(['Today']);
+    expect(component.reportesAnteriores.map(grupo => grupo.fecha)).toEqual([
+      '2026-10-09',
+      '2026-10-08'
+    ]);
+    expect(component.reportesAnteriores[1].reportes.length).toBe(2);
+
+    fixture.detectChanges();
+    const gruposFecha = fixture.nativeElement.querySelectorAll('details.grupo-fecha');
+    expect(gruposFecha.length).toBe(2);
+    expect(Array.from(gruposFecha).every((grupo: any) => !grupo.open)).toBeTrue();
+  });
 });

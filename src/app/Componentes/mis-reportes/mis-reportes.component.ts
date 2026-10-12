@@ -5,6 +5,16 @@ import { IonicModule } from '@ionic/angular';
 
 import { ReporteS } from 'src/app/servicios/reporte-s';
 import { Auth } from 'src/app/servicios/auth';
+import {
+  formatearFechaEcuador,
+  formatearHoraEcuador,
+  obtenerFechaEcuador
+} from 'src/app/utilidades/fecha-ecuador';
+
+interface GrupoReportes {
+  fecha: string;
+  reportes: any[];
+}
 
 @Component({
   selector: 'app-mis-reportes',
@@ -44,6 +54,26 @@ export class MisReportesComponent implements OnInit {
   mostrarDetalle = false;
   cargandoDetalle = false;
   errorDetalle = '';
+  fechaHoy = obtenerFechaEcuador();
+
+  get reportesDeHoy(): any[] {
+    return this.reportes.filter(reporte => this.obtenerFechaReporte(reporte) === this.fechaHoy);
+  }
+
+  get reportesAnteriores(): GrupoReportes[] {
+    const grupos = new Map<string, any[]>();
+    for (const reporte of this.reportes) {
+      const fecha = this.obtenerFechaReporte(reporte);
+      if (!fecha || fecha === this.fechaHoy) continue;
+      const grupo = grupos.get(fecha) || [];
+      grupo.push(reporte);
+      grupos.set(fecha, grupo);
+    }
+
+    return Array.from(grupos, ([fecha, reportes]) => ({ fecha, reportes }))
+      .sort((a, b) => b.fecha.localeCompare(a.fecha));
+  }
+
   constructor(
     private reporteService: ReporteS,
     private authService: Auth
@@ -60,6 +90,7 @@ export class MisReportesComponent implements OnInit {
   // ==========================================
 
   cargarReportes() {
+    this.fechaHoy = obtenerFechaEcuador();
     const idUsuario = this.authService.obtenerIdUsuario();
 
     if (!idUsuario) {
@@ -263,20 +294,14 @@ export class MisReportesComponent implements OnInit {
   // ==========================================
 
   formatearHora(fechaHora: string): string {
-    if (!fechaHora) return '--:--';
+    return formatearHoraEcuador(fechaHora);
+  }
 
-    const texto = String(fechaHora);
+  formatearFecha(fecha: string): string {
+    return formatearFechaEcuador(fecha);
+  }
 
-    // Ejemplo: 2026-10-06T14:35:20.000Z
-    if (texto.includes('T')) {
-      return texto.substring(11, 16);
-    }
-
-    // Ejemplo: 2026-10-06 14:35:20
-    if (texto.includes(' ')) {
-      return texto.split(' ')[1]?.substring(0, 5) || '--:--';
-    }
-
-    return '--:--';
+  private obtenerFechaReporte(reporte: any): string {
+    return String(reporte?.fecha || '').slice(0, 10);
   }
 }

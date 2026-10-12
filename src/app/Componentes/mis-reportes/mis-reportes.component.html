@@ -183,114 +183,99 @@
 
     </div>
 
-    <!-- ==========================================
-         TARJETAS
-    =========================================== -->
-    <div
-      class="reporte-card"
-      *ngFor="let reporte of reportes">
-
-      <!-- CABECERA DEL REPORTE -->
-      <div class="reporte-superior">
-
-        <div class="tipo-reporte">
-
-          <span>
-            {{ reporte.nombre_tipo }}
-          </span>
-
-          <h2>
-            {{ reporte.titulo }}
-          </h2>
-
-          <p>
-            {{ reporte.especie }}
-
-            <em *ngIf="reporte.nombre_cientifico">
-              {{ reporte.nombre_cientifico }}
-            </em>
-          </p>
-
+    <section class="grupo-reportes">
+      <div class="grupo-reportes-header">
+        <div>
+          <span class="etiqueta">HOY</span>
+          <h2>{{ formatearFecha(fechaHoy) }}</h2>
         </div>
-
-        <!-- FECHA -->
-        <div class="fecha-reporte">
-          <ion-icon name="calendar-outline"></ion-icon>
-
-          <span>
-            {{ reporte.fecha?.substring(8, 10) }}/{{ reporte.fecha?.substring(5, 7) }}/{{ reporte.fecha?.substring(0, 4) }}
-          </span>
-        </div>
-
+        <span>{{ reportesDeHoy.length }} {{ reportesDeHoy.length === 1 ? 'reporte' : 'reportes' }}</span>
       </div>
 
-      <!-- OBSERVADOR -->
-      <div class="observador">
-        <ion-icon name="person-outline"></ion-icon>
+      <p class="grupo-vacio" *ngIf="reportesDeHoy.length === 0">
+        No hay reportes de hoy dentro de los filtros seleccionados.
+      </p>
 
-        <span>
-          Realizado por
-          <strong>
-            {{ reporte.nombre }} {{ reporte.apellido }}
-          </strong>
-        </span>
+      <ng-container *ngFor="let reporte of reportesDeHoy">
+        <ng-container *ngTemplateOutlet="tarjetaReporte; context: { $implicit: reporte }"></ng-container>
+      </ng-container>
+    </section>
+
+    <section class="grupo-reportes anteriores" *ngIf="reportesAnteriores.length > 0">
+      <div class="grupo-reportes-header">
+        <div>
+          <span class="etiqueta">HISTORIAL</span>
+          <h2>Días anteriores</h2>
+        </div>
+        <span>{{ reportes.length - reportesDeHoy.length }} {{ reportes.length - reportesDeHoy.length === 1 ? 'reporte' : 'reportes' }}</span>
       </div>
 
-      <!-- ESTADÍSTICAS -->
-      <div class="estadisticas">
+      <details class="grupo-fecha" *ngFor="let grupo of reportesAnteriores">
+        <summary>
+          <span>{{ formatearFecha(grupo.fecha) }}</span>
+          <span>{{ grupo.reportes.length }} {{ grupo.reportes.length === 1 ? 'reporte' : 'reportes' }}</span>
+        </summary>
+        <ng-container *ngFor="let reporte of grupo.reportes">
+          <ng-container *ngTemplateOutlet="tarjetaReporte; context: { $implicit: reporte }"></ng-container>
+        </ng-container>
+      </details>
+    </section>
 
-        <div class="estadistica">
-          <span>Capturas</span>
-          <strong>{{ reporte.total_capturas }}</strong>
+    <ng-template #tarjetaReporte let-reporte>
+      <div class="reporte-card">
+        <div class="reporte-superior">
+          <div class="tipo-reporte">
+            <span>{{ reporte.nombre_tipo }}</span>
+            <h2>{{ reporte.titulo }}</h2>
+            <p>
+              {{ reporte.especie }}
+              <em *ngIf="reporte.nombre_cientifico">{{ reporte.nombre_cientifico }}</em>
+            </p>
+          </div>
+          <div class="fecha-reporte">
+            <ion-icon name="calendar-outline"></ion-icon>
+            <span>{{ formatearFecha(reporte.fecha) }}</span>
+          </div>
         </div>
 
-        <div class="estadistica">
-          <span>Peso total</span>
-          <strong>
-            {{ reporte.peso_total | number:'1.0-2' }} g
-          </strong>
+        <div class="observador">
+          <ion-icon name="person-outline"></ion-icon>
+          <span>Realizado por <strong>{{ reporte.nombre }} {{ reporte.apellido }}</strong></span>
         </div>
 
-        <div class="estadistica">
-          <span>Confianza promedio</span>
-          <strong>
-            {{ reporte.confianza_promedio | number:'1.1-2' }}%
-          </strong>
+        <div class="estadisticas">
+          <div class="estadistica">
+            <span>Capturas</span>
+            <strong>{{ reporte.total_capturas }}</strong>
+          </div>
+          <div class="estadistica">
+            <span>Peso total</span>
+            <strong>{{ reporte.peso_total | number:'1.0-2' }} g</strong>
+          </div>
+          <div class="estadistica">
+            <span>Confianza promedio</span>
+            <strong>{{ reporte.confianza_promedio | number:'1.1-2' }}%</strong>
+          </div>
         </div>
 
+        <div class="reporte-footer">
+          <div class="archivos">
+            <span class="archivo-ok">
+              <ion-icon name="checkmark-circle-outline"></ion-icon>
+              PDF generado
+            </span>
+            <span class="archivo-ok">
+              <ion-icon name="checkmark-circle-outline"></ion-icon>
+              CSV generado
+            </span>
+          </div>
+          <button class="btn-detalle" type="button" (click)="verDetalle(reporte)">
+            Ver detalle
+            <ion-icon name="arrow-forward-outline"></ion-icon>
+          </button>
+        </div>
       </div>
-
-      <!-- PIE DEL REPORTE -->
-      <div class="reporte-footer">
-
-        <div class="archivos">
-
-          <span class="archivo-ok">
-            <ion-icon name="checkmark-circle-outline"></ion-icon>
-            PDF generado
-          </span>
-
-          <span class="archivo-ok">
-            <ion-icon name="checkmark-circle-outline"></ion-icon>
-            CSV generado
-          </span>
-
-        </div>
-
-        <!-- VER DETALLE -->
-        <button
-          class="btn-detalle"
-          type="button"
-          (click)="verDetalle(reporte)">
-
-          Ver detalle
-
-          <ion-icon name="arrow-forward-outline"></ion-icon>
-        </button>
-
-      </div>
-
-    </div>
+    </ng-template>
 
     <!-- ==========================================
          PAGINACIÓN
