@@ -84,6 +84,8 @@ export class RegistroPage implements OnInit {
   }
 
   registrar() {
+    if (this.cargando) return;
+
     const nombreLimpio = this.usuario.nombre.trim();
     const apellidoLimpio = this.usuario.apellido.trim();
     const correoLimpio = this.usuario.correo.trim().toLowerCase();
@@ -134,9 +136,8 @@ export class RegistroPage implements OnInit {
     this.authService.registro(datosEnviar).subscribe({
       next: () => {
         this.cargando = false;
-        const rol = this.usuario.id_rol === 1 ? 'Administrador' : 'Observador';
         this.mostrarMensaje(
-          `Cuenta de ${rol} creada. Revisa tu correo y confirma el enlace para activarla.`,
+          'Si el correo puede registrarse, recibirás instrucciones para continuar. Revisa tu bandeja de entrada.',
           'success'
         );
 

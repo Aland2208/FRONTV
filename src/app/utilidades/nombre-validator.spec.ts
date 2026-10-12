@@ -34,5 +34,7 @@ describe('validarNombre', () => {
     expect(validarNombre('Qazwsx')).toBeFalse();
     expect(validarNombre('Lalalala')).toBeFalse();
     expect(validarNombre('Aaaaa')).toBeFalse();
+    expect(validarNombre('Fefwe')).toBeFalse();
+    expect(validarNombre('Jfdskl')).toBeFalse();
   });
 });
