@@ -28,4 +28,11 @@ describe('validarNombre', () => {
     expect(validarNombre('Qwerty')).toBeFalse();
     expect(validarNombre('TestUser')).toBeFalse();
   });
+
+  it('rejects keyboard walks and repeated artificial syllables', () => {
+    expect(validarNombre('QwErTy')).toBeFalse();
+    expect(validarNombre('Qazwsx')).toBeFalse();
+    expect(validarNombre('Lalalala')).toBeFalse();
+    expect(validarNombre('Aaaaa')).toBeFalse();
+  });
 });
