@@ -500,3 +500,62 @@
 
 .veedor-info { min-width: 0; flex: 1; }
 .veedor-info small { display: block; }
+
+/* ESTADO DE CONEXIÓN */
+.estado-box--desconectada {
+  background: rgba(229, 72, 77, .08);
+  border-color: rgba(229, 72, 77, .2);
+}
+
+.estado-box--desconectada .estado-indicador {
+  background: #e5484d;
+  box-shadow: none;
+}
+
+.estado-box--desconectada .estado-info strong { color: #c42f36; }
+
+/* BOTÓN COPIAR */
+.guia-rapida__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.guia-rapida__header h4 { margin: 0; }
+
+.btn-copiar-comando {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 6px 10px;
+  border-radius: 6px;
+  border: 1px solid rgba(79, 209, 197, .35);
+  background: rgba(79, 209, 197, .12);
+  color: #4fd1c5;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.btn-copiar-comando ion-icon { font-size: 14px; }
+.btn-copiar-comando:hover { background: rgba(79, 209, 197, .22); }
+
+/* PERMISOS INDIVIDUALES */
+.veedor-permiso {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+.veedor-permiso ion-toggle {
+  --track-background: #dce6ec;
+  --track-background-checked: rgba(18, 150, 158, .35);
+  --handle-background-checked: #12969e;
+  transform: scale(.8);
+}
+
+.veedor-info { min-width: 0; flex: 1; }
+.veedor-info small { display: block; }

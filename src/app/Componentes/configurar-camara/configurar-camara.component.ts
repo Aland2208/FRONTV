@@ -1,6 +1,7 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { IonButton, IonIcon, IonToggle, ToastController } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import {
@@ -27,7 +28,7 @@ interface VeedorCamara {
   standalone: true,
   imports: [CommonModule, FormsModule, IonButton, IonIcon, IonToggle]
 })
-export class ConfigurarCamaraComponent implements OnInit {
+export class ConfigurarCamaraComponent implements OnInit, OnDestroy {
   urlActual: string | null = null;
   fechaActualizacion: string | null = null;
   nuevaUrl = '';
@@ -36,12 +37,21 @@ export class ConfigurarCamaraComponent implements OnInit {
   idAdministrador: number | null = null;
   veedoresVinculados: VeedorCamara[] = [];
   totalVeedores = 0;
-
   cargandoPermisos: Record<number, boolean> = {};
+
   comandoCloudflare = 'cloudflared tunnel --url http://localhost:5000';
   comandoCopiado = false;
 
-  constructor(private authService: Auth, private toastCtrl: ToastController) {
+  estadoConexion: 'verificando' | 'conectada' | 'desconectada' = 'verificando';
+  camaraOperativa = false;
+  private intervaloConexion?: ReturnType<typeof setInterval>;
+  private verificandoConexion = false;
+
+  constructor(
+    private authService: Auth,
+    private toastCtrl: ToastController,
+    private http: HttpClient
+  ) {
     addIcons({
       videocamOutline, eyeOutline, informationCircleOutline, peopleOutline,
       personOutline, linkOutline, cloudUploadOutline, terminalOutline,
@@ -63,10 +73,11 @@ export class ConfigurarCamaraComponent implements OnInit {
       .subscribe({
         next: (res: any) => {
           if (res?.estado !== 1) {
-            this.mostrarToast('No se pudo consultar la cámara.', 'danger');
+            this.estadoConexion = 'desconectada';
             return;
           }
 
+          const urlAnterior = this.urlActual;
           this.urlActual = res.url_camara || null;
           this.fechaActualizacion = res.fecha_actualizacion || null;
           this.veedoresVinculados = Array.isArray(res.veedores) ? res.veedores.map((veedor: any) => ({
@@ -76,9 +87,51 @@ export class ConfigurarCamaraComponent implements OnInit {
             visualizacion_habilitada: [true, 1, '1'].includes(veedor.visualizacion_habilitada)
           })) : [];
           this.totalVeedores = Number(res.total_veedores ?? this.veedoresVinculados.length);
+
+          if (urlAnterior !== this.urlActual) this.estadoConexion = 'verificando';
+          this.iniciarMonitoreoConexion();
         },
-        error: (err: any) => this.mostrarToast(err?.error?.mensaje || 'Error al consultar la cámara.', 'danger')
+        error: () => {
+          this.estadoConexion = 'desconectada';
+          this.mostrarToast('No se pudo consultar la configuración.', 'danger');
+        }
       });
+  }
+
+  iniciarMonitoreoConexion(): void {
+    if (this.intervaloConexion) clearInterval(this.intervaloConexion);
+    this.verificarConexion();
+    this.intervaloConexion = setInterval(() => this.verificarConexion(), 5000);
+  }
+
+  verificarConexion(): void {
+    if (!this.urlActual) {
+      this.estadoConexion = 'desconectada';
+      this.camaraOperativa = false;
+      return;
+    }
+
+    if (this.verificandoConexion) return;
+    this.verificandoConexion = true;
+
+    const token = this.authService.obtenerToken();
+    const headers = new HttpHeaders(token ? { Authorization: `Bearer ${token}` } : {});
+
+    this.http.get<any>(`${this.urlActual}/api-local/estado`, {
+      headers,
+      timeout: 5000
+    }).subscribe({
+      next: (res) => {
+        this.verificandoConexion = false;
+        this.camaraOperativa = [true, 1, '1'].includes(res?.camara_operativa);
+        this.estadoConexion = res?.estado === 1 && this.camaraOperativa ? 'conectada' : 'desconectada';
+      },
+      error: () => {
+        this.verificandoConexion = false;
+        this.camaraOperativa = false;
+        this.estadoConexion = 'desconectada';
+      }
+    });
   }
 
   guardarConfiguracion(): void {
@@ -102,14 +155,15 @@ export class ConfigurarCamaraComponent implements OnInit {
       .subscribe({
         next: (res: any) => {
           if (res?.estado !== 1) {
-            this.mostrarToast(res?.mensaje || 'Error al guardar.', 'danger');
+            this.mostrarToast(res?.mensaje || 'No se pudo guardar el enlace.', 'danger');
             return;
           }
+
           this.nuevaUrl = '';
           this.cargarConfiguracionActual();
           this.mostrarToast('Enlace de cámara guardado.', 'success');
         },
-        error: (err: any) => this.mostrarToast(err?.error?.mensaje || 'No se pudo guardar el enlace.', 'danger')
+        error: (err: any) => this.mostrarToast(err?.error?.mensaje || 'Error al guardar el enlace.', 'danger')
       });
   }
 
@@ -129,10 +183,11 @@ export class ConfigurarCamaraComponent implements OnInit {
             this.mostrarToast(res?.mensaje || 'No se pudo cambiar el permiso.', 'danger');
             return;
           }
+
           veedor.visualizacion_habilitada = habilitada;
           this.mostrarToast(habilitada
-            ? `Video habilitado para ${veedor.nombre}.`
-            : `Video restringido para ${veedor.nombre}.`, 'success');
+            ? `Visualización habilitada para ${veedor.nombre}.`
+            : `Visualización deshabilitada para ${veedor.nombre}.`, 'success');
         },
         error: (err: any) => {
           veedor.visualizacion_habilitada = permisoAnterior;
@@ -145,15 +200,19 @@ export class ConfigurarCamaraComponent implements OnInit {
     try {
       await navigator.clipboard.writeText(this.comandoCloudflare);
       this.comandoCopiado = true;
-      this.mostrarToast('Comando copiado al portapapeles.', 'success');
+      this.mostrarToast('Comando copiado.', 'success');
       setTimeout(() => this.comandoCopiado = false, 2000);
     } catch {
-      this.mostrarToast('No se pudo copiar el comando. Selecciónalo manualmente.', 'warning');
+      this.mostrarToast('No se pudo copiar el comando.', 'warning');
     }
   }
 
   async mostrarToast(mensaje: string, color: string): Promise<void> {
-    const toast = await this.toastCtrl.create({ message: mensaje, duration: 3500, color, position: 'bottom' });
+    const toast = await this.toastCtrl.create({ message: mensaje, duration: 3000, color, position: 'bottom' });
     await toast.present();
+  }
+
+  ngOnDestroy(): void {
+    if (this.intervaloConexion) clearInterval(this.intervaloConexion);
   }
 }

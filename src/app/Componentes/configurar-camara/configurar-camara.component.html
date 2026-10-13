@@ -7,34 +7,36 @@
     </header>
 
     <div class="card-config__body">
-      <!-- ESTADO DEL ENLACE -->
-      <div class="estado-box" [class.is-activa]="urlActual">
+      <!-- ESTADO DE CONEXIÓN -->
+      <div class="estado-box" [class.is-activa]="estadoConexion === 'conectada'"
+        [class.estado-box--desconectada]="estadoConexion === 'desconectada'">
         <div class="estado-indicador"></div>
         <div class="estado-info">
-          <span>ESTADO DEL ENLACE</span>
-          <strong>{{ urlActual ? 'Enlace configurado' : 'Sin enlace configurado' }}</strong>
+          <span>ESTADO DE LA CÁMARA</span>
+          <strong *ngIf="estadoConexion === 'verificando'">Verificando conexión...</strong>
+          <strong *ngIf="estadoConexion === 'conectada'">Cámara conectada</strong>
+          <strong *ngIf="estadoConexion === 'desconectada'">Cámara no disponible</strong>
         </div>
       </div>
 
-      <!-- INFORMACIÓN DE PERMISOS -->
+      <!-- PERMISOS -->
       <div class="control-camara">
         <div class="control-camara__header">
           <div class="control-camara__icono"><ion-icon name="eye-outline"></ion-icon></div>
           <div>
             <h3>Visualización en vivo</h3>
-            <p>Administra el permiso de video de cada veedor de manera independiente.</p>
+            <p>Habilita o deshabilita el video de cada veedor de manera independiente.</p>
           </div>
         </div>
 
         <div class="permiso-estado permiso-estado--activo">
           <ion-icon name="information-circle-outline"></ion-icon>
-          <span>Los permisos se configuran individualmente desde la lista de veedores.</span>
+          <span>Los permisos de visualización se administran desde la lista de veedores.</span>
         </div>
 
         <p class="control-camara__nota">
           <ion-icon name="information-circle-outline"></ion-icon>
-          Este control afecta únicamente la visualización. El análisis con YOLO y el registro de capturas continúan
-          disponibles.
+          Deshabilitar el video no afecta el procesamiento con YOLO ni el registro de capturas.
         </p>
       </div>
 
@@ -43,9 +45,8 @@
         <div class="veedores-header">
           <div>
             <span class="veedores-label">EQUIPO DE VEEDORES VINCULADOS</span>
-            <strong class="veedores-count">
-              {{ totalVeedores }} {{ totalVeedores === 1 ? 'veedor vinculado' : 'veedores vinculados' }}
-            </strong>
+            <strong class="veedores-count">{{ totalVeedores }} {{ totalVeedores === 1 ? 'veedor vinculado' : 'veedores
+              vinculados' }}</strong>
           </div>
           <span class="chip-total" [class.chip-total--cero]="totalVeedores === 0">
             <ion-icon name="people-outline"></ion-icon>{{ totalVeedores }}
@@ -55,15 +56,13 @@
         <div class="veedores-lista" *ngIf="veedoresVinculados.length > 0">
           <div class="veedor-item" *ngFor="let veedor of veedoresVinculados">
             <div class="veedor-avatar"><ion-icon name="person-outline"></ion-icon></div>
-
             <div class="veedor-info">
               <strong>{{ veedor.nombre }} {{ veedor.apellido }}</strong>
               <small>{{ veedor.correo }}</small>
               <small [style.color]="veedor.visualizacion_habilitada ? '#1fae7c' : '#e5484d'">
-                {{ veedor.visualizacion_habilitada ? 'Video permitido' : 'Video restringido' }}
+                {{ veedor.visualizacion_habilitada ? 'Visualización habilitada' : 'Visualización deshabilitada' }}
               </small>
             </div>
-
             <div class="veedor-permiso">
               <span class="veedor-badge" [class.veedor-badge--activo]="veedor.estado == 1">
                 {{ veedor.estado == 1 ? 'Activo' : 'Inactivo' }}
@@ -79,8 +78,7 @@
 
         <div class="veedores-vacio" *ngIf="veedoresVinculados.length === 0">
           <ion-icon name="information-circle-outline"></ion-icon>
-          <span>Actualmente no tienes veedores vinculados. Cuando asignes uno, podrás administrar su permiso de
-            video.</span>
+          <span>Actualmente no tienes veedores vinculados.</span>
         </div>
       </div>
 
