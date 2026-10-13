@@ -1,158 +1,66 @@
-import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
 
+import { Injectable } from '@angular/core';
+import { HttpClient, HttpParams } from '@angular/common/http';
+import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
 
-
-@Injectable({
-  providedIn: 'root',
-})
+@Injectable({ providedIn: 'root' })
 export class ReporteS {
+  private api = `${environment.apiUrl.replace(/\/+$/, '')}/reporte`;
 
-  private api =
-    environment.apiUrl + 'reporte';
+  constructor(private http: HttpClient) { }
 
-
-  constructor(
-    private http: HttpClient
-  ) { }
-
-
-  // ==========================================
-  // OBTENER REPORTES PENDIENTES DE HOY
-  // ==========================================
-
-  obtenerReportesPendientesHoy(
-    idUsuario: number
-  ): Observable<any> {
-
-    return this.http.get(
-      `${this.api}/pendientes/hoy/${idUsuario}`
-    );
-
+  obtenerReportesPendientesHoy(idUsuario: number): Observable<any> {
+    return this.http.get(`${this.api}/pendientes/hoy/${idUsuario}`);
   }
 
   obtenerReportesPendientesAnteriores(
-    idUsuario: number,
-    fechaInicio: string,
-    fechaFin: string
+    idUsuario: number, fechaInicio: string, fechaFin: string
   ): Observable<any> {
-    return this.http.get(
-      `${this.api}/pendientes/anteriores/${idUsuario}`,
-      {
-        params: {
-          fecha_inicio: fechaInicio,
-          fecha_fin: fechaFin
-        }
-      }
-    );
+    return this.http.get(`${this.api}/pendientes/anteriores/${idUsuario}`, {
+      params: { fecha_inicio: fechaInicio, fecha_fin: fechaFin }
+    });
   }
 
-
-  // ==========================================
-  // OBTENER TODAS LAS CAPTURAS DEL USUARIO
-  // ==========================================
-
-  obtenerReporteCapturas(
-    idUsuario: number
-  ): Observable<any> {
-
-    return this.http.get(
-      `${this.api}/capturas/${idUsuario}`
-    );
-
+  obtenerReporteCapturas(idUsuario: number): Observable<any> {
+    return this.http.get(`${this.api}/capturas/${idUsuario}`);
   }
-
-
-  // ==========================================
-  // OBTENER CAPTURAS POR RANGO DE FECHAS
-  // ==========================================
 
   obtenerReportePorFechas(
-    idUsuario: number,
-    fechaInicio: string,
-    fechaFin: string
+    idUsuario: number, fechaInicio: string, fechaFin: string
   ): Observable<any> {
-
-    return this.http.get(
-      `${this.api}/capturas/${idUsuario}/fecha`,
-      {
-        params: {
-          fecha_inicio: fechaInicio,
-          fecha_fin: fechaFin
-        }
-      }
-    );
-
+    return this.http.get(`${this.api}/capturas/${idUsuario}/fecha`, {
+      params: { fecha_inicio: fechaInicio, fecha_fin: fechaFin }
+    });
   }
 
-
-  // ==========================================
-  // OBTENER RESUMEN POR ESPECIES
-  // ==========================================
-
-  obtenerResumenEspecies(
-    idUsuario: number
-  ): Observable<any> {
-
-    return this.http.get(
-      `${this.api}/especies/${idUsuario}`
-    );
-
+  obtenerResumenEspecies(idUsuario: number): Observable<any> {
+    return this.http.get(`${this.api}/especies/${idUsuario}`);
   }
 
-  // ==========================================
-  // GENERAR PDF POR ESPECIE
-  // ==========================================
-
-  generarPDFEspecie(
-    datos: {
-      id_usuario: number;
-      id_especie: number;
-      ids_reportes: number[];
-      id_tipo_reporte: number;
-      titulo: string;
-    }
-  ): Observable<Blob> {
-
-    return this.http.post(
-      `${this.api}/generar-pdf-especie`,
-      datos,
-      {
-        responseType: 'blob'
-      }
-    );
-
+  generarPDFEspecie(datos: {
+    id_usuario: number;
+    id_especie: number;
+    ids_reportes: number[];
+    id_tipo_reporte: number;
+    titulo: string;
+  }): Observable<Blob> {
+    return this.http.post(`${this.api}/generar-pdf-especie`, datos, {
+      responseType: 'blob'
+    });
   }
 
-
-  // ==========================================
-  // GENERAR CSV POR ESPECIE
-  // ==========================================
-
-  generarCSVEspecie(
-    datos: {
-      id_usuario: number;
-      id_especie: number;
-      ids_reportes: number[];
-      id_tipo_reporte: number;
-      titulo: string;
-    }
-  ): Observable<Blob> {
-
-    return this.http.post(
-      `${this.api}/generar-csv-especie`,
-      datos,
-      {
-        responseType: 'blob'
-      }
-    );
-
+  generarCSVEspecie(datos: {
+    id_usuario: number;
+    id_especie: number;
+    ids_reportes: number[];
+    id_tipo_reporte: number;
+    titulo: string;
+  }): Observable<Blob> {
+    return this.http.post(`${this.api}/generar-csv-especie`, datos, {
+      responseType: 'blob'
+    });
   }
-  // ==========================================
-  // ENVIAR REPORTE
-  // ==========================================
 
   enviarReporteEspecie(datos: {
     id_usuario: number;
@@ -163,34 +71,36 @@ export class ReporteS {
   }): Observable<any> {
     return this.http.patch(`${this.api}/enviar-especie`, datos);
   }
-  // ==========================================
-  // HISTORIAL CON FILTROS Y PAGINACIÓN
-  // ==========================================
 
   obtenerTiposReporte(): Observable<any> {
     return this.http.get(`${this.api}/tipos`);
   }
 
-  obtenerHistorialReportes(filtros: any): Observable<any> {
-    const params: any = {
-      id_usuario: filtros.id_usuario,
-      pagina: filtros.pagina || 1,
-      limite: filtros.limite || 10
-    };
+  obtenerEspeciesFiltro(): Observable<any> {
+    return this.http.get(`${this.api}/filtros/especies`);
+  }
 
-    if (filtros.fecha_inicio) params.fecha_inicio = filtros.fecha_inicio;
-    if (filtros.fecha_fin) params.fecha_fin = filtros.fecha_fin;
-    if (filtros.id_especie) params.id_especie = filtros.id_especie;
-    if (filtros.id_observador) params.id_observador = filtros.id_observador;
-    if (filtros.id_tipo_reporte) params.id_tipo_reporte = filtros.id_tipo_reporte;
-    if (filtros.busqueda?.trim()) params.busqueda = filtros.busqueda.trim();
+  obtenerHistorialReportes(filtros: any): Observable<any> {
+    let params = new HttpParams()
+      .set('id_usuario', String(filtros.id_usuario))
+      .set('pagina', String(filtros.pagina || 1))
+      .set('limite', String(filtros.limite || 10));
+
+    const opcionales = [
+      'fecha_inicio', 'fecha_fin', 'id_especie',
+      'id_observador', 'id_tipo_reporte', 'busqueda'
+    ];
+
+    for (const campo of opcionales) {
+      const valor = filtros[campo];
+      if (valor !== undefined && valor !== null && String(valor).trim()) {
+        params = params.set(campo, String(valor).trim());
+      }
+    }
 
     return this.http.get(`${this.api}/historial`, { params });
   }
 
-  obtenerEspeciesFiltro(): Observable<any> {
-    return this.http.get(`${this.api}/filtros/especies`);
-  }
   obtenerDetalleReporte(datos: {
     id_usuario: number;
     id_especie: number;

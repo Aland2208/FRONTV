@@ -1,29 +1,19 @@
 <div class="mis-reportes">
-
-  <!-- ==========================================
-       ENCABEZADO
-  =========================================== -->
   <div class="encabezado">
     <div>
       <span class="etiqueta">HISTORIAL</span>
       <h1>Mis reportes</h1>
       <p>Consulta los reportes de trazabilidad pesquera realizados.</p>
     </div>
-
     <div class="contador" *ngIf="!cargando">
       <strong>{{ totalReportes }}</strong>
       <span>{{ totalReportes === 1 ? 'reporte' : 'reportes' }}</span>
     </div>
   </div>
 
-  <!-- ==========================================
-       FILTROS
-  =========================================== -->
   <div class="panel-filtros">
-
     <div class="titulo-filtros">
       <ion-icon name="filter-outline"></ion-icon>
-
       <div>
         <strong>Filtrar historial</strong>
         <span>Busca reportes específicos</span>
@@ -31,156 +21,83 @@
     </div>
 
     <div class="filtros-grid">
-
-      <!-- FECHA INICIO -->
       <div class="campo">
         <label for="fechaInicioReportes">Desde</label>
         <div class="fecha-input">
-          <input
-            id="fechaInicioReportes"
-            type="date"
-            [(ngModel)]="filtros.fecha_inicio">
+          <input id="fechaInicioReportes" type="date" [(ngModel)]="filtros.fecha_inicio">
         </div>
       </div>
-
-      <!-- FECHA FIN -->
       <div class="campo">
         <label for="fechaFinReportes">Hasta</label>
         <div class="fecha-input">
-          <input
-            id="fechaFinReportes"
-            type="date"
-            [(ngModel)]="filtros.fecha_fin">
+          <input id="fechaFinReportes" type="date" [(ngModel)]="filtros.fecha_fin">
         </div>
       </div>
-
-      <!-- ESPECIE -->
       <div class="campo">
         <label>Especie</label>
-
         <select [(ngModel)]="filtros.id_especie">
           <option value="">Todas las especies</option>
-
-          <option
-            *ngFor="let especie of especies"
-            [value]="especie.id_especie">
-            {{ especie.nombre_comun }}
+          <option *ngFor="let e of especies" [value]="e.id_especie">
+            {{ e.nombre_comun }}
           </option>
         </select>
       </div>
-
-      <!-- TIPO DE REPORTE -->
       <div class="campo">
         <label>Tipo de reporte</label>
-
         <select [(ngModel)]="filtros.id_tipo_reporte">
           <option value="">Todos los tipos</option>
-
-          <option
-            *ngFor="let tipo of tiposReporte"
-            [value]="tipo.id_tipo_reporte">
-            {{ tipo.nombre_tipo }}
+          <option *ngFor="let t of tiposReporte" [value]="t.id_tipo_reporte">
+            {{ t.nombre_tipo }}
           </option>
         </select>
       </div>
-
     </div>
 
-    <!-- BÚSQUEDA -->
     <div class="busqueda">
       <ion-icon name="search-outline"></ion-icon>
-
-      <input
-        type="text"
-        placeholder="Buscar por título..."
-        maxlength="150"
-        [(ngModel)]="filtros.busqueda"
+      <input type="text" placeholder="Buscar por título..." maxlength="150" [(ngModel)]="filtros.busqueda"
         (keyup.enter)="buscar()">
     </div>
 
-    <!-- ACCIONES -->
     <div class="acciones-filtros">
-
-      <button
-        class="btn-limpiar"
-        type="button"
-        [disabled]="cargando"
-        (click)="limpiarFiltros()">
-        <ion-icon name="refresh-outline"></ion-icon>
-        Limpiar
+      <button class="btn-limpiar" type="button" [disabled]="cargando" (click)="limpiarFiltros()">
+        <ion-icon name="refresh-outline"></ion-icon> Limpiar
       </button>
-
-      <button
-        class="btn-buscar"
-        type="button"
-        [disabled]="cargando"
-        (click)="buscar()">
-        <ion-icon name="search-outline"></ion-icon>
-        Buscar
+      <button class="btn-buscar" type="button" [disabled]="cargando" (click)="buscar()">
+        <ion-icon name="search-outline"></ion-icon> Buscar
       </button>
-
     </div>
-
   </div>
 
-  <!-- ==========================================
-       ERROR
-  =========================================== -->
   <div class="mensaje-error" *ngIf="error">
     <ion-icon name="alert-circle-outline"></ion-icon>
     <span>{{ error }}</span>
   </div>
 
-  <!-- ==========================================
-       CARGANDO
-  =========================================== -->
   <div class="estado-carga" *ngIf="cargando">
     <ion-spinner name="crescent"></ion-spinner>
     <span>Consultando reportes...</span>
   </div>
 
-  <!-- ==========================================
-       SIN RESULTADOS
-  =========================================== -->
-  <div
-    class="sin-resultados"
-    *ngIf="!cargando && !error && reportes.length === 0">
-
+  <div class="sin-resultados" *ngIf="!cargando && !error && reportes.length === 0">
     <ion-icon name="document-text-outline"></ion-icon>
     <h3>No se encontraron reportes</h3>
     <p>No existen reportes que coincidan con los filtros seleccionados.</p>
-
   </div>
 
-  <!-- ==========================================
-       RESULTADOS
-  =========================================== -->
-  <div
-    class="resultados"
-    *ngIf="!cargando && !error && reportes.length > 0">
-
-    <!-- INFORMACIÓN DE RESULTADOS -->
+  <div class="resultados" *ngIf="!cargando && !error && reportes.length > 0">
     <div class="resultado-info">
-
-      <span>
-        {{ totalReportes }}
+      <span>{{ totalReportes }}
         {{ totalReportes === 1 ? 'reporte encontrado' : 'reportes encontrados' }}
       </span>
-
       <div class="cantidad-pagina">
         <label>Mostrar</label>
-
-        <select
-          [(ngModel)]="limite"
-          (change)="cambiarLimite()">
-
+        <select [(ngModel)]="limite" (change)="cambiarLimite()">
           <option [ngValue]="5">5</option>
           <option [ngValue]="10">10</option>
           <option [ngValue]="20">20</option>
-
         </select>
       </div>
-
     </div>
 
     <section class="grupo-reportes">
@@ -189,15 +106,14 @@
           <span class="etiqueta">HOY</span>
           <h2>{{ formatearFecha(fechaHoy) }}</h2>
         </div>
-        <span>{{ reportesDeHoy.length }} {{ reportesDeHoy.length === 1 ? 'reporte' : 'reportes' }}</span>
+        <span>{{ reportesDeHoy.length }} reportes</span>
       </div>
-
       <p class="grupo-vacio" *ngIf="reportesDeHoy.length === 0">
         No hay reportes de hoy dentro de los filtros seleccionados.
       </p>
-
       <ng-container *ngFor="let reporte of reportesDeHoy">
-        <ng-container *ngTemplateOutlet="tarjetaReporte; context: { $implicit: reporte }"></ng-container>
+        <ng-container *ngTemplateOutlet="tarjetaReporte; context: {$implicit: reporte}">
+        </ng-container>
       </ng-container>
     </section>
 
@@ -207,16 +123,16 @@
           <span class="etiqueta">HISTORIAL</span>
           <h2>Días anteriores</h2>
         </div>
-        <span>{{ reportes.length - reportesDeHoy.length }} {{ reportes.length - reportesDeHoy.length === 1 ? 'reporte' : 'reportes' }}</span>
+        <span>{{ reportes.length - reportesDeHoy.length }} reportes</span>
       </div>
-
       <details class="grupo-fecha" *ngFor="let grupo of reportesAnteriores">
         <summary>
           <span>{{ formatearFecha(grupo.fecha) }}</span>
-          <span>{{ grupo.reportes.length }} {{ grupo.reportes.length === 1 ? 'reporte' : 'reportes' }}</span>
+          <span>{{ grupo.reportes.length }} reportes</span>
         </summary>
         <ng-container *ngFor="let reporte of grupo.reportes">
-          <ng-container *ngTemplateOutlet="tarjetaReporte; context: { $implicit: reporte }"></ng-container>
+          <ng-container *ngTemplateOutlet="tarjetaReporte; context: {$implicit: reporte}">
+          </ng-container>
         </ng-container>
       </details>
     </section>
@@ -229,7 +145,9 @@
             <h2>{{ reporte.titulo }}</h2>
             <p>
               {{ reporte.especie }}
-              <em *ngIf="reporte.nombre_cientifico">{{ reporte.nombre_cientifico }}</em>
+              <em *ngIf="reporte.nombre_cientifico">
+                {{ reporte.nombre_cientifico }}
+              </em>
             </p>
           </div>
           <div class="fecha-reporte">
@@ -237,12 +155,12 @@
             <span>{{ formatearFecha(reporte.fecha) }}</span>
           </div>
         </div>
-
         <div class="observador">
           <ion-icon name="person-outline"></ion-icon>
-          <span>Realizado por <strong>{{ reporte.nombre }} {{ reporte.apellido }}</strong></span>
+          <span>Realizado por
+            <strong>{{ reporte.nombre }} {{ reporte.apellido }}</strong>
+          </span>
         </div>
-
         <div class="estadisticas">
           <div class="estadistica">
             <span>Capturas</span>
@@ -257,7 +175,6 @@
             <strong>{{ reporte.confianza_promedio | number:'1.1-2' }}%</strong>
           </div>
         </div>
-
         <div class="reporte-footer">
           <div class="archivos">
             <span class="archivo-ok">
@@ -270,245 +187,110 @@
             </span>
           </div>
           <button class="btn-detalle" type="button" (click)="verDetalle(reporte)">
-            Ver detalle
-            <ion-icon name="arrow-forward-outline"></ion-icon>
+            Ver detalle <ion-icon name="arrow-forward-outline"></ion-icon>
           </button>
         </div>
       </div>
     </ng-template>
 
-    <!-- ==========================================
-         PAGINACIÓN
-    =========================================== -->
     <div class="paginacion">
-
-      <button
-        type="button"
-        [disabled]="!tieneAnterior || cargando"
-        (click)="paginaAnterior()">
-
-        <ion-icon name="chevron-back-outline"></ion-icon>
-        Anterior
+      <button type="button" [disabled]="!tieneAnterior || cargando" (click)="paginaAnterior()">
+        <ion-icon name="chevron-back-outline"></ion-icon> Anterior
       </button>
-
       <div class="pagina-info">
-        <strong>
-          Página {{ paginaActual }}
-        </strong>
-
-        <span>
-          de {{ totalPaginas }}
-        </span>
+        <strong>Página {{ paginaActual }}</strong>
+        <span>de {{ totalPaginas }}</span>
       </div>
-
-      <button
-        type="button"
-        [disabled]="!tieneSiguiente || cargando"
-        (click)="paginaSiguiente()">
-
-        Siguiente
-        <ion-icon name="chevron-forward-outline"></ion-icon>
+      <button type="button" [disabled]="!tieneSiguiente || cargando" (click)="paginaSiguiente()">
+        Siguiente <ion-icon name="chevron-forward-outline"></ion-icon>
       </button>
-
     </div>
-
   </div>
-
 </div>
 
-<!-- ======================================================
-     MODAL - DETALLE DEL REPORTE
-     IMPORTANTE: ESTÁ FUERA DEL *ngFor
-======================================================= -->
-<div
-  class="detalle-overlay"
-  *ngIf="mostrarDetalle"
-  (click)="cerrarDetalle()">
-
-  <div
-    class="detalle-modal"
-    (click)="$event.stopPropagation()">
-
-    <!-- ==========================================
-         CABECERA DEL MODAL
-    =========================================== -->
+<div class="detalle-overlay" *ngIf="mostrarDetalle" (click)="cerrarDetalle()">
+  <div class="detalle-modal" (click)="$event.stopPropagation()">
     <div class="detalle-header">
-
       <div>
-        <span class="detalle-etiqueta">
-          DETALLE DEL REPORTE
-        </span>
-
-        <h2>
-          {{ reporteDetalle?.titulo || 'Detalle del reporte' }}
-        </h2>
+        <span class="detalle-etiqueta">DETALLE DEL REPORTE</span>
+        <h2>{{ reporteDetalle?.titulo || 'Detalle del reporte' }}</h2>
       </div>
-
-      <button
-        class="btn-cerrar"
-        type="button"
-        (click)="cerrarDetalle()">
-
+      <button class="btn-cerrar" type="button" (click)="cerrarDetalle()">
         <ion-icon name="close-outline"></ion-icon>
       </button>
-
     </div>
 
-    <!-- ==========================================
-         CARGANDO DETALLE
-    =========================================== -->
-    <div
-      class="detalle-cargando"
-      *ngIf="cargandoDetalle">
-
+    <div class="detalle-cargando" *ngIf="cargandoDetalle">
       <ion-spinner name="crescent"></ion-spinner>
-
-      <span>
-        Cargando información del reporte...
-      </span>
-
+      <span>Cargando información del reporte...</span>
     </div>
 
-    <!-- ==========================================
-         ERROR DETALLE
-    =========================================== -->
-    <div
-      class="detalle-error"
-      *ngIf="!cargandoDetalle && errorDetalle">
-
+    <div class="detalle-error" *ngIf="!cargandoDetalle && errorDetalle">
       <ion-icon name="alert-circle-outline"></ion-icon>
-
-      <span>
-        {{ errorDetalle }}
-      </span>
-
+      <span>{{ errorDetalle }}</span>
     </div>
 
-    <!-- ==========================================
-         CONTENIDO DEL DETALLE
-    =========================================== -->
-    <div
-      class="detalle-contenido"
-      *ngIf="!cargandoDetalle && !errorDetalle && reporteDetalle">
-
-      <!-- ========================================
-           INFORMACIÓN GENERAL
-      ========================================= -->
+    <div class="detalle-contenido" *ngIf="!cargandoDetalle && !errorDetalle && reporteDetalle">
       <section class="detalle-seccion">
-
         <div class="detalle-titulo">
           <ion-icon name="document-text-outline"></ion-icon>
           <h3>Información general</h3>
         </div>
-
         <div class="detalle-info-grid">
-
           <div class="detalle-info">
             <span>Tipo de reporte</span>
-            <strong>
-              {{ reporteDetalle.nombre_tipo }}
-            </strong>
+            <strong>{{ reporteDetalle.nombre_tipo }}</strong>
           </div>
-
           <div class="detalle-info">
             <span>Fecha</span>
-
-            <strong>
-              {{ reporteDetalle.fecha?.substring(8, 10) }}/{{ reporteDetalle.fecha?.substring(5, 7) }}/{{ reporteDetalle.fecha?.substring(0, 4) }}
-            </strong>
+            <strong>{{ formatearFecha(reporteDetalle.fecha) }}</strong>
           </div>
-
           <div class="detalle-info">
             <span>Especie</span>
-
-            <strong>
-              {{ reporteDetalle.especie }}
-            </strong>
+            <strong>{{ reporteDetalle.especie }}</strong>
           </div>
-
           <div class="detalle-info">
             <span>Nombre científico</span>
-
-            <strong>
-              <em>{{ reporteDetalle.nombre_cientifico }}</em>
-            </strong>
+            <strong><em>{{ reporteDetalle.nombre_cientifico }}</em></strong>
           </div>
-
           <div class="detalle-info">
             <span>Observador</span>
-
-            <strong>
-              {{ reporteDetalle.nombre }}
-              {{ reporteDetalle.apellido }}
-            </strong>
+            <strong>{{ reporteDetalle.nombre }} {{ reporteDetalle.apellido }}</strong>
           </div>
-
         </div>
-
       </section>
 
-      <!-- ========================================
-           RESUMEN
-      ========================================= -->
       <section class="detalle-seccion">
-
         <div class="detalle-titulo">
           <ion-icon name="analytics-outline"></ion-icon>
           <h3>Resumen del reporte</h3>
         </div>
-
         <div class="detalle-estadisticas">
-
           <div class="detalle-estadistica">
             <span>Total de capturas</span>
-
-            <strong>
-              {{ reporteDetalle.total_capturas }}
-            </strong>
+            <strong>{{ reporteDetalle.total_capturas }}</strong>
           </div>
-
           <div class="detalle-estadistica">
             <span>Peso acumulado</span>
-
-            <strong>
-              {{ reporteDetalle.peso_total | number:'1.0-2' }} g
-            </strong>
+            <strong>{{ reporteDetalle.peso_total | number:'1.0-2' }} g</strong>
           </div>
-
           <div class="detalle-estadistica">
             <span>Confianza promedio</span>
-
-            <strong>
-              {{ reporteDetalle.confianza_promedio | number:'1.1-2' }}%
-            </strong>
+            <strong>{{ reporteDetalle.confianza_promedio | number:'1.1-2' }}%</strong>
           </div>
-
         </div>
-
       </section>
 
-      <!-- ========================================
-           CAPTURAS REGISTRADAS
-      ========================================= -->
       <section class="detalle-seccion">
-
         <div class="detalle-titulo">
           <ion-icon name="list-outline"></ion-icon>
-
           <div>
             <h3>Capturas registradas</h3>
-
-            <span>
-              {{ reporteDetalle.total_capturas }}
-              {{ reporteDetalle.total_capturas === 1 ? 'captura' : 'capturas' }}
-            </span>
+            <span>{{ reporteDetalle.total_capturas }} capturas</span>
           </div>
         </div>
-
         <div class="tabla-contenedor">
-
           <table class="tabla-capturas">
-
             <thead>
               <tr>
                 <th>#</th>
@@ -518,103 +300,41 @@
                 <th>Hora</th>
               </tr>
             </thead>
-
             <tbody>
-
-              <tr
-                *ngFor="let captura of reporteDetalle.capturas; let i = index">
-
-                <td>
-                  {{ i + 1 }}
-                </td>
-
-                <td>
-                  #{{ captura.id_captura }}
-                </td>
-
-                <td>
-                  {{ captura.peso | number:'1.0-2' }} g
-                </td>
-
-                <td>
-                  {{ captura.porcentaje | number:'1.1-2' }}%
-                </td>
-
-                <td>
-                  {{ formatearHora(captura.fecha_hora) }}
-                </td>
-
+              <tr *ngFor="let captura of reporteDetalle.capturas; let i = index">
+                <td>{{ i + 1 }}</td>
+                <td>#{{ captura.id_captura }}</td>
+                <td>{{ captura.peso | number:'1.0-2' }} g</td>
+                <td>{{ captura.porcentaje | number:'1.1-2' }}%</td>
+                <td>{{ formatearHora(captura.fecha_hora) }}</td>
               </tr>
-
             </tbody>
-
           </table>
-
         </div>
-
       </section>
 
-      <!-- ========================================
-           EVIDENCIAS FOTOGRÁFICAS
-      ========================================= -->
       <section class="detalle-seccion">
-
         <div class="detalle-titulo">
           <ion-icon name="images-outline"></ion-icon>
-
           <div>
             <h3>Evidencias fotográficas</h3>
-
-            <span>
-              {{ reporteDetalle.total_capturas }}
-              {{ reporteDetalle.total_capturas === 1 ? 'imagen registrada' : 'imágenes registradas' }}
-            </span>
+            <span>{{ reporteDetalle.total_capturas }} imágenes registradas</span>
           </div>
         </div>
-
-        <!-- COLLAGE -->
         <div class="collage-detalle">
-
-          <div
-            class="foto-detalle"
-            *ngFor="let captura of reporteDetalle.capturas">
-
-            <!-- IMAGEN -->
-            <img
-              *ngIf="captura.imagen_url"
-              [src]="captura.imagen_url"
-              [alt]="'Captura ' + captura.id_captura"
+          <div class="foto-detalle" *ngFor="let captura of reporteDetalle.capturas">
+            <img *ngIf="captura.imagen_url" [src]="captura.imagen_url" [alt]="'Captura ' + captura.id_captura"
               loading="lazy">
-
-            <!-- SIN IMAGEN -->
-            <div
-              class="foto-vacia"
-              *ngIf="!captura.imagen_url">
-
+            <div class="foto-vacia" *ngIf="!captura.imagen_url">
               <ion-icon name="image-outline"></ion-icon>
             </div>
-
-            <!-- INFORMACIÓN DE LA FOTO -->
             <div class="foto-info">
-
-              <strong>
-                #{{ captura.id_captura }}
-              </strong>
-
-              <span>
-                {{ captura.peso | number:'1.0-2' }} g
-              </span>
-
+              <strong>#{{ captura.id_captura }}</strong>
+              <span>{{ captura.peso | number:'1.0-2' }} g</span>
             </div>
-
           </div>
-
         </div>
-
       </section>
-
     </div>
-
   </div>
-
 </div>
