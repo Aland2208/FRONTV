@@ -387,13 +387,21 @@ export class Auth {
 
 
     // CONTROL DE VISUALIZACIÓN DE CÁMARA
+    // ==========================================
+    // CONTROL INDIVIDUAL DE VISUALIZACIÓN DE CÁMARA
+    // ==========================================
+
     cambiarVisualizacionCamara(
         idAdministrador: number,
+        idUsuario: number,
         habilitada: boolean
     ): Observable<any> {
         return this.http.patch(
             `${environment.apiUrl}administrador/config/camara/${idAdministrador}/visualizacion`,
-            { visualizacion_habilitada: habilitada },
+            {
+                id_usuario: idUsuario,
+                visualizacion_habilitada: habilitada
+            },
             this.opcionesConSesion()
         );
     }
