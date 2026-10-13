@@ -135,7 +135,6 @@ export class MisReportesComponent implements OnInit, OnDestroy {
 
     this.cargando = true;
     this.error = '';
-    console.info('[MIS REPORTES] Solicitando historial', { solicitud, idUsuario });
 
     this.reporteService.obtenerHistorialReportes({
       ...this.filtros,
@@ -152,7 +151,6 @@ export class MisReportesComponent implements OnInit, OnDestroy {
     ).subscribe({
       next: respuesta => {
         if (solicitud !== this.solicitudHistorial) return;
-        console.info('[MIS REPORTES] Respuesta recibida', respuesta);
 
         if (!Array.isArray(respuesta?.data)) {
           this.limpiarResultados();
