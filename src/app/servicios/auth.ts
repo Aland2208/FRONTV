@@ -384,4 +384,18 @@ export class Auth {
             `${environment.apiUrl}administrador/config/url-camara/${idUsuario}`
         );
     }
+
+
+    // CONTROL DE VISUALIZACIÓN DE CÁMARA
+    cambiarVisualizacionCamara(
+        idAdministrador: number,
+        habilitada: boolean
+    ): Observable<any> {
+        return this.http.patch(
+            `${environment.apiUrl}administrador/config/camara/${idAdministrador}/visualizacion`,
+            { visualizacion_habilitada: habilitada },
+            this.opcionesConSesion()
+        );
+    }
+
 }

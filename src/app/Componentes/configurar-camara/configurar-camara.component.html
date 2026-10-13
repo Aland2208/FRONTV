@@ -6,86 +6,152 @@
         <ion-icon name="videocam-outline"></ion-icon>
       </div>
       <h2>Configuración de la Cámara</h2>
-      <p>Establece el enlace del túnel seguro (Cloudflare) para transmitir la cámara a tus veedores.</p>
+      <p>
+        Administra el enlace seguro de Cloudflare y el acceso
+        de tus veedores a la transmisión en vivo.
+      </p>
     </header>
 
     <div class="card-config__body">
 
-      <!-- ESTADO ACTUAL -->
+      <!-- ESTADO DEL TÚNEL -->
       <div class="estado-box" [class.is-activa]="urlActual">
         <div class="estado-indicador"></div>
         <div class="estado-info">
-          <span>ESTADO DEL TÚNEL</span>
-          <strong>{{ urlActual ? 'Cámara Habilitada' : 'Sin enlace configurado' }}</strong>
+          <span>ESTADO DEL ENLACE</span>
+          <strong>
+            {{ urlActual ? 'Enlace configurado' : 'Sin enlace configurado' }}
+          </strong>
         </div>
       </div>
 
-      <!-- SECCIÓN: VEEDORES VINCULADOS CON ACCESO DIRECTO -->
+      <!-- CONTROL DE VISUALIZACIÓN -->
+      <div class="control-camara">
+        <div class="control-camara__header">
+          <div class="control-camara__icono">
+            <ion-icon name="eye-outline"></ion-icon>
+          </div>
+          <div>
+            <h3>Visualización en vivo</h3>
+            <p>Permite o restringe el video a tus veedores.</p>
+          </div>
+        </div>
+
+        <div class="control-camara__accion">
+          <div class="control-camara__texto">
+            <strong>Permitir visualización</strong>
+            <small>
+              {{ visualizacionHabilitada ? 'Acceso permitido' : 'Acceso restringido' }}
+            </small>
+          </div>
+
+          <ion-toggle [checked]="visualizacionHabilitada"
+            [disabled]="!urlActual || cargandoPermiso || cargandoConfiguracion"
+            (ionChange)="cambiarVisualizacion($event.detail.checked)" aria-label="Permitir visualización de cámara">
+          </ion-toggle>
+        </div>
+
+        <div class="permiso-estado" [class.permiso-estado--activo]="visualizacionHabilitada">
+          <ion-icon [name]="visualizacionHabilitada ? 'checkmark-circle-outline' : 'eye-off-outline'">
+          </ion-icon>
+          <span>
+            {{ visualizacionHabilitada
+            ? 'Los veedores tienen permiso para ver el video.'
+            : 'Los veedores no tienen permiso para ver el video.' }}
+          </span>
+        </div>
+
+        <p class="control-camara__nota">
+          <ion-icon name="information-circle-outline"></ion-icon>
+          Este control afecta únicamente la visualización.
+          El análisis de imágenes con YOLO continúa funcionando.
+        </p>
+      </div>
+
+      <!-- VEEDORES VINCULADOS -->
       <div class="veedores-box">
         <div class="veedores-header">
           <div>
-            <span class="veedores-label">EQUIPO DE VEEDORES VINCULADOS</span>
-            <strong class="veedores-count">{{ totalVeedores }} {{ totalVeedores === 1 ? 'veedor con acceso' : 'veedores
-              con acceso' }}</strong>
+            <span class="veedores-label">
+              EQUIPO DE VEEDORES VINCULADOS
+            </span>
+            <strong class="veedores-count">
+              {{ totalVeedores }}
+              {{ totalVeedores === 1 ? 'veedor vinculado' : 'veedores vinculados' }}
+            </strong>
           </div>
+
           <span class="chip-total" [class.chip-total--cero]="totalVeedores === 0">
             <ion-icon name="people-outline"></ion-icon>
             {{ totalVeedores }}
           </span>
         </div>
 
-        <!-- LISTA DE VEEDORES ACTIVOS -->
         <div class="veedores-lista" *ngIf="veedoresVinculados.length > 0">
           <div class="veedor-item" *ngFor="let veedor of veedoresVinculados">
             <div class="veedor-avatar">
               <ion-icon name="person-outline"></ion-icon>
             </div>
+
             <div class="veedor-info">
               <strong>{{ veedor.nombre }} {{ veedor.apellido }}</strong>
               <small>{{ veedor.correo }}</small>
             </div>
-            <span class="veedor-badge" [class.veedor-badge--activo]="veedor.estado === 1">
-              {{ veedor.estado === 1 ? 'Habilitado' : 'Inactivo' }}
+
+            <span class="veedor-badge" [class.veedor-badge--activo]="veedor.estado == 1">
+              {{ veedor.estado == 1 ? 'Activo' : 'Inactivo' }}
             </span>
           </div>
         </div>
 
-        <!-- MENSAJE SI NO TIENE VEEDORES -->
         <div class="veedores-vacio" *ngIf="veedoresVinculados.length === 0">
           <ion-icon name="information-circle-outline"></ion-icon>
-          <span>Actualmente no tienes veedores vinculados a tu cuenta. Los observadores que vincules verán la cámara
-            automáticamente.</span>
+          <span>
+            Actualmente no tienes veedores vinculados.
+            Los nuevos veedores estarán sujetos al permiso
+            de visualización configurado.
+          </span>
         </div>
       </div>
 
-      <!-- URL ACTUAL GUARDADA -->
+      <!-- ENLACE ACTUAL -->
       <div class="info-url" *ngIf="urlActual">
-        <span class="info-url__label">Enlace activo:</span>
+        <span class="info-url__label">Enlace configurado:</span>
         <code class="info-url__valor">{{ urlActual }}</code>
-        <small *ngIf="fechaActualizacion">Última actualización: {{ fechaActualizacion }}</small>
+        <small *ngIf="fechaActualizacion">
+          Última actualización: {{ fechaActualizacion }}
+        </small>
       </div>
 
-      <!-- FORMULARIO -->
+      <!-- NUEVO ENLACE -->
       <div class="form-group">
-        <label for="urlCamara">Nuevo enlace generado por Cloudflare</label>
+        <label for="urlCamara">
+          Nuevo enlace generado por Cloudflare
+        </label>
+
         <div class="input-wrapper">
           <ion-icon name="link-outline"></ion-icon>
-          <input type="url" id="urlCamara" [(ngModel)]="nuevaUrl"
-            placeholder="https://palabras-aleatorias.trycloudflare.com" maxlength="2048" autocomplete="off">
+          <input type="url" id="urlCamara" [(ngModel)]="nuevaUrl" placeholder="https://ejemplo.trycloudflare.com"
+            maxlength="2048" autocomplete="off">
         </div>
-        <small class="hint">Copia la dirección HTTPS generada en tu consola de Windows.</small>
+
+        <small class="hint">
+          Copia la dirección HTTPS generada en tu consola de Windows.
+        </small>
       </div>
 
-      <!-- BOTÓN GUARDAR -->
-      <ion-button expand="block" shape="round" class="btn-guardar" [disabled]="cargando || !nuevaUrl"
+      <ion-button expand="block" shape="round" class="btn-guardar" [disabled]="cargando || !nuevaUrl.trim()"
         (click)="guardarConfiguracion()">
         <ion-icon name="cloud-upload-outline" slot="start"></ion-icon>
-        {{ cargando ? 'Guardando...' : 'Habilitar Cámara para el Equipo' }}
+        {{ cargando ? 'Guardando...' : 'Guardar enlace de cámara' }}
       </ion-button>
 
-      <!-- GUÍA RÁPIDA -->
+      <!-- GUÍA -->
       <div class="guia-rapida">
-        <h4><ion-icon name="terminal-outline"></ion-icon> Comando en la Laptop:</h4>
+        <h4>
+          <ion-icon name="terminal-outline"></ion-icon>
+          Comando en la laptop:
+        </h4>
         <code>cloudflared tunnel --url http://localhost:5000</code>
       </div>
 
