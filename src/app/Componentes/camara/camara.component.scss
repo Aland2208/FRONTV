@@ -441,3 +441,58 @@
   70% { box-shadow: 0 0 0 8px rgba(229, 72, 77, 0); }
   100% { box-shadow: 0 0 0 0 rgba(229, 72, 77, 0); }
 }
+
+/* DIAGNÓSTICO TÉCNICO DE CÁMARA */
+.ip-chip--restricted {
+  color: #b8790a !important;
+  background: rgba(245, 166, 35, 0.12) !important;
+}
+
+.diagnostico {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.diagnostico__codigo {
+  font-family: var(--font-mono);
+  font-weight: 700;
+  letter-spacing: .1em;
+  color: var(--teal-glow) !important;
+}
+
+.diagnostico--restringido ion-icon,
+.diagnostico--restringido .diagnostico__codigo {
+  color: #f5b544 !important;
+}
+
+.diagnostico p { margin: 2px 0; }
+.diagnostico > small:last-child { max-width: 300px; line-height: 1.5; }
+
+/* ESTADO DE LOS SERVICIOS */
+.camara-telemetria {
+  margin-top: 12px;
+  padding: 10px 12px;
+  background: var(--foam);
+  border-radius: 12px;
+}
+
+.camara-telemetria > div {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 7px 0;
+  font-size: .74rem;
+}
+
+.camara-telemetria > div + div { border-top: 1px solid #dce6ec; }
+.camara-telemetria span { color: var(--slate); }
+
+.camara-telemetria strong {
+  color: var(--abyss);
+  font-family: var(--font-mono);
+  font-size: .69rem;
+  text-align: right;
+}

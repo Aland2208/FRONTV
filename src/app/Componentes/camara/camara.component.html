@@ -1,13 +1,12 @@
 <div class="camara-container">
-
-  <!-- ========================================= -->
   <!-- CÁMARA EN VIVO -->
-  <!-- ========================================= -->
   <section class="panel panel--camera">
     <header class="panel__head">
       <span class="eyebrow">Cámara en vivo</span>
-      <span class="ip-chip" [class.ip-chip--off]="!camaraConectada">
-        {{ camaraConectada ? 'En línea' : 'Desconectada' }}
+      <span class="ip-chip" [class.ip-chip--off]="!camaraConectada"
+        [class.ip-chip--restricted]="tipoEstadoCamara === 'restringido'">
+        {{ camaraConectada ? 'En línea' : tipoEstadoCamara === 'restringido' ? 'Restringida' : tipoEstadoCamara ===
+        'espera' ? 'Conectando' : 'Sin conexión' }}
       </span>
     </header>
 
@@ -17,34 +16,51 @@
       <span class="viewfinder__corner viewfinder__corner--bl"></span>
       <span class="viewfinder__corner viewfinder__corner--br"></span>
 
-      <!-- EN VIVO -->
       <span class="rec-dot" *ngIf="camaraConectada">
-        <span class="rec-dot__pulse"></span>
-        EN VIVO
+        <span class="rec-dot__pulse"></span>EN VIVO
       </span>
 
-      <!-- SIN TRANSMISIÓN -->
-      <div class="viewfinder__warning" *ngIf="!camaraConectada">
-        <ion-icon name="warning-outline"></ion-icon>
-        <p><strong>{{ mensajeEstadoCamara }}</strong></p>
-        <small class="viewfinder__hint">Verifique que el script y el túnel sigan en ejecución.</small>
+      <div class="viewfinder__warning diagnostico" *ngIf="!camaraConectada"
+        [class.diagnostico--restringido]="tipoEstadoCamara === 'restringido'">
+        <ion-icon
+          [name]="tipoEstadoCamara === 'restringido' ? 'lock-closed-outline' : tipoEstadoCamara === 'espera' ? 'sync-outline' : 'alert-circle-outline'"></ion-icon>
+        <small class="diagnostico__codigo">{{ codigoEstadoCamara }}</small>
+        <p><strong>{{ tituloEstadoCamara }}</strong></p>
+        <small>{{ detalleEstadoCamara }}</small>
       </div>
 
-      <!-- TRANSMISIÓN -->
-      <img *ngIf="camaraConectada && urlCamara" [src]="urlCamara" (load)="alCargarCamara()" (error)="errorCamara()"
-        class="viewfinder__img" alt="Transmisión en vivo">
+      <img *ngIf="camaraConectada && visualizacionPermitida && urlCamara" [src]="urlCamara" (load)="alCargarCamara()"
+        (error)="errorCamara()" class="viewfinder__img" alt="Transmisión en vivo">
+    </div>
+
+    <div class="camara-telemetria">
+      <div>
+        <span>Servidor Flask</span>
+        <strong>{{ servidorCamaraResponde ? 'En línea' : tipoEstadoCamara === 'espera' ? 'Verificando' : 'Sin respuesta'
+          }}</strong>
+      </div>
+      <div>
+        <span>Cámara física</span>
+        <strong>{{ camaraOperativa ? 'Operativa' : servidorCamaraResponde ? 'Sin imágenes' : 'No verificada' }}</strong>
+      </div>
+      <div>
+        <span>Video en vivo</span>
+        <strong>{{ tipoEstadoCamara === 'restringido' ? 'Restringido' : camaraConectada ? 'Activo' : 'Sin transmisión'
+          }}</strong>
+      </div>
+      <div>
+        <span>Capturas</span>
+        <strong>{{ camaraOperativa ? 'Disponibles' : 'No disponibles' }}</strong>
+      </div>
     </div>
   </section>
 
-  <!-- ========================================= -->
   <!-- BALANZA DIGITAL -->
-  <!-- ========================================= -->
   <section class="panel panel--scale">
     <header class="panel__head">
       <span class="eyebrow">Balanza digital</span>
       <span class="status-dot" [class.status-dot--on]="conexion && !realizandoTara && !modoPruebaSinBalanza"
-        [class.status-dot--busy]="realizandoTara || modoPruebaSinBalanza">
-      </span>
+        [class.status-dot--busy]="realizandoTara || modoPruebaSinBalanza"></span>
     </header>
 
     <div class="readout">
@@ -56,35 +72,23 @@
     </div>
 
     <div class="scale-status">
-      <span *ngIf="modoPruebaSinBalanza" class="scale-status__busy">
-        ● Modo prueba — peso simulado
-      </span>
-      <span *ngIf="!modoPruebaSinBalanza && conexion && !realizandoTara" class="scale-status__ok">
-        ● Balanza conectada
-      </span>
-      <span *ngIf="!modoPruebaSinBalanza && !conexion && !realizandoTara" class="scale-status__off">
-        ● Balanza desconectada
-      </span>
-      <span *ngIf="!modoPruebaSinBalanza && realizandoTara" class="scale-status__busy">
-        ◐ Realizando tara…
-      </span>
+      <span *ngIf="modoPruebaSinBalanza" class="scale-status__busy">● Modo prueba — peso simulado</span>
+      <span *ngIf="!modoPruebaSinBalanza && conexion && !realizandoTara" class="scale-status__ok">● Balanza
+        conectada</span>
+      <span *ngIf="!modoPruebaSinBalanza && !conexion && !realizandoTara" class="scale-status__off">● Balanza
+        desconectada</span>
+      <span *ngIf="!modoPruebaSinBalanza && realizandoTara" class="scale-status__busy">◐ Realizando tara…</span>
     </div>
 
-    <div *ngIf="mostrarMensaje" class="mensaje">
-      {{ mensaje }}
-    </div>
+    <div *ngIf="mostrarMensaje" class="mensaje">{{ mensaje }}</div>
 
     <div class="last-reading">
       <span class="last-reading__label">Última lectura</span>
-      <span class="last-reading__value">
-        {{ modoPruebaSinBalanza ? 'Peso simulado' : fecha }}
-      </span>
+      <span class="last-reading__value">{{ modoPruebaSinBalanza ? 'Peso simulado' : fecha }}</span>
     </div>
   </section>
 
-  <!-- ========================================= -->
   <!-- RESULTADO REGISTRADO -->
-  <!-- ========================================= -->
   <section class="panel panel--tag" *ngIf="ultimoResultado">
     <span class="tag-eyebrow">✓ Captura registrada</span>
     <h2 class="tag-species">{{ ultimoResultado.especie }}</h2>
@@ -107,39 +111,30 @@
     </div>
   </section>
 
-  <!-- ========================================= -->
-  <!-- BOTÓN REGISTRAR -->
-  <!-- ========================================= -->
-  <ion-button expand="block" shape="round" class="btn-capturar" [disabled]="!camaraConectada || procesandoIA"
+  <!-- REGISTRAR CAPTURA -->
+  <ion-button expand="block" shape="round" class="btn-capturar" [disabled]="!camaraOperativa || procesandoIA"
     (click)="guardarCapturaWeb()">
     <ion-spinner *ngIf="procesandoIA" name="crescent" slot="start"></ion-spinner>
     <ion-icon *ngIf="!procesandoIA" name="camera-outline" slot="start"></ion-icon>
     {{ procesandoIA ? 'Analizando con IA...' : 'Registrar captura' }}
   </ion-button>
 
-  <!-- ======================================================== -->
-  <!-- MODAL DE VERIFICACIÓN CON ESTILO VIGÍA (RESPONSIVO) -->
-  <!-- ======================================================== -->
+  <!-- MODAL DE VERIFICACIÓN -->
   <div class="modal-backdrop" *ngIf="mostrarModalVerificacion">
     <div class="modal-card">
       <header class="modal-header">
-        <div class="modal-icono">
-          <ion-icon name="checkmark-done-circle-outline"></ion-icon>
-        </div>
+        <div class="modal-icono"><ion-icon name="checkmark-done-circle-outline"></ion-icon></div>
         <h3>Verificación de Captura</h3>
         <p>Valida los resultados del modelo antes de guardar el registro en la faena.</p>
       </header>
 
       <div class="modal-body" *ngIf="datosPendientesVerificacion">
-        <!-- FOTO CAPTURADA -->
         <div class="preview-img-container" *ngIf="datosPendientesVerificacion.imagen_url">
           <img [src]="datosPendientesVerificacion.imagen_url" alt="Previsualización de captura">
-          <span class="preview-confianza">
-            {{ datosPendientesVerificacion.porcentaje | number:'1.1-1' }}% Confianza
-          </span>
+          <span class="preview-confianza">{{ datosPendientesVerificacion.porcentaje | number:'1.1-1' }}%
+            Confianza</span>
         </div>
 
-        <!-- DATOS DETECTADOS -->
         <div class="datos-grid">
           <div class="dato-box">
             <span class="dato-box__label">Especie clasificada</span>
@@ -154,15 +149,12 @@
 
       <footer class="modal-actions">
         <button type="button" class="btn-modal btn-cancelar" (click)="descartarCapturaModal()">
-          <ion-icon name="close-circle-outline"></ion-icon>
-          Descartar
+          <ion-icon name="close-circle-outline"></ion-icon>Descartar
         </button>
         <button type="button" class="btn-modal btn-confirmar" (click)="confirmarCapturaModal()">
-          <ion-icon name="checkmark-circle-outline"></ion-icon>
-          Confirmar y Guardar
+          <ion-icon name="checkmark-circle-outline"></ion-icon>Confirmar y Guardar
         </button>
       </footer>
     </div>
   </div>
-
 </div>
