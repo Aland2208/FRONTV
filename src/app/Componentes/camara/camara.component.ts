@@ -1,14 +1,17 @@
+
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { IonButton, IonIcon, IonSpinner } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
-import { cameraOutline, warningOutline, checkmarkCircleOutline, checkmarkDoneCircleOutline, closeCircleOutline, lockClosedOutline, syncOutline, alertCircleOutline } from 'ionicons/icons';
+import {
+  cameraOutline, warningOutline, checkmarkCircleOutline,
+  checkmarkDoneCircleOutline, closeCircleOutline,
+  lockClosedOutline, syncOutline
+} from 'ionicons/icons';
 import { BalanzaS } from '../../servicios/balanza-s';
 import { SocketS } from '../../servicios/socket-s';
 import { Auth } from '../../servicios/auth';
-
-type TipoEstadoCamara = 'activo' | 'restringido' | 'error' | 'espera';
 
 @Component({
   selector: 'app-camara',
@@ -24,11 +27,6 @@ export class CamaraComponent implements OnInit, OnDestroy {
   visualizacionPermitida = false;
   camaraOperativa = false;
   servidorCamaraResponde = false;
-  mensajeEstadoCamara = 'Conectando con la cámara...';
-  codigoEstadoCamara = 'CAM-INIT';
-  tituloEstadoCamara = 'INICIALIZANDO SERVICIO';
-  detalleEstadoCamara = 'Verificando la conexión con el servidor de cámara.';
-  tipoEstadoCamara: TipoEstadoCamara = 'espera';
 
   procesandoIA = false;
   mostrarModalVerificacion = false;
@@ -76,7 +74,7 @@ export class CamaraComponent implements OnInit, OnDestroy {
     addIcons({
       cameraOutline, warningOutline, checkmarkCircleOutline,
       checkmarkDoneCircleOutline, closeCircleOutline,
-      lockClosedOutline, syncOutline, alertCircleOutline
+      lockClosedOutline, syncOutline
     });
   }
 
@@ -124,19 +122,10 @@ export class CamaraComponent implements OnInit, OnDestroy {
     });
   }
 
-  private establecerEstado(codigo: string, titulo: string, detalle: string, tipo: TipoEstadoCamara): void {
-    this.codigoEstadoCamara = codigo;
-    this.tituloEstadoCamara = titulo;
-    this.detalleEstadoCamara = detalle;
-    this.tipoEstadoCamara = tipo;
-    this.mensajeEstadoCamara = titulo;
-  }
-
   cargarUrlCamaraAsignada(): void {
     const idUsuario = this.authService.obtenerIdUsuario();
     if (!idUsuario) {
-      this.desconectarCamara('No se identificó la sesión.');
-      this.establecerEstado('AUTH-401', 'SESIÓN NO DISPONIBLE', 'Inicie sesión nuevamente.', 'error');
+      this.desconectarCamara();
       return;
     }
 
@@ -150,14 +139,11 @@ export class CamaraComponent implements OnInit, OnDestroy {
           this.iniciarMonitoreoConexion();
           this.consultarEstadoCamara();
         } else {
-          this.desconectarCamara('No hay cámara configurada.');
-          this.establecerEstado('CAM-CONFIG', 'CÁMARA NO CONFIGURADA', 'Solicite al administrador configurar la cámara.', 'error');
+          this.desconectarCamara();
         }
       },
       error: () => {
-        if (this.destruido) return;
-        this.desconectarCamara('Error al consultar la cámara.');
-        this.establecerEstado('API-CONFIG', 'ERROR DE CONFIGURACIÓN', 'No se pudo consultar la cámara asignada en el backend.', 'error');
+        if (!this.destruido) this.desconectarCamara();
       }
     });
   }
@@ -172,8 +158,7 @@ export class CamaraComponent implements OnInit, OnDestroy {
     const token = this.authService.obtenerToken();
 
     if (!token) {
-      this.desconectarCamara('Sesión no disponible.');
-      this.establecerEstado('AUTH-401', 'SESIÓN NO DISPONIBLE', 'Inicie sesión nuevamente.', 'error');
+      this.desconectarCamara();
       return;
     }
 
@@ -187,52 +172,24 @@ export class CamaraComponent implements OnInit, OnDestroy {
         if (this.destruido) return;
 
         if (estado?.estado !== 1) {
-          this.desconectarCamara('Respuesta inválida.');
-          this.establecerEstado('API-INVALID', 'RESPUESTA INVÁLIDA', 'Flask no devolvió un estado válido.', 'error');
+          this.desconectarCamara();
           return;
         }
 
         this.servidorCamaraResponde = true;
-        this.camaraOperativa = estado.camara_operativa === true || estado.camara_operativa === 1;
+        this.camaraOperativa = [true, 1, '1'].includes(estado.camara_operativa);
         this.visualizacionPermitida = [true, 1, '1'].includes(estado.visualizacion_habilitada);
 
-        if (!this.camaraOperativa) {
+        if (!this.camaraOperativa || !this.visualizacionPermitida) {
           this.detenerSoloVideo();
-          this.establecerEstado('CAM-NO-FRAMES', 'CÁMARA SIN IMÁGENES', 'Flask responde, pero no recibe imágenes. Revise la Logitech Brio y YOLO.', 'error');
-        } else if (!this.visualizacionPermitida) {
-          this.detenerSoloVideo();
-          this.establecerEstado('CAM-403', 'VISUALIZACIÓN DESHABILITADA', 'El administrador restringió el video. Las capturas continúan disponibles.', 'restringido');
-        } else if (this.camaraConectada) {
-          this.establecerEstado('CAM-200', 'TRANSMISIÓN ACTIVA', 'El video se recibe correctamente.', 'activo');
-        } else if (!this.controladorVideo && Date.now() - this.ultimoIntentoVideo >= 5000) {
-          this.establecerEstado('CAM-CONNECT', 'CONECTANDO VIDEO', 'Esperando el flujo de imágenes.', 'espera');
+        } else if (!this.camaraConectada && !this.controladorVideo &&
+          Date.now() - this.ultimoIntentoVideo >= 5000) {
           this.iniciarTransmisionCamara();
         }
       },
-      error: (err) => {
+      error: () => {
         this.comprobandoEstado = false;
-        if (this.destruido) return;
-
-        this.detenerSoloVideo();
-        this.camaraOperativa = false;
-        this.visualizacionPermitida = false;
-        this.servidorCamaraResponde = false;
-
-        if (err.status === 401) {
-          this.establecerEstado('AUTH-401', 'SESIÓN NO AUTORIZADA', 'El token no es válido o ha expirado.', 'error');
-        } else if (err.status === 403) {
-          this.establecerEstado('AUTH-403', 'ACCESO DENEGADO', 'No tiene acceso a la cámara vinculada.', 'error');
-        } else if (err.status === 404) {
-          this.establecerEstado('API-404', 'RUTA NO ENCONTRADA', 'Flask respondió, pero no existe la ruta de estado.', 'error');
-        } else if ([502, 504].includes(err.status)) {
-          this.establecerEstado(`HTTP-${err.status}`, 'SERVIDOR INACCESIBLE', 'El túnel no logra comunicarse con Flask. Revise Cloudflare y Python.', 'error');
-        } else if (err.status === 503) {
-          this.establecerEstado('API-503', 'SERVICIO NO DISPONIBLE', 'Flask o el backend de autenticación no responden correctamente.', 'error');
-        } else if (err.status === 0) {
-          this.establecerEstado('NET-000', 'ERROR DE CONECTIVIDAD', 'Posibles causas: túnel caído, Python detenido, red o CORS.', 'error');
-        } else {
-          this.establecerEstado(`HTTP-${err.status || 'ERR'}`, 'ERROR DE COMUNICACIÓN', 'No se pudo consultar el estado del servicio.', 'error');
-        }
+        if (!this.destruido) this.desconectarCamara();
       }
     });
   }
@@ -245,12 +202,11 @@ export class CamaraComponent implements OnInit, OnDestroy {
     this.urlCamara = '';
   }
 
-  desconectarCamara(motivo: string): void {
+  desconectarCamara(): void {
     this.detenerSoloVideo();
     this.camaraOperativa = false;
     this.visualizacionPermitida = false;
     this.servidorCamaraResponde = false;
-    this.mensajeEstadoCamara = motivo;
   }
 
   private iniciarTransmisionCamara(): void {
@@ -265,9 +221,8 @@ export class CamaraComponent implements OnInit, OnDestroy {
     this.httpVideoFeed(`${this.PYTHON_API}/video_feed`, token, controlador.signal)
       .catch((error) => {
         if (controlador.signal.aborted || this.destruido) return;
-        console.error('Error en video:', error);
+        console.error('Error en transmisión de cámara:', error);
         this.detenerSoloVideo();
-        this.establecerEstado('VIDEO-ERR', 'TRANSMISIÓN INTERRUMPIDA', 'No se pudo mantener el flujo de video. Se intentará reconectar.', 'error');
       })
       .finally(() => {
         if (this.controladorVideo === controlador) this.controladorVideo = undefined;
@@ -281,7 +236,7 @@ export class CamaraComponent implements OnInit, OnDestroy {
       cache: 'no-store'
     });
 
-    if (!respuesta.ok || !respuesta.body) throw new Error(`Error HTTP ${respuesta.status}`);
+    if (!respuesta.ok || !respuesta.body) throw new Error(`HTTP ${respuesta.status}`);
 
     const lector = respuesta.body.getReader();
     const separadorCabecera = new Uint8Array([13, 10, 13, 10]);
@@ -309,11 +264,12 @@ export class CamaraComponent implements OnInit, OnDestroy {
           if (finFrame > inicioFrame && !signal.aborted) {
             this.mostrarFrame(buffer.slice(inicioFrame, finFrame));
           }
-
           buffer = buffer.slice(finFrame + 2);
         }
 
-        if (buffer.length > 8 * 1024 * 1024) throw new Error('Buffer de video demasiado grande.');
+        if (buffer.length > 8 * 1024 * 1024) {
+          throw new Error('Buffer de video demasiado grande.');
+        }
       }
     } finally {
       await lector.cancel().catch(() => { });
@@ -347,7 +303,6 @@ export class CamaraComponent implements OnInit, OnDestroy {
     this.urlFrameActual = nuevaUrl;
     this.urlCamara = nuevaUrl;
     this.camaraConectada = true;
-    this.establecerEstado('CAM-200', 'TRANSMISIÓN ACTIVA', 'El video se recibe correctamente.', 'activo');
 
     if (anterior) setTimeout(() => URL.revokeObjectURL(anterior), 1000);
   }
@@ -366,12 +321,11 @@ export class CamaraComponent implements OnInit, OnDestroy {
   errorCamara(): void {
     if (this.destruido) return;
     this.detenerSoloVideo();
-    this.establecerEstado('VIDEO-RENDER', 'ERROR DE VISUALIZACIÓN', 'No se pudo mostrar la imagen. Se intentará reconectar.', 'error');
   }
 
   guardarCapturaWeb(): void {
     if (!this.camaraOperativa || !this.PYTHON_API || this.procesandoIA) {
-      if (!this.procesandoIA) this.mostrarAlerta('El servidor de captura no está disponible.');
+      if (!this.procesandoIA) this.mostrarAlerta('Cámara no disponible.');
       return;
     }
 
@@ -403,7 +357,7 @@ export class CamaraComponent implements OnInit, OnDestroy {
         const porcentaje = Number(resPython.porcentaje);
 
         if (!idEspecie || !imagenUrl || !Number.isFinite(porcentaje)) {
-          this.mostrarAlerta('Python no devolvió los datos requeridos.');
+          this.mostrarAlerta('No se obtuvieron los datos de la captura.');
           return;
         }
 
@@ -419,7 +373,7 @@ export class CamaraComponent implements OnInit, OnDestroy {
       error: (err) => {
         this.procesandoIA = false;
         if (this.destruido) return;
-        this.mostrarAlerta(err?.error?.mensaje || 'Error de comunicación con el motor de IA.');
+        this.mostrarAlerta(err?.error?.mensaje || 'No se pudo procesar la captura.');
       }
     });
   }
@@ -472,7 +426,7 @@ export class CamaraComponent implements OnInit, OnDestroy {
       },
       error: (err) => {
         if (this.destruido) return;
-        this.mostrarAlerta(err?.error?.mensaje || 'Error al guardar en base de datos.');
+        this.mostrarAlerta(err?.error?.mensaje || 'Error al guardar el registro.');
       }
     });
   }

@@ -3,55 +3,36 @@
   <section class="panel panel--camera">
     <header class="panel__head">
       <span class="eyebrow">Cámara en vivo</span>
-      <span class="ip-chip" [class.ip-chip--off]="!camaraConectada"
-        [class.ip-chip--restricted]="tipoEstadoCamara === 'restringido'">
-        {{ camaraConectada ? 'En línea' : tipoEstadoCamara === 'restringido' ? 'Restringida' : tipoEstadoCamara ===
-        'espera' ? 'Conectando' : 'Sin conexión' }}
+      <span class="ip-chip" [class.ip-chip--off]="!camaraOperativa"
+        [class.ip-chip--restricted]="camaraOperativa && !visualizacionPermitida">
+        {{ !camaraOperativa ? 'Desconectada' : !visualizacionPermitida ? 'Deshabilitada' : camaraConectada ? 'Conectada'
+        : 'Conectando' }}
       </span>
     </header>
 
-    <div class="viewfinder" [class.is-live]="camaraConectada">
+    <div class="viewfinder" [class.is-live]="camaraConectada && visualizacionPermitida">
       <span class="viewfinder__corner viewfinder__corner--tl"></span>
       <span class="viewfinder__corner viewfinder__corner--tr"></span>
       <span class="viewfinder__corner viewfinder__corner--bl"></span>
       <span class="viewfinder__corner viewfinder__corner--br"></span>
 
-      <span class="rec-dot" *ngIf="camaraConectada">
+      <span class="rec-dot" *ngIf="camaraConectada && visualizacionPermitida">
         <span class="rec-dot__pulse"></span>EN VIVO
       </span>
 
-      <div class="viewfinder__warning diagnostico" *ngIf="!camaraConectada"
-        [class.diagnostico--restringido]="tipoEstadoCamara === 'restringido'">
+      <div class="viewfinder__warning" *ngIf="!camaraConectada || !visualizacionPermitida">
         <ion-icon
-          [name]="tipoEstadoCamara === 'restringido' ? 'lock-closed-outline' : tipoEstadoCamara === 'espera' ? 'sync-outline' : 'alert-circle-outline'"></ion-icon>
-        <small class="diagnostico__codigo">{{ codigoEstadoCamara }}</small>
-        <p><strong>{{ tituloEstadoCamara }}</strong></p>
-        <small>{{ detalleEstadoCamara }}</small>
+          [name]="!camaraOperativa ? 'warning-outline' : !visualizacionPermitida ? 'lock-closed-outline' : 'sync-outline'"></ion-icon>
+        <p>
+          <strong>
+            {{ !camaraOperativa ? 'Cámara no disponible' : !visualizacionPermitida ? 'Visualización deshabilitada por el
+            administrador' : 'Conectando con la cámara...' }}
+          </strong>
+        </p>
       </div>
 
       <img *ngIf="camaraConectada && visualizacionPermitida && urlCamara" [src]="urlCamara" (load)="alCargarCamara()"
         (error)="errorCamara()" class="viewfinder__img" alt="Transmisión en vivo">
-    </div>
-
-    <div class="camara-telemetria">
-      <div>
-        <span>Servidor Flask</span>
-        <strong>{{ servidorCamaraResponde ? 'En línea' : tipoEstadoCamara === 'espera' ? 'Verificando' : 'Sin respuesta'
-          }}</strong>
-      </div>
-      <div>
-        <span>Cámara física</span>
-        <strong>{{ camaraOperativa ? 'Operativa' : servidorCamaraResponde ? 'Sin imágenes' : 'No verificada' }}</strong>
-      </div>
-      <div>
-        <span>Video en vivo</span>
-        <strong>{{ tipoEstadoCamara === 'restringido' ? 'Restringido' : camaraConectada ? 'Activo' : 'Sin transmisión'
-          }}</strong>
-      </div>
-      <div>
-        <span>Capturas</span>
-        <strong>{{ camaraOperativa ? 'Disponibles' : 'No disponibles' }}</strong>
-      </div>
     </div>
   </section>
 
@@ -92,7 +73,6 @@
   <section class="panel panel--tag" *ngIf="ultimoResultado">
     <span class="tag-eyebrow">✓ Captura registrada</span>
     <h2 class="tag-species">{{ ultimoResultado.especie }}</h2>
-
     <div class="tag-data">
       <div class="tag-data__item">
         <span class="tag-data__label">Peso</span>
@@ -134,7 +114,6 @@
           <span class="preview-confianza">{{ datosPendientesVerificacion.porcentaje | number:'1.1-1' }}%
             Confianza</span>
         </div>
-
         <div class="datos-grid">
           <div class="dato-box">
             <span class="dato-box__label">Especie clasificada</span>
